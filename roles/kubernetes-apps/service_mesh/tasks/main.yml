@@ -31,14 +31,7 @@
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
 
-- name: Service Mesh | wait CRD
-  shell: "while [ \"$({{ bin_dir }}/kubectl get crd | grep networking.istio.io | wc -l)\" == \"0\" ]; do echo 'CRD is not registered yet'; sleep 2; done; echo 'CRD is registered'; sleep 5"
-  when: inventory_hostname == groups['kube_control_plane'][0]
-  register: service_mesh_crd_wait
-- debug:
-    msg: "{{ service_mesh_crd_wait.stdout_lines }}"
-    
-- name: Service Mesh | Apply manifests
+- name: Service Mesh | create CRD
   kube:
     kubectl: "{{ bin_dir }}/kubectl"
     filename: "{{ kube_config_dir }}/addons/service_mesh/{{ item }}"
@@ -47,6 +40,23 @@
   with_items:
     - crd.yml
     - base.yml
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Service Mesh | wait CRD to be created
+  shell: "while [ \"$({{ bin_dir }}/kubectl get crd | grep networking.istio.io | wc -l)\" == \"0\" ]; do echo 'CRD is not registered yet'; sleep 2; done; echo 'CRD is registered'; sleep 5"
+  when: inventory_hostname == groups['kube_control_plane'][0]
+  register: service_mesh_crd_wait
+- debug:
+    msg: "{{ service_mesh_crd_wait.stdout_lines }}"
+
+- name: Service Mesh | Apply manifests
+  kube:
+    kubectl: "{{ bin_dir }}/kubectl"
+    filename: "{{ kube_config_dir }}/addons/service_mesh/{{ item }}"
+    state: "latest"
+    wait: true
+  with_items:
     - tracing.yml
     - core.yml
     - ingress-gateway.yml
