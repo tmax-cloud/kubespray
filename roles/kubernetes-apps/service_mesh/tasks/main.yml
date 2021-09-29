@@ -39,7 +39,6 @@
     wait: true
   with_items:
     - crd.yml
-    - base.yml
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
 
@@ -57,6 +56,7 @@
     state: "latest"
     wait: true
   with_items:
+    - base.yml
     - tracing.yml
     - core.yml
     - ingress-gateway.yml
