@@ -233,8 +233,3 @@ dependencies:
     tags:
       - registry-operator
 
-  - role: kubernetes-apps/ingress_controller/ingress_nginx
-    when:
-      - inventory_hostname == groups['kube_control_plane'][0]
-    tags:
-      - ingress_nginx
