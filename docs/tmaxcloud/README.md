@@ -133,6 +133,8 @@
         ``` 
     * etcd node를 따로 설정하는 것도 가능하다.
     * [all] 에만 ip를 정의하고, 나머지는 [all]에서 정의한 hostname만 작성한다.
+    * LB 없이 master 다중화를 구축하는 경우, 아래 가이드를 통해 모든 master에 keepalived를 추가로 설치한다. 
+      * https://github.com/tmax-cloud/install-k8s#step-3-1-kubernetes-cluster-%EB%8B%A4%EC%A4%91%ED%99%94-%EA%B5%AC%EC%84%B1%EC%9D%84-%EC%9C%84%ED%95%9C-keepalived-%EC%84%A4%EC%B9%98-master 
     
 6. kubespray에서 사용할 사용자 변수들을 설정한다.
   * https://github.com/tmax-cloud/kubespray/tree/tmax-master/docs/tmaxcloud 에 있는 md를 참고하여 설정한다.
@@ -145,3 +147,9 @@
       * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root cluster.yml -t apps
     * worker node 없이 master node만 구성한 경우 -e ignore_assert_errors=yes 옵션을 주어 playbook을 실행한다.
       * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root cluster.yml -e ignore_assert_errors=yes
+
+## 삭제 가이드
+0. kubespray uninstall playbook을 실행한다. (reset.yml)
+  * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root reset.yml
+* 비고 :
+  * master에 image registry를 구축했다면 reset시에 함께 삭제 되므로, 이후 클러스터 재설치시에는 podman 재설치와 image registry를 재설치 해야 한다.
