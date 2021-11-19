@@ -18,9 +18,10 @@ new_oidc_client_json_form()
 {
   cat <<EOF
 {
-  "clientId": "${OIDC_CLIENT_DOMAIN}",
+  "clientId": "gitlab",
   "protocol": "openid-connect",
   "clientAuthenticatorType": "client-secret",
+  "rootUrl": "${OIDC_CLIENT_DOMAIN}",
   "publicClient": "false",
   "redirectUris": [
     "*"
@@ -45,17 +46,12 @@ curl -k -i \
   -H "Content-Type: application/json" \
   -X POST  --data "$(new_oidc_client_json_form)" 'https://'${AUTH_DOMAIN}'/auth/admin/realms/tmax/clients'
 
-# Get client ID
-CLIENT_ID=$(curl -k \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -X GET 'https://'${AUTH_DOMAIN}'/auth/admin/realms/tmax/clients' | jq -r ".[] | select(.clientId==\"${OIDC_CLIENT_DOMAIN}\") | .id")
 
 # Get client credential
 CLIENT_CRED=$(curl -k \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -X GET 'https://'${AUTH_DOMAIN}'/auth/admin/realms/tmax/clients/'${CLIENT_ID}'/client-secret' | jq -r '.value')
+  -X GET 'https://'${AUTH_DOMAIN}'/auth/admin/realms/tmax/clients/gitlab/client-secret' | jq -r '.value')
 
 
 sed -i ‘s/{KEYCLOAK_URL}/‘${AUTH_DOMAIN}‘/g’ instance.yaml
