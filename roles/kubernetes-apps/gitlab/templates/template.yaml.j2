@@ -159,9 +159,15 @@ objects:
     ingressClassName: tmax-cloud
     tls:
     - hosts:
+<<<<<<< HEAD
       - gitlab.gitlab-system.{{ custom_domain_name }}
     rules:
     - host: gitlab.gitlab-system.{{ custom_domain_name }}
+=======
+      - gitlab.{{ custom_domain_name }}
+    rules:
+    - host: gitlab.{{ custom_domain_name }}
+>>>>>>> fa2531d21f3fdcfc445086a790da7d78d0e97b30
       http:
         paths:
         backend:
