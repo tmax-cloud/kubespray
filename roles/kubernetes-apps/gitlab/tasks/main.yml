@@ -1,0 +1,51 @@
+- name: Gitlab | Create addon dir
+  file:
+    path: "{{ kube_config_dir }}/addons/gitlab"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Gitlab | Copy Manifests
+  copy:
+    src: "{{ item }}.j2"
+    dest: "{{ kube_config_dir }}/addons/gitlab/{{ item }}"
+  with_items:
+    - oidc.sh
+    - secret.yaml
+    - instance.yaml
+    - template.yaml
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Gitlab | integrate oidc
+  ansible.builtin.shell: |
+    sudo chmod +777 {{ kube_config_dir }}/addons/gitlab/oidc.sh
+    sudo sh {{ kube_config_dir }}/addons/gitlab/oidc.sh
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Gitlab | create template
+  kube:
+    kubectl: "{{ bin_dir }}/kubectl"
+    filename: "{{ kube_config_dir }}/addons/gitlab/{{ item }}"
+    state: "latest"
+    wait: true
+  with_items:
+    - secret.yaml
+    - template.yaml
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Gitlab | create instance
+  kube:
+    kubectl: "{{ bin_dir }}/kubectl"
+    filename: "{{ kube_config_dir }}/addons/gitlab/{{ item }}"
+    state: "latest"
+    wait: true
+  with_items:
+    - instance.yaml
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]

@@ -1,0 +1,37 @@
+apiVersion: tmax.io/v1
+kind: TemplateInstance
+metadata:
+  name: gitlab-template-instance
+  namespace: gitlab-system
+  annotations:
+    template-version: 5.0.4
+    tested-operator-version: 0.2.1
+spec:
+  clustertemplate:
+    metadata:
+      name: gitlab-template
+    parameters:
+    - name: APP_NAME
+      value: gitlab
+    - name: STORAGE
+      value: 30Gi
+    - name: STORAGE_CLASS
+      value: csi-cephfs-sc
+    - name: SERVICE_TYPE
+      value: Ingress
+    - name: SSH_PORT
+      value: 2221
+    - name: RESOURCE_CPU
+      value: "1"
+    - name: RESOURCE_MEM
+      value: 4Gi
+    - name: INGRESS_HOST
+      value: gitlab.gitlab-system.{{ custom_domain_name }}
+    - name: KEYCLOAK_URL
+      value: {KEYCLOAK_URL}
+    - name: KEYCLOAK_CLIENT
+      value: {KEYCLOAK_CLIENT}
+    - name: KEYCLOAK_SECRET
+      value: {KEYCLOAK_SECRET}
+    - name: KEYCLOAK_TLS_SECRET_NAME
+      value: "hyperauth-https-secret"

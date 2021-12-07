@@ -1,0 +1,59 @@
+#!/bin/bash
+set -euxo pipefail
+
+AUTH_DOMAIN=hyperauth.{{ custom_domain_name }}
+OIDC_CLIENT_DOMAIN="https://gitlab.{{ custom_domain_name }}"
+
+AUTH_USER="admin"
+AUTH_PASS="admin"
+# GET access token
+TOKEN=$(curl -k -XPOST 'https://'${AUTH_DOMAIN}'/auth/realms/master/protocol/openid-connect/token' \
+ -H "Content-Type: application/x-www-form-urlencoded" \
+ -d "username=admin" \
+ -d "password=admin" \
+ -d 'grant_type=password' \
+ -d 'client_id=admin-cli' | jq -r '.access_token')
+
+new_oidc_client_json_form()
+{
+  cat <<EOF
+{
+  "clientId": "gitlab",
+  "protocol": "openid-connect",
+  "clientAuthenticatorType": "client-secret",
+  "rootUrl": "${OIDC_CLIENT_DOMAIN}",
+  "publicClient": "false",
+  "redirectUris": [
+    "*"
+  ],
+  "defaultClientScopes": [
+      "web-origins",
+      "role_list",
+      "roles",
+      "profile",
+      "isAdmin",
+      "email",
+      "group"
+  ],
+  "enabled": "true"
+}
+EOF
+}
+
+# Add OIDC client
+curl -k -i \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -X POST  --data "$(new_oidc_client_json_form)" 'https://'${AUTH_DOMAIN}'/auth/admin/realms/tmax/clients'
+
+
+# Get client credential
+CLIENT_CRED=$(curl -k \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -X GET 'https://'${AUTH_DOMAIN}'/auth/admin/realms/tmax/clients/gitlab/client-secret' | jq -r '.value')
+
+
+sed -i ‘s/{KEYCLOAK_URL}/‘${AUTH_DOMAIN}‘/g’ instance.yaml
+sed -i ‘s/{KEYCLOAK_CLIENT}/‘${CLIENT_ID}‘/g’ instance.yaml
+sed -i ‘s/{KEYCLOAK_SECRET}/‘${CLIENT_CRED}‘/g’ instance.yaml

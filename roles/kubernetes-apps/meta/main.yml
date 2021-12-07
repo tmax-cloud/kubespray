@@ -245,8 +245,20 @@ dependencies:
       - inventory_hostname == groups['kube_control_plane'][0]
     tags:
       - ai_devops
+<<<<<<< HEAD
   - role: kubernetes-apps/aws_efs_csi_driver
     when:
       - aws_efs_csi_enabled
     tags:
       - aws-efs-csi-driver
+=======
+
+  - role: kubernetes-apps/gitlab
+    when:
+      - hyperauth_enabled
+      - template_service_broker_enabled
+      - cert_manager_enabled
+      - inventory_hostname == groups['kube_control_plane'][0]
+    tags:
+      - gitlab
+>>>>>>> 3720574e... [feat] add gitlab
