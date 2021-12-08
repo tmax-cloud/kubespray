@@ -12,6 +12,12 @@ metadata:
 type: Opaque
 ---
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: minio-service-account
+  namespace: {{ ai_devops_namespace }}
+---
+apiVersion: v1
 kind: Service
 metadata:
   labels:
@@ -95,6 +101,7 @@ spec:
         - mountPath: /data
           name: data
           subPath: minio
+      serviceAccountName: minio-service-account    
       volumes:
       - name: data
         persistentVolumeClaim:

@@ -418,6 +418,18 @@ metadata:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  name: katib-mysql
+  namespace: {{ ai_devops_namespace }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: katib-db-manager
+  namespace: {{ ai_devops_namespace }}  
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
   name: katib-ui
   namespace: {{ ai_devops_namespace }}
 ---
@@ -941,6 +953,7 @@ spec:
         ports:
         - containerPort: 6789
           name: api
+      serviceAccountName: katib-db-manager    
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -1010,6 +1023,7 @@ spec:
         volumeMounts:
         - mountPath: /var/lib/mysql
           name: katib-mysql
+      serviceAccountName: katib-mysql    
       volumes:
       - name: katib-mysql
         persistentVolumeClaim:
