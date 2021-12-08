@@ -13,6 +13,7 @@
     src: "{{ item }}.j2"
     dest: "{{ kube_config_dir }}/addons/gitlab/{{ item }}"
   with_items:
+    - base.yaml
     - oidc.sh
     - secret.yaml
     - instance.yaml
@@ -34,7 +35,7 @@
     state: "latest"
     wait: true
   with_items:
-    - secret.yaml
+    - base.yaml
     - template.yaml
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
