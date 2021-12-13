@@ -26,7 +26,6 @@ rules:
     resources: ["daemonsets"]
     verbs: ["get", "list", "watch", "create", "delete", "update"]
 ---
-
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -186,65 +185,66 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-namespace: istio-system
-name: jaeger-query
-labels:
-  app: jaeger
-  app.kubernetes.io/name: jaeger
-  app.kubernetes.io/component: query
+  annotations:
+  labels:
+    app: jaeger
+    app.kubernetes.io/component: query
+    app.kubernetes.io/name: jaeger
+  name: jaeger-query
+  namespace: istio-system
 spec:
-selector:
+  selector:
   matchLabels:
     app: jaeger
-replicas: 1
-strategy:
-  type: Recreate
-template:
-  metadata:
-    labels:
-      app: jaeger
-      app.kubernetes.io/name: jaeger
-      app.kubernetes.io/component: query
-    annotations:
-      prometheus.io/scrape: "true"
-      prometheus.io/port: "16686"
-  spec:
-    serviceAccountName: jaeger-service-account
-    containers:
-      - image: {{ service_mesh_jaeger_query_image_repo }}:{{ service_mesh_jaeger_query_image_tag }}
-        name: jaeger-query
-        args: ["--config-file=/conf/query.yaml"]
-        ports:
-          - containerPort: 16686
-            protocol: TCP
-        readinessProbe:
-          httpGet:
-            path: "/"
-            port: 16687
-          failureThreshold: 3
-          initialDelaySeconds: 20
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 4
-          initialDelaySeconds: 20
-          periodSeconds: 5
-          timeoutSeconds: 4
-        volumeMounts:
-          - name: jaeger-configuration-volume
-            mountPath: /conf
-        env:
-          - name: SPAN_STORAGE_TYPE
-            valueFrom:
-              configMapKeyRef:
-                name: jaeger-configuration
-                key: span-storage-type
-    volumes:
-      - configMap:
-          name: jaeger-configuration
-          items:
-            - key: query
-              path: query.yaml
-        name: jaeger-configuration-volume
+    replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jaeger
+        app.kubernetes.io/name: jaeger
+        app.kubernetes.io/component: query
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "16686"
+    spec:
+      serviceAccountName: jaeger-service-account
+      containers:
+        - image: {{ service_mesh_jaeger_query_image_repo }}:{{ service_mesh_jaeger_query_image_tag }}
+          name: jaeger-query
+          args: ["--config-file=/conf/query.yaml"]
+          ports:
+            - containerPort: 16686
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: "/"
+              port: 16687
+            failureThreshold: 3
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 4
+            initialDelaySeconds: 20
+            periodSeconds: 5
+            timeoutSeconds: 4
+          volumeMounts:
+            - name: jaeger-configuration-volume
+              mountPath: /conf
+          env:
+            - name: SPAN_STORAGE_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name: jaeger-configuration
+                  key: span-storage-type
+      volumes:
+        - configMap:
+            name: jaeger-configuration
+            items:
+              - key: query
+                path: query.yaml
+          name: jaeger-configuration-volume
 ---
 apiVersion: v1
 kind: Service
@@ -282,9 +282,9 @@ spec:
   ingressClassName: tmax-cloud
   tls:
   - hosts:
-    - jaeger-query.istio-system.{{ custom_domain_name }}
+    - jaeger.{{ custom_domain_name }}
   rules:
-    - host: jaeger-query.istio-system.{{ custom_domain_name }}
+    - host: jaeger.{{ custom_domain_name }}
       http:
         paths:
           - pathType: Prefix
