@@ -73,7 +73,9 @@ spec:
           - name: cluster.initial_master_nodes
             value: "es-cluster-0"
           - name: ES_JAVA_OPTS
-            value: "-Xms2g -Xmx2g"
+            value: "-Xms2g -Xmx2g -Dlog4j2.formatMsgNoLookups=true"
+          - name: LOG4J_FORMAT_MSG_NO_LOOKUPS
+            value: "true"
       initContainers:
       - name: fix-permissions
         image: {{ efk_busybox_image_repo }}:{{ efk_busybox_image_tag }}
