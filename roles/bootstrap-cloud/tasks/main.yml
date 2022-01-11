@@ -1,0 +1,4 @@
+---
+- name: Bootstrap HyperCloud | Install HyperRegistry
+  import_tasks: install-hr.yml
+  when: inventory_hostname == groups['kube_control_plane'][0]

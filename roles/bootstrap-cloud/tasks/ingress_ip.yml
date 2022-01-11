@@ -1,0 +1,25 @@
+---
+- name: HyperRegistry | Scan nginx-ingress service
+  vars:
+    - ingress_namespace: "{{ ingress_nginx_namespace | default('ingress-nginx-system') }}"
+  command: "{{ bin_dir }}/kubectl get services -n {{ ingress_namespace }} {{ ingress_namespace }}-controller -o json"
+  changed_when: false
+  register: "ingress_result"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: HyperRegistry | Set Ingress service type
+  set_fact:
+    hyperregistry_ingress_nginx_svc_type: "{{ ingress_result.stdout | from_json | json_query('spec.type') }}"
+
+- name: HyperRegistry | Set ingress IP
+  set_fact:
+    hyperregistry_ingress_nginx_ip: "{{ ingress_result.stdout | from_json | json_query('status.loadBalancer.ingress[0].ip')}}"
+  when:
+    - hyperregistry_ingress_nginx_svc_type == "LoadBalancer"
+
+- name: HyperRegistry | Set ingress IP
+  set_fact:
+    hyperregistry_ingress_nginx_ip: "{{ ansible_default_ipv4.address }}"
+  when:
+    - hyperregistry_ingress_nginx_svc_type == "NodePort"
