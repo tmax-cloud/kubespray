@@ -15,7 +15,7 @@
   shell: |
     cp ca.crt "/usr/local/share/ca-certificates/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt"
     update-ca-certificates
-    service docker restart
+    service crio restart
 
 - name: HyperRegistry | Wait up for running Core service again
   uri:
