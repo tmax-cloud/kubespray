@@ -1,12 +1,10 @@
 ---
 - name: HyperRegistry | Scan nginx-ingress service
+  command: "{{ bin_dir }}/kubectl get services -n {{ ingress_namespace }} {{ ingress_namespace }}-controller -o json"
+  register: "ingress_result"
+  changed_when: false
   vars:
     - ingress_namespace: "{{ ingress_nginx_namespace | default('ingress-nginx-system') }}"
-  command: "{{ bin_dir }}/kubectl get services -n {{ ingress_namespace }} {{ ingress_namespace }}-controller -o json"
-  changed_when: false
-  register: "ingress_result"
-  when:
-    - inventory_hostname == groups['kube_control_plane'][0]
 
 - name: HyperRegistry | Set Ingress service type
   set_fact:
