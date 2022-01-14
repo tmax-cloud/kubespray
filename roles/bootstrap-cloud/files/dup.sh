@@ -19,13 +19,13 @@ fi
 dup_image() {
     repo=${1#"\""}
     repo=${repo%"\""}
-    tags=$(curl -s "http://$src/v2/$repo/tags/list" | jq '.tags | .[]') 
+    tags=$(curl -s "http://$src/v2/$repo/tags/list" | jq '.tags | .[]')
     for tag in $tags
     do
         tag=${tag#"\""}
         tag=${tag%"\""}
         $DOCKERCMD pull "$src/$repo:$tag"
-        $DOCKERCMD tag "$src/$repo" "$dst/library/$repo:$tag"
+        $DOCKERCMD tag "$src/$repo:$tag" "$dst/library/$repo:$tag"
         $DOCKERCMD push "$dst/library/$repo:$tag"
     done
 }
