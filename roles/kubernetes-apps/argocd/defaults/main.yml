@@ -3,7 +3,7 @@ argocd_enabled: true
 argocd_namespace: "argocd"
 
 ## argo images
-argocd_image_repo: "{{ quay_image_repo }}/argoproj/argocd:latest"
+argocd_image_repo: "{{ quay_image_repo }}/argoproj/argocd"
 argocd_image_tag: "latest"
 argocd_notification_image_repo: "{{ docker_image_repo }}/argoprojlabs/argocd-notifications"
 argocd_notification_image_tag: "latest"
