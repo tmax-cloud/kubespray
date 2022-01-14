@@ -35,4 +35,10 @@ default_tags = {
   #  Product = "kubernetes"
 }
 
+#Setting VPN Connection
+
+vpn_connection_enable = true
+customer_gateway_ip   = "175.195.163.19"
+local_cidr            = "172.23.3.0/24"
+
 inventory_file = "../../../inventory/hosts"
