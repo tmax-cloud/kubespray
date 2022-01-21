@@ -1,0 +1,17 @@
+APP_NAME: "gitlab-deploy"
+SSH_PORT: 2221
+NAME_SPACE: "gitlab-system"
+WEB_NODE_PORT: 80
+WEB_NODE_IP: "''"
+STORAGE_CLASS: "csi-cephfs-sc" #"nfs" #"csi-cephfs-sc"
+STORAGE: "8Gi"
+RESOURCE_CPU: "1"
+RESOURCE_MEM: "8Gi"
+SERVICE_TYPE: "Ingress"
+INGRESS_HOST: "''"
+EXTERNAL_URL: "''"
+KEYCLOAK_URL: "''"
+KEYCLOAK_TLS_SECRET_NAME: "''"
+KEYCLOAK_CLIENT: "''"
+KEYCLOAK_SECRET: "''"
+INGRESS_CLASS: "nginx-shd"
