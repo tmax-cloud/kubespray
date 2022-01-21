@@ -1,0 +1,20 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kube-scheduler-prometheus-discovery
+  namespace: kube-system
+  labels:
+    component: kube-scheduler
+spec:
+  ports:
+    - name: http-metrics
+      protocol: TCP
+      port: 10251
+      targetPort: 10251
+  selector:
+    component: kube-scheduler
+  clusterIP: None
+  type: ClusterIP
+  sessionAffinity: None
+status:
+  loadBalancer: {}
