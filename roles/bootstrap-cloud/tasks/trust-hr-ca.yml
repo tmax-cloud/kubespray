@@ -1,0 +1,48 @@
+---
+- name: HyperRegistry | Retreive harbor CA
+  shell: kubectl get secret hyperregistry-harbor-ingress -n hyperregistry -o jsonpath="{.data['ca\.crt']}" | base64 --decode > /tmp/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+- name: HyperRegistry | Fetch harbor CA
+  fetch:
+    src: /tmp/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt
+    dest: /tmp/hr-ca
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+- name: HyperRegistry | Copy harbor CA
+  copy:
+    src: "/tmp/hr-ca/{{ groups['kube_control_plane'][0] }}/tmp/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt"
+    dest: /tmp/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt
+  when: inventory_hostname != groups['kube_control_plane'][0]
+
+- name: HyperRegistry | Fetch /etc/os-release
+  raw: cat /etc/os-release
+  register: os_release
+  changed_when: false
+  # This command should always run, even in check mode
+  check_mode: false
+
+- name: HyperRegistry | Trust harbor CA
+  shell: |
+      cp /tmp/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt "/etc/pki/ca-trust/source/anchors/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt"
+      update-ca-trust
+  when: '''ID="centos"'' in os_release.stdout_lines or ''ID="ol"'' in os_release.stdout_lines or ''ID="almalinux"'' in os_release.stdout_lines'
+
+- name: HyperRegistry | Trust harbor CA
+  shell: |
+      cp /tmp/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt "/usr/local/share/ca-certificates/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt"
+      update-ca-certificates
+  when: '''ID=debian'' in os_release.stdout_lines or ''ID=ubuntu'' in os_release.stdout_lines'
+
+- name: HyperRegistry | Restart Container manager
+  shell: |
+    #service crio restart
+    service docker restart
+  when:
+    - container_manager in ['crio', 'containerd']
+
+- name: HyperRegistry | Restart Container manager
+  shell: |
+    service docker restart
+  when:
+    - container_manager == "docker"
