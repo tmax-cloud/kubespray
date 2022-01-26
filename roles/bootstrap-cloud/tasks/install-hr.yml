@@ -32,13 +32,3 @@
     - chart: "{{ hyperregistry_download_url | regex_replace('^file://', '') }}"
   when:
     - '"not found" in already_installed_result.stderr'
-
-#- name: HyperRegistry | Make script executable
-#  file:
-#    path: "{{ kube_config_dir }}/addons/hyperregistry/oidc-integration.sh"
-#    mode: '0744'
-#  when: inventory_hostname == groups['kube_control_plane'][0]
-#
-#- name: HyperRegistry | Configure OIDC integration
-#  command: "{{ kube_config_dir }}/addons/hyperregistry/oidc-integration.sh"
-#  when: inventory_hostname == groups['kube_control_plane'][0]
