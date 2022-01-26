@@ -36,8 +36,7 @@
 
 - name: HyperRegistry | Restart Container manager
   shell: |
-    #service crio restart
-    service docker restart
+    service crio restart
   when:
     - container_manager in ['crio', 'containerd']
 
