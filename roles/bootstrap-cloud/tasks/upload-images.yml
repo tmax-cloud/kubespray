@@ -12,5 +12,24 @@
   shell: echo admin | docker login -u admin --password-stdin "core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
   when: container_manager == "docker"
 
-- name: HyperRegistry | Duplicate images from private registry
-  script: dup.sh "{{ registry_host }}" "core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
+- name: HyperRegistry | Login harbor
+  shell: # TODO
+  when: container_manager in ['crio', 'containerd']
+
+- name: HyperRegistry | Duplicate images
+  shell: |
+    docker pull "{{ registry_host }}/{{ item }}"
+    docker tag "{{ registry_host }}/{{ item }}" "core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}/library/{{ item }}"
+    docker push "core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}/library/{{ item }}"
+  loop: "{{ lookup('file', 'files/images.txt').splitlines() }}"
+  when: container_manager == "docker"
+
+- name: HyperRegistry | Duplicate images
+  shell: |
+    # TODO
+  loop: "{{ lookup('file', 'files/images.txt').splitlines() }}"
+  when: container_manager in ['crio', 'containerd']
+
+#- name: HyperRegistry | Duplicate images from private registry
+#  script: dup.sh "{{ registry_host }}" "core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
+
