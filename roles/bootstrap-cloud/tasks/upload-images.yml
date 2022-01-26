@@ -6,7 +6,11 @@
   register: core_health_result
   until: core_health_result.status == 200
   retries: 60
-  delay: 5
+  delay: 10
+
+- name: HyperRegistry | Login harbor
+  shell: echo admin | docker login -u admin --password-stdin "core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
+  when: container_manager == "docker"
 
 - name: HyperRegistry | Duplicate images from private registry
   script: dup.sh "{{ registry_host }}" "core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
