@@ -17,3 +17,7 @@
 - name: Bootstrap HyperCloud | Install Gitlab
   import_tasks: install-gitlab.yml
   when: inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Bootstrap HyperCloud | Upgrade HyperRegistry
+  import_tasks: upgrade-hr.yml
+  when: inventory_hostname == groups['kube_control_plane'][0]
