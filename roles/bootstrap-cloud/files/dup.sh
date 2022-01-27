@@ -11,9 +11,9 @@ then
   DOCKERCMD=docker
 fi
 
-if [ $(command -v crictl) ];
+if [ $(command -v podman) ];
 then
-  DOCKERCMD=crictl
+  DOCKERCMD=podman
 fi
 
 dup_image() {
