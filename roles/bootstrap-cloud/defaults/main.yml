@@ -36,3 +36,11 @@ KEYCLOAK_TLS_SECRET_NAME: "''"
 KEYCLOAK_CLIENT: "''"
 KEYCLOAK_SECRET: "''"
 INGRESS_CLASS: "nginx-shd"
+#nginx-controller
+ingress_nginx_controller_image_repo: "{{ quay_image_repo }}/kubernetes-ingress-controller/nginx-ingress-controller"
+ingress_nginx_controller_image_tag: 0.33.0
+ingress_nginx_certgen_image_repo: "{{ docker_image_repo }}/jettech/kube-webhook-certgen"
+ingress_nginx_certgen_image_tag: v1.2.2
+ingress_nginx_http_port: 30080
+ingress_nginx_https_port: 30443
+ingress_nginx_service_type: LoadBalancer
