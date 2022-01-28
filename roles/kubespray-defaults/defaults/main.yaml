@@ -287,7 +287,7 @@ docker_log_opts: "--log-opt max-size=50m --log-opt max-file=5"
 # docker_insecure_registries:
 #   - mirror.registry.io
 #   - 172.19.16.11
-docker_insecure_registries: []
+docker_insecure_registries: [ "{{ registry_host }}", "hyperregistry.{{ custom_domain_name }}" ]
 
 ## A list of additional registry mirrors, for example China registry mirror. Empty by default.
 # docker_registry_mirrors:

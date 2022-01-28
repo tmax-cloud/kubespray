@@ -34,7 +34,7 @@ expose:
       # Only needed when the "expose.type" is "ingress".
       notarySecretName: ""
   ingress:
-    class: "tmax-cloud"
+    class: ""
     hosts:
       core: hyperregistry.{{ custom_domain_name }}
       notary: hyperregistry-notary.{{ custom_domain_name }}
@@ -48,8 +48,6 @@ expose:
       # for Envoy, use ingress.kubernetes.io/force-ssl-redirect: "true" and remove the nginx lines below
       ingress.kubernetes.io/ssl-redirect: "true"
       ingress.kubernetes.io/proxy-body-size: "0"
-      nginx.ingress.kubernetes.io/ssl-redirect: "true"
-      nginx.ingress.kubernetes.io/proxy-body-size: "0"
       kubernetes.io/ingress.class: {{ hyperregistry_ingress_nginx_class }}
   clusterIP:
     # The name of ClusterIP service

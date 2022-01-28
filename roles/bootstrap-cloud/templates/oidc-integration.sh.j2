@@ -2,7 +2,7 @@
 set -euxo pipefail
 
 AUTH_DOMAIN=hyperauth.{{ custom_domain_name }}
-OIDC_CLIENT_DOMAIN="https://core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
+OIDC_CLIENT_DOMAIN="https://{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
 
 AUTH_USER="admin"
 AUTH_PASS="admin"
