@@ -1,4 +1,13 @@
 ---
+- name: "Install required packages"
+  become: true
+  yum:
+    name: "{{ item }}"
+    state: "present"
+  with_items:
+    - "skopeo"
+  when: "ansible_os_family == 'RedHat'"
+
 - name: HyperRegistry | Wait up for running Core service
   uri:
     url: "https://{{ hyperregistry_release_name }}.{{ custom_domain_name }}/api/v2.0/health"
@@ -8,36 +17,16 @@
   retries: 60
   delay: 10
 
-- name: Check is podman installed
-  shell: command -v podman >/dev/null 2>&1
-  register: is_podman_exist
-  ignore_errors: yes
-
-- name: Check is docker installed
-  shell: command -v docker >/dev/null 2>&1
-  register: is_docker_exist
-  ignore_errors: yes
-
 - name: HyperRegistry | Login harbor
-  shell: echo admin | docker login -u admin --password-stdin "{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
-  when: is_docker_exist.rc == 0
-
-- name: HyperRegistry | Login harbor
-  shell: echo admin | podman login -u admin --password-stdin "{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
-  when: is_podman_exist.rc == 0
-
-- name: HyperRegistry | Duplicate images
+  become: true
   shell: |
-    docker pull "{{ registry_host }}/{{ item }}"
-    docker tag "{{ registry_host }}/{{ item }}" "{{ hyperregistry_release_name }}.{{ custom_domain_name }}/library/{{ item }}"
-    docker push "{{ hyperregistry_release_name }}.{{ custom_domain_name }}/library/{{ item }}"
-  loop: "{{ lookup('file', 'files/images.txt').splitlines() }}"
-  when: is_docker_exist.rc == 0
+    echo admin | skopeo login "{{ hyperregistry_release_name }}.{{ custom_domain_name }}" \
+      -u admin --password-stdin \
+      --cert-dir /etc/pki/ca-trust/source/anchors
 
-- name: HyperRegistry | Duplicate images
+- name: HyperRegistry | Copy images
+  become: true
   shell: |
-    podman pull "{{ registry_host }}/{{ item }}"
-    podman tag "{{ registry_host }}/{{ item }}" "{{ hyperregistry_release_name }}.{{ custom_domain_name }}/library/{{ item }}"
-    podman push "{{ hyperregistry_release_name }}.{{ custom_domain_name }}/library/{{ item }}"
+    skopeo copy --src-tls-verify=false --dest-cert-dir="/tmp/certs/{{ groups['kube_control_plane'][0] }}/tmp/" \
+      "docker://{{ registry_host }}/{{ item }}" "docker://{{ hyperregistry_release_name }}.{{ custom_domain_name }}/library/{{ item }}"
   loop: "{{ lookup('file', 'files/images.txt').splitlines() }}"
-  when: is_podman_exist.rc == 0

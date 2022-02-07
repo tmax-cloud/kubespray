@@ -1,3 +1,12 @@
+ingress_nginx_namespace: ingress-nginx
+ingress_nginx_controller_image_repo: "{{ quay_image_repo }}/kubernetes-ingress-controller/nginx-ingress-controller"
+ingress_nginx_controller_image_tag: 0.33.0
+ingress_nginx_certgen_image_repo: "{{ docker_image_repo }}/jettech/kube-webhook-certgen"
+ingress_nginx_certgen_image_tag: v1.2.2
+ingress_nginx_http_port: 30080
+ingress_nginx_https_port: 30443
+ingress_nginx_service_type: LoadBalancer
+
 hyperregistry_namespace: hyperregistry
 hyperregistry_admin_password: admin
 hyperregistry_ingress_nginx_class: nginx-system
@@ -18,6 +27,9 @@ hyperregistry_chartmuseum_replicas: 1
 hyperregistry_trivy_replicas: 1
 hyperregistry_notary_replicas: 1
 hyperregistry_release_name: hyperregistry
+
+registry_host: 192.168.0.2:5000
+
 #gitlab
 APP_NAME: "gitlab-deploy"
 SSH_PORT: 2221
