@@ -19,6 +19,7 @@
       - argocd-svc.yml
       - argocd-deploy-and-sts.yml
       - argocd-network-policy.yml
+      - argocd-ingress.yml
 
 - name: ArgoCD | Generate Manifests
   template:
