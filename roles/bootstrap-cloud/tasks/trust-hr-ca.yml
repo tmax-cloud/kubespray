@@ -33,13 +33,13 @@
 - name: HyperRegistry | Populate service facts
   ansible.builtin.service_facts:
 
-- name: HyperRegistry | Restart Container manager
+- name: HyperRegistry | Restart container manager service
   service:
     name: crio
     state: restarted
   when: "'crio.service' in ansible_facts.services"
 
-- name: HyperRegistry | Restart Container manager
+- name: HyperRegistry | Restart container manager service
   service:
     name: docker
     state: restarted
