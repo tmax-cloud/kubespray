@@ -44,3 +44,11 @@ ingress_nginx_certgen_image_tag: v1.2.2
 ingress_nginx_http_port: 30080
 ingress_nginx_https_port: 30443
 ingress_nginx_service_type: LoadBalancer
+#argocd
+argocd_namespace: "argocd"
+argocd_image_repo: "{{ quay_image_repo }}/argoproj/argocd"
+argocd_image_tag: "v2.2.2"
+dex_image_repo: "{{ ghcr_image_repo }}/dexidp/dex"
+dex_image_tag: "v2.30.0"
+redis_image_repo: "{{ docker_image_repo }}/redis"
+redis_image_tag: "6.2.4-alpine"
