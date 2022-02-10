@@ -20,6 +20,9 @@
       - argocd-deploy-and-sts.yml
       - argocd-network-policy.yml
       - argocd-ingress.yml
+      - argocd-apply-gitlab-repo-secret.sh
+      - argocd-gen-secret-name.py
+      - argocd-repo-secret.yml
 
 - name: ArgoCD | Generate Manifests
   template:
@@ -35,6 +38,24 @@
     filename: "{{ kube_config_dir }}/addons/argocd/{{ item }}"
     state: "latest"
     wait: true
-  with_items: "{{ argocd_templates }}"
+  with_items: 
+    - argocd-crd.yml
+    - argocd-namespace.yml
+    - argocd-rbac.yml
+    - argocd-cm.yml
+    - argocd-secret.yml
+    - argocd-svc.yml
+    - argocd-deploy-and-sts.yml
+    - argocd-network-policy.yml
+    - argocd-ingress.yml
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: ArgoCD | Apply Secret for self-signed Gitlab
+  ansible.builtin.shell: |
+    sudo chmod +755 ./argocd-apply-gitlab-repo-secret.sh
+    sudo ./argocd-apply-gitlab-repo-secret.sh
+  args:
+    chdir: "{{ kube_config_dir }}/addons/argocd"
+  ignore_errors: true
+
