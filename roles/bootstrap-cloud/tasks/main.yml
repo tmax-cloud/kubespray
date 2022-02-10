@@ -20,4 +20,7 @@
 
 - name: Bootstrap HyperCloud | Upgrade HyperRegistry
   import_tasks: upgrade-hr.yml
+  
+- name: Bootstrap HyperCloud | Install ArgoCD
+  import_tasks: install-argocd.yml
   when: inventory_hostname == groups['kube_control_plane'][0]
