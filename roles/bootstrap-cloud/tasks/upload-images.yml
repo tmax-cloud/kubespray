@@ -1,30 +1,32 @@
 ---
+- name: Install required packages
+  become: true
+  yum:
+    name: "{{ item }}"
+    state: "present"
+  with_items:
+    - "skopeo"
+  when: "ansible_os_family == 'RedHat'"
+
 - name: HyperRegistry | Wait up for running Core service
   uri:
-    url: "https://core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}/api/v2.0/health"
+    url: "https://{{ hyperregistry_release_name }}.{{ hyperregistry_ingress_nginx_ip }}.nip.io/api/v2.0/health"
     validate_certs: no
   register: core_health_result
   until: core_health_result.status == 200
   retries: 60
-  delay: 5
+  delay: 10
 
-- name: HyperRegistry | Retreive harbor CA
-  shell: kubectl get secret hyperregistry-harbor-ingress -n hyperregistry -o jsonpath="{.data['ca\.crt']}" | base64 --decode > ca.crt
-
-- name: HyperRegistry | Trust harbor CA
+- name: HyperRegistry | Login harbor
+  become: true
   shell: |
-    cp ca.crt "/usr/local/share/ca-certificates/core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt"
-    update-ca-certificates
-    service crio restart
+    echo admin | skopeo login "{{ hyperregistry_release_name }}.{{ hyperregistry_ingress_nginx_ip }}.nip.io" \
+      -u admin --password-stdin \
+      --cert-dir /etc/pki/ca-trust/source/anchors
 
-- name: HyperRegistry | Wait up for running Core service again
-  uri:
-    url: "https://core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}/api/v2.0/health"
-    validate_certs: no
-  register: core_health_result
-  until: core_health_result.status == 200
-  retries: 60
-  delay: 5
-
-- name: HyperRegistry | Copy images from private registry
-  script: dup.sh "{{ registry_host }}" "core.{{ hyperregistry_release_name }}.{{ custom_domain_name }}"
+- name: HyperRegistry | Copy images
+  become: true
+  shell: |
+    skopeo copy --src-tls-verify=false --dest-cert-dir="/tmp/certs/{{ groups['kube_control_plane'][0] }}/tmp/" \
+      "docker://{{ registry_host }}/{{ item }}" "docker://{{ hyperregistry_release_name }}.{{ hyperregistry_ingress_nginx_ip }}.nip.io/library/{{ item }}"
+  loop: "{{ lookup('file', 'files/images.txt').splitlines() }}"
