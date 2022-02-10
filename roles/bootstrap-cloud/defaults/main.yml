@@ -19,23 +19,26 @@ hyperregistry_trivy_replicas: 1
 hyperregistry_notary_replicas: 1
 hyperregistry_release_name: hyperregistry
 #gitlab
-APP_NAME: "gitlab-deploy"
+APP_NAME: gitlab
+SERVICE_TYPE: Ingress
+STORAGE: 30Gi
+RESOURCE_CPU: 1
+RESOURCE_MEM: 8Gi
+NAMESPACE: gitlab-system
+INGRESS_CLASS: nginx
+STORAGE_CLASS: csi-cephfs-sc # ex) nfs, csi-cephfs-sc
 SSH_PORT: 2221
-NAME_SPACE: "gitlab-system"
-WEB_NODE_PORT: 80
-WEB_NODE_IP: "''"
-STORAGE_CLASS: "csi-cephfs-sc" #"nfs" #"csi-cephfs-sc"
-STORAGE: "8Gi"
-RESOURCE_CPU: "1"
-RESOURCE_MEM: "8Gi"
-SERVICE_TYPE: "Ingress"
 INGRESS_HOST: "''"
 EXTERNAL_URL: "''"
-KEYCLOAK_URL: "''"
+TLS_SECRET: "''"
 KEYCLOAK_TLS_SECRET_NAME: "''"
+KEYCLOAK_URL: "''"
 KEYCLOAK_CLIENT: "''"
 KEYCLOAK_SECRET: "''"
-INGRESS_CLASS: "nginx-shd"
+KEYCLOAK_CERT_FILE: "''"
+GITLAB_PASSWORD: password        # root사용자 비밀번호
+REPO_NAME: argocd-installer      # gitlab에 등록될 repository 이름
+
 #nginx-controller
 ingress_nginx_controller_image_repo: "{{ quay_image_repo }}/kubernetes-ingress-controller/nginx-ingress-controller"
 ingress_nginx_controller_image_tag: 0.33.0
