@@ -63,8 +63,8 @@ ingress_nginx_service_type: LoadBalancer
 #argocd
 argocd_namespace: "argocd"
 argocd_image_repo: "{{ quay_image_repo }}/argoproj/argocd"
-argocd_image_tag: "v2.2.2"
+argocd_image_tag: "v2.2.5"
 dex_image_repo: "{{ ghcr_image_repo }}/dexidp/dex"
-dex_image_tag: "v2.30.0"
+dex_image_tag: "v2.30.2"
 redis_image_repo: "{{ docker_image_repo }}/redis"
-redis_image_tag: "6.2.4-alpine"
+redis_image_tag: "6.2.6-alpine"
