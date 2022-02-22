@@ -1,4 +1,4 @@
-ingress_nginx_namespace: ingress-nginx
+ingress_nginx_namespace: ingress-nginx-system
 ingress_nginx_controller_image_repo: "{{ quay_image_repo }}/kubernetes-ingress-controller/nginx-ingress-controller"
 ingress_nginx_controller_image_tag: 0.33.0
 ingress_nginx_certgen_image_repo: "{{ docker_image_repo }}/jettech/kube-webhook-certgen"
