@@ -390,6 +390,7 @@ krew_archive_checksums:
 hyperregistry_archive_checksums:
   v2.2.2: 63da491dcdc77d7231fc1d8e280e2453127451e177727146e722627cc711fdde
   2.4.0: a17d78ff962922f044be7792647bc3465a06a45512a913590959269086e52a9a
+  2.4.1: 690489c4855f69a16ae75b75853bfe4cb6ff92ada353550600c7506b9d701fb6
 helm_archive_checksums:
   arm:
     v3.5.4: 1a9cc09ef06db29a0232d265f73625056a0cb089e5a16b0a5ef8e810e0533157
@@ -1220,6 +1221,7 @@ downloads:
     repo: "{{ pod_infra_image_repo }}"
     tag: "{{ pod_infra_image_tag }}"
     sha256: "{{ pod_infra_digest_checksum|default(None) }}"
+
     groups:
     - k8s_cluster
 

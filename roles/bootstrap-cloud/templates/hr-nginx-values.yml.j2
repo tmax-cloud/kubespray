@@ -34,7 +34,6 @@ expose:
       # Only needed when the "expose.type" is "ingress".
       notarySecretName: ""
   ingress:
-    class: ""
     hosts:
       core: hyperregistry.{{ hyperregistry_ingress_nginx_ip }}.nip.io
       notary: hyperregistry-notary.{{ hyperregistry_ingress_nginx_ip }}.nip.io
@@ -43,12 +42,13 @@ expose:
     # set to `gce` if using the GCE ingress controller
     # set to `ncp` if using the NCP (NSX-T Container Plugin) ingress controller
     controller: default
+    kubeVersionOverride: ""
+    className: nginx
     annotations:
       # note different ingress controllers may require a different ssl-redirect annotation
       # for Envoy, use ingress.kubernetes.io/force-ssl-redirect: "true" and remove the nginx lines below
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      kubernetes.io/ingress.class: {{ hyperregistry_ingress_nginx_class }}
   clusterIP:
     # The name of ClusterIP service
     name: harbor

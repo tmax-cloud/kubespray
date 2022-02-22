@@ -43,6 +43,8 @@ expose:
     # set to `gce` if using the GCE ingress controller
     # set to `ncp` if using the NCP (NSX-T Container Plugin) ingress controller
     controller: default
+    kubeVersionOverride: ""
+    className: tmax-cloud
     labels:
       ingress.tmaxcloud.org/name: hyperregistry
     annotations:

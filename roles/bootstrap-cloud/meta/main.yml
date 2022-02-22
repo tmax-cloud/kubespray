@@ -1,4 +1,0 @@
----
-dependencies:
-  - role: kubernetes-apps/helm
-    when: inventory_hostname == groups['kube_control_plane'][0]
