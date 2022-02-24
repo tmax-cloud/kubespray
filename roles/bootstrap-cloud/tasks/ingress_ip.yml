@@ -13,11 +13,13 @@
 - name: HyperRegistry | Set ingress IP
   set_fact:
     hyperregistry_ingress_nginx_ip: "{{ ingress_result.stdout | from_json | json_query('status.loadBalancer.ingress[0].ip')}}"
+    hyperregistry_ingress_nginx_port: 443
   when:
     - hyperregistry_ingress_nginx_svc_type == "LoadBalancer"
 
 - name: HyperRegistry | Set ingress IP
   set_fact:
     hyperregistry_ingress_nginx_ip: "{{ ansible_default_ipv4.address }}"
+    hyperregistry_ingress_nginx_port: "{{ ingress_result.stdout | from_json | json_query('spec.ports[1].nodePort')}}"
   when:
     - hyperregistry_ingress_nginx_svc_type == "NodePort"

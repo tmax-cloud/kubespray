@@ -43,12 +43,13 @@ expose:
     # set to `ncp` if using the NCP (NSX-T Container Plugin) ingress controller
     controller: default
     kubeVersionOverride: ""
-    className: nginx
+    className: ""
     annotations:
       # note different ingress controllers may require a different ssl-redirect annotation
       # for Envoy, use ingress.kubernetes.io/force-ssl-redirect: "true" and remove the nginx lines below
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
+      kubernetes.io/ingress.class: {{ hyperregistry_ingress_nginx_class }}
   clusterIP:
     # The name of ClusterIP service
     name: harbor
@@ -109,7 +110,7 @@ expose:
 # the IP address of k8s node
 #
 # If Harbor is deployed behind the proxy, set it as the URL of proxy
-externalURL: https://hyperregistry.{{ hyperregistry_ingress_nginx_ip }}.nip.io
+externalURL: https://hyperregistry.{{ hyperregistry_ingress_nginx_ip }}.nip.io:{{ hyperregistry_ingress_nginx_port }}
 
 # The internal TLS used for harbor components secure communicating. In order to enable https
 # in each components tls cert files need to provided in advance.
