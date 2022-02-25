@@ -132,3 +132,14 @@ resource "aws_security_group_rule" "allow-ssh-connections" {
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.kubernetes.id
 }
+
+resource "aws_security_group_rule" "allow-icmp" {
+  type              = "ingress"
+  from_port         = 8
+  to_port           = -1
+  protocol          = "icmp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.kubernetes.id
+}
+
+
