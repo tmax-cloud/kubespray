@@ -31,23 +31,26 @@ hyperregistry_release_name: hyperregistry
 registry_host: 192.168.0.2:5000
 
 #gitlab
-APP_NAME: "gitlab-deploy"
+APP_NAME: gitlab
+SERVICE_TYPE: Ingress
+STORAGE: 30Gi
+RESOURCE_CPU: 1
+RESOURCE_MEM: 8Gi
+NAMESPACE: gitlab-system
+INGRESS_CLASS: nginx
+STORAGE_CLASS: csi-cephfs-sc # ex) nfs, csi-cephfs-sc
 SSH_PORT: 2221
-NAME_SPACE: "gitlab-system"
-WEB_NODE_PORT: 80
-WEB_NODE_IP: "''"
-STORAGE_CLASS: "csi-cephfs-sc" #"nfs" #"csi-cephfs-sc"
-STORAGE: "8Gi"
-RESOURCE_CPU: "1"
-RESOURCE_MEM: "8Gi"
-SERVICE_TYPE: "Ingress"
 INGRESS_HOST: "''"
 EXTERNAL_URL: "''"
-KEYCLOAK_URL: "''"
+TLS_SECRET: "''"
 KEYCLOAK_TLS_SECRET_NAME: "''"
+KEYCLOAK_URL: "''"
 KEYCLOAK_CLIENT: "''"
 KEYCLOAK_SECRET: "''"
-INGRESS_CLASS: "nginx-shd"
+KEYCLOAK_CERT_FILE: "''"
+GITLAB_PASSWORD: password        # root사용자 비밀번호
+REPO_NAME: argocd-installer      # gitlab에 등록될 repository 이름
+
 #nginx-controller
 ingress_nginx_controller_image_repo: "{{ quay_image_repo }}/kubernetes-ingress-controller/nginx-ingress-controller"
 ingress_nginx_controller_image_tag: 0.33.0
@@ -56,14 +59,15 @@ ingress_nginx_certgen_image_tag: v1.2.2
 ingress_nginx_http_port: 30080
 ingress_nginx_https_port: 30443
 ingress_nginx_service_type: LoadBalancer
+
 #argocd
 argocd_namespace: "argocd"
 argocd_image_repo: "{{ quay_image_repo }}/argoproj/argocd"
-argocd_image_tag: "v2.2.2"
+argocd_image_tag: "v2.2.5"
 dex_image_repo: "{{ ghcr_image_repo }}/dexidp/dex"
-dex_image_tag: "v2.30.0"
+dex_image_tag: "v2.30.2"
 redis_image_repo: "{{ docker_image_repo }}/redis"
-redis_image_tag: "6.2.4-alpine"
+redis_image_tag: "6.2.6-alpine"
 
 download_defaults:
   container: false
