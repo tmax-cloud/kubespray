@@ -64,3 +64,42 @@ dex_image_repo: "{{ ghcr_image_repo }}/dexidp/dex"
 dex_image_tag: "v2.30.0"
 redis_image_repo: "{{ docker_image_repo }}/redis"
 redis_image_tag: "6.2.4-alpine"
+
+download_defaults:
+  container: false
+  file: false
+  repo: None
+  tag: None
+  enabled: false
+  dest: None
+  version: None
+  url: None
+  unarchive: false
+  owner: kube
+  mode: None
+
+image_arch: "{{host_architecture | default('amd64')}}"
+helm_version: "v3.5.4"
+helm_download_url: "https://get.helm.sh/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz"
+helm_archive_checksums:
+  arm:
+    v3.5.4: 1a9cc09ef06db29a0232d265f73625056a0cb089e5a16b0a5ef8e810e0533157
+  amd64:
+    v3.5.4: a8ddb4e30435b5fd45308ecce5eaad676d64a5de9c89660b56face3fe990b318
+  arm64:
+    v3.5.4: 9db01522150a83a5d65b420171147448d8396c142d2c91af95e5ee77c1694176
+helm_archive_checksum: "{{ helm_archive_checksums[image_arch][helm_version] }}"
+
+downloads:
+  helm:
+    enabled: "{{ helm_enabled }}"
+    file: true
+    version: "{{ helm_version }}"
+    dest: "{{ local_release_dir }}/helm-{{ helm_version }}/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz"
+    sha256: "{{ helm_archive_checksum }}"
+    url: "{{ helm_download_url }}"
+    unarchive: true
+    owner: "root"
+    mode: "0755"
+    groups:
+      - kube_control_plane
