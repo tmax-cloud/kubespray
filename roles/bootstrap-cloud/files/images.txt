@@ -92,7 +92,7 @@ docker.io/kfserving/lgbserver:v0.5.1
 gcr.io/kfserving/storage-initializer:v0.5.1
 docker.io/library/traefik:v2.5.4
 docker.io/tmaxcloudck/hypercloud-console:5.0.49.0
-docker.io/tmaxcloudck:/jwt-decode:5.0.0.1
+docker.io/tmaxcloudck/jwt-decode:5.0.0.1
 docker.io/library/alpine:3.3
 quay.io/argoproj/argocd:v2.2.2
 ghcr.io/dexidp/dex:v2.30.0
