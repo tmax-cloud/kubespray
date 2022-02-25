@@ -1,10 +1,10 @@
 #!/bin/bash
 [[ "$0" != "$BASH_SOURCE" ]] && export install_dir=$(dirname "$BASH_SOURCE") || export install_dir=$(dirname $0)
 
-gitlab_host=$(kubectl -n {{ NAME_SPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}')
+gitlab_host=$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}')
 gitlab_user="root"
-gitlab_password="password"
-repo_name="argocd-installer"
+gitlab_password={{ GITLAB_PASSWORD }}
+repo_name={{ REPO_NAME }}
 
 # curl --insecure for the login page to get a session cookie and the sources with the auth tokens
 body_header=$(curl --insecure -c cookies.txt -i "https://${gitlab_host}/users/sign_in" -s)
@@ -30,7 +30,6 @@ body_header=$(curl --insecure -L -b cookies.txt "https://${gitlab_host}/profile/
 
 # Scrape the personal access token from the response HTML
 personal_access_token=$(echo $body_header | perl -ne 'print "$1\n" if /created-personal-access-token"[[:blank:]]value="(.+?)"/' | sed -n 1p)
-echo $personal_access_token
 
 # gitlab repository config
 repo_config=$(cat <<EOF
@@ -39,7 +38,11 @@ repo_config=$(cat <<EOF
 }
 EOF
 )
-
+git --version 2>&1 >/dev/null
+GIT_IS_AVAILABLE=$?
+if [ $GIT_IS_AVAILABLE -ne 0 ]; then
+  yum install git
+fi
 # Create gitlab repository
 curl --insecure https://$gitlab_host/api/v4/projects/ \
 -i \
@@ -51,7 +54,6 @@ echo "finish create repo"
 
 # if using self-signed certificate, set sslVerify as false
 git config --global http.sslVerify false
-
 git clone https://$gitlab_user:$gitlab_password@$gitlab_host/$gitlab_user/$repo_name.git
 
 cp -a $install_dir/argocd_installer/. $install_dir/$repo_name

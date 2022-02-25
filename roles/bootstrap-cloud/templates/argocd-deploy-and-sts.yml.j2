@@ -45,6 +45,8 @@ spec:
           name: static-files
         - mountPath: /tmp
           name: dexconfig
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: argocd-dex-server-secret
       initContainers:
       - command:
         - cp
@@ -59,12 +61,17 @@ spec:
           name: static-files
         - mountPath: /tmp
           name: dexconfig
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: argocd-dex-server-secret
       serviceAccountName: argocd-dex-server
       volumes:
       - emptyDir: {}
         name: static-files
       - emptyDir: {}
         name: dexconfig
+      - name: argocd-dex-server-secret
+        secret:
+          secretName: argocd-dex-server-token
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -546,6 +553,8 @@ spec:
           name: plugins-home
         - mountPath: /tmp
           name: tmp
+        - mountPath:  /var/run/secrets/kubernetes.io/serviceaccount
+          name: argocd-server-secret
       serviceAccountName: argocd-server
       volumes:
       - emptyDir: {}
@@ -571,6 +580,9 @@ spec:
             path: ca.crt
           optional: true
           secretName: argocd-repo-server-tls
+      - name: argocd-server-secret
+        secret:
+          secretName: argocd-server-token
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -730,6 +742,8 @@ spec:
           name: argocd-repo-server-tls
         - mountPath: /home/argocd
           name: argocd-home
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: argocd-application-controller-secret
         workingDir: /home/argocd
       serviceAccountName: argocd-application-controller
       volumes:
@@ -746,4 +760,7 @@ spec:
             path: ca.crt
           optional: true
           secretName: argocd-repo-server-tls
+      - name: argocd-application-controller-secret
+        secret:
+          secretName: argocd-application-controller-token
 ---
