@@ -7,9 +7,9 @@
     group: root
     mode: 0755
 
-- name: HyperRegistry | Get ingress IP
+- name: HyperRegistry | Get ingress IP and port
   include_tasks: "ingress_ip.yml"
-  when: hyperregistry_ingress_nginx_ip | length == 0
+  when: hyperregistry_ingress_nginx_ip | length == 0 or hyperregistry_ingress_nginx_port | length == 0
 
 - name: HyperRegistry | Create values.yml
   template:
