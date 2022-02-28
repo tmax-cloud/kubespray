@@ -22,13 +22,28 @@
     dest: /tmp/{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt
   when:
     - inventory_hostname != groups['kube_control_plane'][0]
-    - '''ID="centos"'' in os_release.stdout_lines'
 
-- name: HyperRegistry | Trust harbor CA
+- name: HyperRegistry | Locate Harbor root CA for Centos
   shell: |
-    cp /tmp/{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt /etc/pki/ca-trust/source/anchors/
+    mv /tmp/{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt /etc/pki/ca-trust/source/anchors/
+    chmod 600 /etc/pki/ca-trust/source/anchors/{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt
+  when: '''ID="centos"'' in os_release.stdout_lines or ''ID="ubuntu"'' in os_release.stdout_lines or ''ID="amzn"'' in os_release.stdout_lines'
+
+- name: HyperRegistry | Locate Harbor root CA for Redhat
+  shell: |
+    mv /tmp/{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt /usr/share/pki/ca-trust-source/anchors/
+    chmod 600 /usr/share/pki/ca-trust-source/anchors/{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt
+  when: '''ID="pl"'' in os_release.stdout_lines or ''ID="rhel"'' in os_release.stdout_lines'
+
+- name: HyperRegistry | Update CA trust
+  shell: |
+    update-ca-certificates
+  when: '''ID="ubuntu"'' in os_release.stdout_lines'
+
+- name: HyperRegistry | Update CA trust
+  shell: |
     update-ca-trust
-  when: '''ID="centos"'' in os_release.stdout_lines'
+  when: '''ID="centos"'' in os_release.stdout_lines or ''ID="pl"'' in os_release.stdout_lines or ''ID="rhel"'' in os_release.stdout_lines or ''ID="amzn"'' in os_release.stdout_lines'
 
 - name: HyperRegistry | Populate service facts
   ansible.builtin.service_facts:
