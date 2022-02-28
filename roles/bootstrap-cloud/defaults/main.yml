@@ -49,7 +49,7 @@ KEYCLOAK_SECRET: ""
 KEYCLOAK_CERT_FILE: ""
 GITLAB_PASSWORD: password        # root사용자 비밀번호
 REPO_NAME: argocd-installer      # gitlab에 등록될 repository 이름
-#STORAGE_CLASS: nfs # ex) nfs, csi-cephfs-sc
+STORAGE_CLASS: "" # ex) nfs, csi-cephfs-sc
 
 #nginx-controller
 ingress_nginx_controller_image_repo: "{{ quay_image_repo }}/kubernetes-ingress-controller/nginx-ingress-controller"
