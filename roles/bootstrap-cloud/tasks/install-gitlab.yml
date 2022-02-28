@@ -20,7 +20,7 @@
 
 - name: Gitlab | Copy ArgoCD-installer
   copy:
-    src: "{{ playbook_dir }}/roles/kubernetes-apps/gitlab/templates/argocd_installer"
+    src: "{{ playbook_dir }}/roles/bootstrap-cloud/templates/argocd_installer"
     dest: "{{ kube_config_dir }}/addons/gitlab/"
   when:
     - inventory_hostname == groups['kube_control_plane'][0]

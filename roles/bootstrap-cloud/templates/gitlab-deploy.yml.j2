@@ -175,7 +175,7 @@ spec:
           PORT="${PORT/\.[0-9]*/}"
           PORT_SSH="${PORT_SSH/\.[0-9]*/}"
           # Configure Service
-          if [[ {{ INGRESS_HOST }} == "" ]]; then
+          if [[ "{{ INGRESS_HOST }}" == "" ]]; then
               NOW_IP=""
               while [ "$NOW_IP" == "" ]; do
                   NOW_IP=$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.status.loadBalancer.ingress[].ip}')
@@ -189,7 +189,7 @@ spec:
           NOW_IP=$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.status.loadBalancer.ingress[].ip}')
           kubectl -n {{ NAMESPACE }} patch ingress {{ APP_NAME }}-ingress --type=json -p '[{"op": "replace", "path": "/spec/rules/0/host", "value": "'$ING_HOST'"}]'
           # Override external url
-          if [[ {{ EXTERNAL_URL }} != "" ]]; then
+          if [[ "{{ EXTERNAL_URL }}" != "" ]]; then
               EXTERNAL_IP="{{ EXTERNAL_URL }}"
           fi
           cat <<EOT >> /tmp/shared/omnibus.env
@@ -203,8 +203,8 @@ spec:
           gitlab_rails['initial_root_password'] = "{{ GITLAB_PASSWORD }}"
           EOT
           # Add keycloak
-          if [[ {{ KEYCLOAK_URL }} != "" ]]; then
-            if [[ {{ KEYCLOAK_TLS_SECRET_NAME }} != "" ]]; then
+          if [[ "{{ KEYCLOAK_URL }}" != "" ]]; then
+            if [[ "{{ KEYCLOAK_TLS_SECRET_NAME }}" != "" ]]; then
               kubectl -n {{ NAMESPACE }} get secret {{ KEYCLOAK_TLS_SECRET_NAME }} -o jsonpath='{.data.tls\.crt}' | base64 -d > /tmp/shared/keycloak.pem
             fi
             cat <<EOY >> /tmp/shared/omnibus.env
