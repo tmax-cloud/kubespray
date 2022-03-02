@@ -189,7 +189,11 @@ spec:
           else
             ING_HOST={{ INGRESS_HOST }}
           fi
-          EXTERNAL_IP="http://${ING_HOST}/"
+          if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
+            EXTERNAL_IP="http://${ING_HOST}:{{ ingress_nginx_http_port }}/"
+          else
+            EXTERNAL_IP="http://${ING_HOST}/"
+          fi
           kubectl -n {{ NAMESPACE }} patch ingress {{ APP_NAME }}-ingress --type=json -p '[{"op": "replace", "path": "/spec/rules/0/host", "value": "'$ING_HOST'"}]'
           # Override external url
           if [[ "{{ EXTERNAL_URL }}" != "" ]]; then
