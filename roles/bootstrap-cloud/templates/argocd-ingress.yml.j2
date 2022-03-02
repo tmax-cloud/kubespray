@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   rules:
-  - host: argocd.{{ hyperregistry_ingress_nginx_ip }}.nip.io
+  - host: argocd.{{ argocd_ingress_nginx_ip }}.nip.io:{{ argocd_ingress_nginx_port }}
     http:
       paths:
       - path: /
@@ -21,5 +21,5 @@ spec:
               name: https
   tls:
   - hosts:
-    - argocd.{{ hyperregistry_ingress_nginx_ip }}.nip.io
+    - argocd.{{ argocd_ingress_nginx_ip }}.nip.io:{{ argocd_ingress_nginx_port }}
     secretName: argocd-secret

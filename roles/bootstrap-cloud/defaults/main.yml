@@ -68,6 +68,8 @@ dex_image_repo: "{{ ghcr_image_repo }}/dexidp/dex"
 dex_image_tag: "v2.30.2"
 redis_image_repo: "{{ docker_image_repo }}/redis"
 redis_image_tag: "6.2.6-alpine"
+argocd_ingress_nginx_ip: ""
+argocd_ingress_nginx_port: ""
 
 download_defaults:
   container: false
