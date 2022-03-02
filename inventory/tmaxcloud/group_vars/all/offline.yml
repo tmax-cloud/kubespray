@@ -25,6 +25,7 @@ grafana_image_repo: "{{ registry_host }}/grafana/grafana"
 efk_fluentd_image_repo: "{{ registry_host }}/fluent"
 mysql_image_repo: "{{ registry_host }}/mysql"
 efk_busybox_image_repo: "{{ registry_host }}/busybox"
+ghcr_image_repo: "{{ registry_host }}/ghcr.io"
 
 ## Kubernetes components
 kubeadm_download_url: "{{ files_repo }}/kubeadm"
