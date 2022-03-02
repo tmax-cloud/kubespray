@@ -176,20 +176,23 @@ spec:
           PORT_SSH="${PORT_SSH/\.[0-9]*/}"
           # Configure Service
 
-          ING_SVC_TYPE=$(kubectl get svc -n {{ ingress_nginx_namespace }} {{ ingress_nginx_namespace }}-controller -o jsonpath='{.spec.type}')
           if [[ "{{ INGRESS_HOST }}" == "" ]]; then
-            if [[ ING_SVC_TYPE == "NodePort" ]]; then
+            if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
               NOW_IP={{ ansible_default_ipv4.address }}
             else
               NOW_IP=""
               while [ "$NOW_IP" == "" ]; do
                   NOW_IP=$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.status.loadBalancer.ingress[].ip}')
               done
-            ING_HOST="{{ APP_NAME }}.$NAMESPACE.${NOW_IP}.nip.io"
             fi
+            ING_HOST="{{ APP_NAME }}.$NAMESPACE.${NOW_IP}.nip.io"
           else
             ING_HOST={{ INGRESS_HOST }}
-            EXTERNAL_IP="http://${INGRESS_HOST}/"
+          fi
+          if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
+            EXTERNAL_IP="http://${ING_HOST}:{{ ingress_nginx_http_port }}/"
+          else
+            EXTERNAL_IP="http://${ING_HOST}/"
           fi
           kubectl -n {{ NAMESPACE }} patch ingress {{ APP_NAME }}-ingress --type=json -p '[{"op": "replace", "path": "/spec/rules/0/host", "value": "'$ING_HOST'"}]'
           # Override external url
