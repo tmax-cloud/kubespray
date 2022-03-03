@@ -2,9 +2,9 @@
 [[ "$0" != "$BASH_SOURCE" ]] && export install_dir=$(dirname "$BASH_SOURCE") || export install_dir=$(dirname $0)
 
 if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
-  gitlab_host="$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}'):{{ ingress_nginx_https_port }}"
+  gitlab_host="$({{ bin_dir }}/kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}'):{{ ingress_nginx_https_port }}"
 else
-  gitlab_host=$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}')
+  gitlab_host=$({{ bin_dir }}/kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}')
 fi
 gitlab_user="root"
 gitlab_password={{ GITLAB_PASSWORD }}
