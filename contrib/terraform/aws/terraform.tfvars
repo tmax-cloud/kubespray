@@ -29,8 +29,9 @@ aws_src_dest_check      = false
 #Settings AWS ELB
 aws_elb_api_port          = 6443
 k8s_secure_api_port       = 6443
+
 aws_elb_api_internal      = true
-aws_elb_api_public_subnet = true
+aws_elb_api_public_subnet = false
 
 default_tags = {
   #  Env = "devtest"

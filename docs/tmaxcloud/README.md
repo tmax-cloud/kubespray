@@ -38,6 +38,7 @@
     ```bash
     $ pushd {files-repo-path}
     $ createrepo_c ./
+    $ modifyrepo_c modules.yaml ./repodata
     $ export LOCAL_REPO_PATH={files-repo-path}
     $ popd
     
