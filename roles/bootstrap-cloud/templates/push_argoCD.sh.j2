@@ -2,7 +2,7 @@
 [[ "$0" != "$BASH_SOURCE" ]] && export install_dir=$(dirname "$BASH_SOURCE") || export install_dir=$(dirname $0)
 
 if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
-  gitlab_host="$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}'):30080"
+  gitlab_host="$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}'):{{ ingress_nginx_https_port }}"
 else
   gitlab_host=$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}')
 fi
@@ -10,30 +10,9 @@ gitlab_user="root"
 gitlab_password={{ GITLAB_PASSWORD }}
 repo_name={{ REPO_NAME }}
 
-# curl --insecure for the login page to get a session cookie and the sources with the auth tokens
-body_header=$(curl --insecure -c cookies.txt -i "https://${gitlab_host}/users/sign_in" -s)
-
-# grep the auth token for the user login for
-#   not sure whether another token on the page will work, too - there are 3 of them
-csrf_token=$(echo $body_header | perl -ne 'print "$1\n" if /new_user.*?authenticity_token"[[:blank:]]value="(.+?)"/' | sed -n 1p)
-
-# send login credentials with curl --insecure, using cookies and token from previous request
-curl --insecure -b cookies.txt -c cookies.txt -i "https://${gitlab_host}/users/sign_in" \
-    --data "user[login]=${gitlab_user}&user[password]=${gitlab_password}" \
-    --data-urlencode "authenticity_token=${csrf_token}"
-
-# send curl --insecure GET request to personal access token page to get auth token
-body_header=$(curl --insecure -H 'user-agent: curl --insecure' -b cookies.txt -i "https://${gitlab_host}/profile/personal_access_tokens" -s)
-csrf_token=$(echo $body_header | perl -ne 'print "$1\n" if /authenticity_token"[[:blank:]]value="(.+?)"/' | sed -n 1p)
-
-# curl --insecure POST request to send the "generate personal access token form"
-# the response will be a redirect, so we have to follow using `-L`
-body_header=$(curl --insecure -L -b cookies.txt "https://${gitlab_host}/profile/personal_access_tokens" \
-    --data-urlencode "authenticity_token=${csrf_token}" \
-    --data 'personal_access_token[name]=golab-generated&personal_access_token[expires_at]=&personal_access_token[scopes][]=api')
-
-# Scrape the personal access token from the response HTML
-personal_access_token=$(echo $body_header | perl -ne 'print "$1\n" if /created-personal-access-token"[[:blank:]]value="(.+?)"/' | sed -n 1p)
+if [[ -d $repo_name ]]; then
+    rm -rf $repo_name
+fi
 
 # gitlab repository config
 repo_config=$(cat <<EOF
@@ -47,22 +26,69 @@ GIT_IS_AVAILABLE=$?
 if [ $GIT_IS_AVAILABLE -ne 0 ]; then
   yum install git
 fi
-# Create gitlab repository
-curl --insecure https://$gitlab_host/api/v4/projects/ \
--i \
--X POST \
--H "content-type:application/json" \
--H "PRIVATE-TOKEN: $personal_access_token" \
--d "$repo_config"
-echo "finish create repo"
 
-# if using self-signed certificate, set sslVerify as false
-git config --global http.sslVerify false
-git clone https://$gitlab_user:$gitlab_password@$gitlab_host/$gitlab_user/$repo_name.git
 
-cp -a $install_dir/argocd_installer/. $install_dir/$repo_name
-cd $repo_name
 
-git add .
-git commit -m "inital_commit"
-git push -u origin master
+if [[ "{{gitlab_token}}" == ""]]; then
+  # curl --insecure for the login page to get a session cookie and the sources with the auth tokens
+  body_header=$(curl --insecure -c cookies.txt -i "https://${gitlab_host}/users/sign_in" -s)
+
+  # grep the auth token for the user login for
+  #   not sure whether another token on the page will work, too - there are 3 of them
+  csrf_token=$(echo $body_header | perl -ne 'print "$1\n" if /new_user.*?authenticity_token"[[:blank:]]value="(.+?)"/' | sed -n 1p)
+
+  # send login credentials with curl --insecure, using cookies and token from previous request
+  curl --insecure -b cookies.txt -c cookies.txt -i "https://${gitlab_host}/users/sign_in" \
+      --data "user[login]=${gitlab_user}&user[password]=${gitlab_password}" \
+      --data-urlencode "authenticity_token=${csrf_token}"
+
+  # send curl --insecure GET request to personal access token page to get auth token
+  body_header=$(curl --insecure -H 'user-agent: curl --insecure' -b cookies.txt -i "https://${gitlab_host}/profile/personal_access_tokens" -s)
+  csrf_token=$(echo $body_header | perl -ne 'print "$1\n" if /authenticity_token"[[:blank:]]value="(.+?)"/' | sed -n 1p)
+
+  # curl --insecure POST request to send the "generate personal access token form"
+  # the response will be a redirect, so we have to follow using `-L`
+  body_header=$(curl --insecure -L -b cookies.txt "https://${gitlab_host}/profile/personal_access_tokens" \
+      --data-urlencode "authenticity_token=${csrf_token}" \
+      --data 'personal_access_token[name]=golab-generated&personal_access_token[expires_at]=&personal_access_token[scopes][]=api')
+
+  # Scrape the personal access token from the response HTML
+  personal_access_token=$(echo $body_header | perl -ne 'print "$1\n" if /created-personal-access-token"[[:blank:]]value="(.+?)"/' | sed -n 1p)
+  # Create gitlab repository
+  curl --insecure https://$gitlab_host/api/v4/projects/ \
+  -i \
+  -X POST \
+  -H "content-type:application/json" \
+  -H "PRIVATE-TOKEN: $personal_access_token" \
+  -d "$repo_config"
+  echo "finish create repo"
+
+  # if using self-signed certificate, set sslVerify as false
+  git config --global http.sslVerify false
+  git clone https://$gitlab_user:$gitlab_password@$gitlab_host/$gitlab_user/$repo_name.git
+
+  cp -a $install_dir/argocd_installer/. $install_dir/$repo_name
+  cd $repo_name
+
+  git add .
+  git commit -m "inital_commit"
+  git push -u origin master
+else
+  curl --insecure https://$gitlab_host/api/v4/projects/ \
+  -i \
+  -X POST \
+  -H "content-type:application/json" \
+  -H "PRIVATE-TOKEN: {{ gitlab_token }}" \
+  -d "$repo_config"
+  echo "finish create repo"
+
+  # if using self-signed certificate, set sslVerify as false
+  git config --global http.sslVerify false
+  git clone https://gitlab-ci-token:{{ gitlab_token }}@${gitlab_host}/${gitlab_user}/${repo_name}.git
+  cp -a $install_dir/argocd_installer/. $install_dir/$repo_name
+  cd $repo_name
+  git add .
+  git commit -m "inital_commit"
+  git push -u origin master
+fi
+

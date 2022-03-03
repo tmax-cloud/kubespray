@@ -15,6 +15,7 @@
   with_items:
     - gitlab-deploy.yml
     - push_argoCD.sh
+    - create_token.sh
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
 
@@ -55,9 +56,9 @@
   ignore_errors: true
 
 - name: Gitlab | push argoCD to gitlab
-  ansible.builtin.shell: |
-    sudo chmod +755 push_argoCD.sh
-    sudo ./push_argoCD.sh
-  args:
-    chdir: "{{ kube_config_dir }}/addons/gitlab"
-  ignore_errors: true
+  command: "{{ kube_config_dir }}/addons/gitlab/create_token.sh"
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Gitlab | push argoCD to gitlab
+  command: "{{ kube_config_dir }}/addons/gitlab/push_argoCD.sh"
+  when: inventory_hostname == groups['kube_control_plane'][0]
