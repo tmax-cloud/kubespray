@@ -1,3 +1,3 @@
 #!/bin/bash
-pod_name=$({{ bin_dir }}/kubectl get pods -n {{ NAMESPACE }} | grep gitlab | awk '{print $1}'
-{{ bin_dir }}/kubectl exec -it -n {{ NAMESPACE }} ${pod_name} -- gitlab-rails runner "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'init-token'); token.set_token({{ gitlab_token }}); token.save!"
+pod_name=$({{ bin_dir }}/kubectl get pods -n {{ NAMESPACE }} | grep gitlab | awk '{print $1}')
+{{ bin_dir }}/kubectl exec -it -n {{ NAMESPACE }} $pod_name -- gitlab-rails runner "token = User.find_by_username('root').personal_access_tokens.create(scopes: [:api], name: 'init-token'); token.set_token('{{ gitlab_token }}'); token.save!"
