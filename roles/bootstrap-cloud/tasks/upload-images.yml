@@ -31,10 +31,28 @@
     echo admin | skopeo login "{{ hyperregistry_release_name }}.{{ hyperregistry_ingress_nginx_ip }}.nip.io:{{ hyperregistry_ingress_nginx_port }}" \
       -u admin --password-stdin \
       --cert-dir /etc/pki/ca-trust/source/anchors
+  when: '''ID="centos"'' in os_release.stdout_lines or ''ID="ubuntu"'' in os_release.stdout_lines or ''ID="amzn"'' in os_release.stdout_lines'
+
+- name: HyperRegistry | Login harbor
+  become: true
+  shell: |
+    echo admin | skopeo login "{{ hyperregistry_release_name }}.{{ hyperregistry_ingress_nginx_ip }}.nip.io:{{ hyperregistry_ingress_nginx_port }}" \
+      -u admin --password-stdin \
+      --cert-dir /usr/share/pki/ca-trust-source/anchors/
+  when: '''ID="pl"'' in os_release.stdout_lines or ''ID="rhel"'' in os_release.stdout_lines'
 
 - name: HyperRegistry | Copy images
   become: true
   shell: |
-    skopeo copy --src-tls-verify=false --dest-cert-dir="/tmp/certs/{{ groups['kube_control_plane'][0] }}/tmp/" \
+    skopeo copy --src-tls-verify=false --dest-cert-dir=/etc/pki/ca-trust/source/anchors \
       "docker://{{ registry_host }}/{{ item }}" "docker://{{ hyperregistry_release_name }}.{{ hyperregistry_ingress_nginx_ip }}.nip.io:{{ hyperregistry_ingress_nginx_port }}/library/{{ item }}"
   loop: "{{ lookup('file', 'files/images.txt').splitlines() }}"
+  when: '''ID="centos"'' in os_release.stdout_lines or ''ID="ubuntu"'' in os_release.stdout_lines or ''ID="amzn"'' in os_release.stdout_lines'
+
+- name: HyperRegistry | Copy images
+  become: true
+  shell: |
+    skopeo copy --src-tls-verify=false --dest-cert-dir=/usr/share/pki/ca-trust-source/anchors \
+      "docker://{{ registry_host }}/{{ item }}" "docker://{{ hyperregistry_release_name }}.{{ hyperregistry_ingress_nginx_ip }}.nip.io:{{ hyperregistry_ingress_nginx_port }}/library/{{ item }}"
+  loop: "{{ lookup('file', 'files/images.txt').splitlines() }}"
+  when: '''ID="pl"'' in os_release.stdout_lines or ''ID="rhel"'' in os_release.stdout_lines'
