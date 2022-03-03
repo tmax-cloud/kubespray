@@ -29,7 +29,7 @@ fi
 
 
 
-if [[ "{{gitlab_token}}" == ""]]; then
+if [[ "{{gitlab_token}}" == "" ]]; then
   # curl --insecure for the login page to get a session cookie and the sources with the auth tokens
   body_header=$(curl --insecure -c cookies.txt -i "https://${gitlab_host}/users/sign_in" -s)
 
