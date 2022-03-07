@@ -128,6 +128,7 @@ kata_containers_download_url: "https://github.com/kata-containers/runtime/releas
 nerdctl_download_url: "https://github.com/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
 krew_download_url: "https://github.com/kubernetes-sigs/krew/releases/download/{{ krew_version }}/krew.tar.gz"
 hyperregistry_download_url: "https://tmax-cloud.github.io/harbor-helm/superregistry-{{ hyperregistry_version }}.tgz"
+fnvhash_download_url: "https://files.pythonhosted.org/packages/2f/01/14ef74ea03ac12e8a80d43bbad5356ae809b125cd2072766e459bcc7d388/fnvhash-0.1.0.tar.gz"
 
 crictl_checksums:
   arm:
@@ -1532,6 +1533,18 @@ downloads:
     repo: "{{ dashboard_metrics_scraper_repo }}"
     tag: "{{ dashboard_metrics_scraper_tag }}"
     sha256: "{{ dashboard_digest_checksum|default(None) }}"
+    groups:
+    - kube_control_plane
+  
+  fnvhash:
+    enabled: "{{ fnvhash_enabled }}"
+    file: true
+    dest: "{{ local_release_dir }}/fnvhash-0.1.0.tar.gz"
+    url: "{{ fnvhash_download_url }}"
+    unarchive: false
+    owner: "root"
+    mode: "0755"
+    sha256: "{{ fnvhash_digest_checksum|default(None) }}"
     groups:
     - kube_control_plane
 
