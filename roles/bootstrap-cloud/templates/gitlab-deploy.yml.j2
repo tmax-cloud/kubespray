@@ -177,7 +177,7 @@ spec:
           PORT_SSH="${PORT_SSH/\.[0-9]*/}"
           # Configure Service
 
-          if [[ "{{ INGRESS_HOST }}" == "" ]]; then
+          if [[ "{{ custom_domain_name }}" == "" ]]; then
             if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
               NOW_IP={{ ansible_default_ipv4.address }}
             else
@@ -188,7 +188,7 @@ spec:
             fi
             ING_HOST="{{ APP_NAME }}.$NAMESPACE.${NOW_IP}.nip.io"
           else
-            ING_HOST={{ INGRESS_HOST }}
+            ING_HOST=gitlab.{{ custom_domain_name }}
           fi
           if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
             EXTERNAL_IP="http://${ING_HOST}/"
