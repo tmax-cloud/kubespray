@@ -142,7 +142,7 @@ spec:
       serviceAccountName: {{ APP_NAME }}-account
       initContainers:
       - name: parse-svc
-        image: docker.io/bitnami/kubectl:1.20.10
+        image: "{{ gitlab_kubectl_repo }}:{{ gitlab_kubectl_tag }}"
         env:
         - name: NODE_IP
           valueFrom:
@@ -245,7 +245,7 @@ spec:
           EOY
           fi
       - name: init-cert
-        image: docker.io/bitnami/kubectl:1.20.10
+        image: "{{ gitlab_kubectl_repo }}:{{ gitlab_kubectl_tag }}"
         securityContext:
           privileged: true
         env:
@@ -307,7 +307,7 @@ spec:
       - name: {{ APP_NAME }}
         securityContext:
           privileged: true
-        image: docker.io/gitlab/gitlab-ce:13.6.4-ce.0
+        image: {{ gitlab_image_repo }}:{{ gitlab_image_tag }}
         command:
         - /bin/sh
         - -c
