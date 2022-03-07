@@ -6,12 +6,11 @@ clusters:
 {% for key in audit_webhook_server_extra_args %}
     {{ key }}: "{{ audit_webhook_server_extra_args[key] }}"
 {% endfor %}
-  name: auditsink
+  name: audit-webhook-service
 contexts:
 - context:
-    cluster: auditsink
-    user: ""
-  name: default-context
-current-context: default-context
+    cluster: audit-webhook-service
+  name: audit-webhook-context
+current-context: audit-webhook-context
 preferences: {}
 users: []

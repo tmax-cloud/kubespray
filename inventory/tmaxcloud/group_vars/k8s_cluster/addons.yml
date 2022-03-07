@@ -24,10 +24,9 @@ aws_efs_filesystem_id: fs-xxxx
 helm_enabled: false
 
 #ingress_nginx
-ingress_nginx_enabled: false
-ingress_nginx_http_port: 30080
-ingress_nginx_https_port: 30443
-ingress_nginx_service_type: "LoadBalancer"
+ingress_nginx_http_port_pre: 30080
+ingress_nginx_https_port_pre: 30443
+ingress_nginx_service_type_pre: "LoadBalancer"
 
 # Registry deployment
 registry_enabled: false

@@ -13,12 +13,13 @@
 * kubespray install 실행하는 node에만 필요
   * python3-pip-python 3.6
   * python3-cryptography-3.2.1-4.el8 (BaseOS)
-  * python3-jinja2- 2.10.1-2.el8_0 (AppStream)
+  * python3-jinja2-2.10.1-2.el8_0 (AppStream)
   * python3-netaddr-0.7.19-8.el8 (AppStream)
   * python3-jmespath-0.9.0-11.el8 (AppStream)
   * python3-ruamel-yaml-0.15.41-2.el8 (epel)
   * python3-pbr-5.1.2-3.el8 (epel-release)
   * ansible-2.9.23-1.el8 (epel)
+  * skopeo-1.2.2  (AppStream)
 
 * private registry node에만 필요
   * podman
