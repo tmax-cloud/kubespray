@@ -17,8 +17,8 @@ nfs_path: /root/test
 # aws-efs-csi-driver
 aws_efs_csi_enabled: false
 aws_efs_csi_namespace: aws-efs-csi
-aws_efs_csi_filesystem_id: fs-xxxx
 aws_efs_csi_controller_replicas: 1
+aws_efs_filesystem_id: fs-xxxx
 
 # Helm deployment
 helm_enabled: false
@@ -106,7 +106,7 @@ rbd_provisioner_enabled: false
 # rbd_provisioner_reclaim_policy: Delete
 
 # Nginx ingress controller deployment
-ingress_nginx_enabled: false
+# ingress_nginx_enabled: false
 # ingress_nginx_host_network: false
 ingress_publish_status_address: ""
 # ingress_nginx_nodeselector:
@@ -262,6 +262,12 @@ catalog_controller_enabled: false
 # template-service-broker
 template_service_broker_enabled: false
 
+# helm_operator
+helm_operator_enabled: false
+
+# gateway
+gateway_enabled: false
+
 # efk
 efk_enabled: false
 efk_namespace: "kube-logging"
@@ -269,6 +275,9 @@ efk_es_svc_name: "elasticsearch"
 
 # prometheus
 prometheus_enabled: false
+
+# grafana
+grafana_enabled: false
 
 # service_mesh
 service_mesh_enabled: false
@@ -281,6 +290,9 @@ cicd_enabled: false
 
 # image_validating_webhook
 image_validating_webhook_enabled: false
+
+# ai_devops
+ai_devops_enabled: false
 
 # argocd
 argocd_enabled: false
