@@ -1537,7 +1537,7 @@ downloads:
     - kube_control_plane
   
   fnvhash:
-    enabled: "{{ fnvhash_enabled }}"
+    enabled: "{{ argocd_enabled }}"
     file: true
     dest: "{{ local_release_dir }}/fnvhash-0.1.0.tar.gz"
     url: "{{ fnvhash_download_url }}"

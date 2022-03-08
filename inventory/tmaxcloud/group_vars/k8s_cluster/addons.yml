@@ -281,3 +281,6 @@ cicd_enabled: false
 
 # image_validating_webhook
 image_validating_webhook_enabled: false
+
+# argocd
+argocd_enabled: false
