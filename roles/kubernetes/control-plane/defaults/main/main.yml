@@ -41,7 +41,7 @@ kubeadm_refresh_token: true
 kubeadm_scale_down_coredns_enabled: true
 
 # audit support
-kubernetes_audit: true
+kubernetes_audit: false
 # path to audit log file
 audit_log_path: /var/log/audit/kube-apiserver-audit.log
 # num days
@@ -70,13 +70,12 @@ audit_policy_hostpath: "{{ audit_policy_file | dirname }}"
 audit_policy_mountpath: "{{ audit_policy_hostpath }}"
 
 # audit webhook support
-kubernetes_audit_webhook: true
+kubernetes_audit_webhook: false
 
 # path to audit webhook config file
 audit_webhook_config_file: "{{ kube_config_dir }}/audit-policy/apiserver-audit-webhook-config.yaml"
-audit_webhook_server_url: "https://hypercloud5-api-server-service.hypercloud5-system.svc/audit"
-audit_webhook_server_extra_args:
-- insecure-skip-tls-verify: true
+audit_webhook_server_url: "https://audit.app"
+audit_webhook_server_extra_args: {}
 audit_webhook_mode: batch
 audit_webhook_batch_max_size: 100
 audit_webhook_batch_max_wait: 1s

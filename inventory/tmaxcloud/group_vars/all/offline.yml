@@ -25,11 +25,10 @@ grafana_image_repo: "{{ registry_host }}/grafana/grafana"
 efk_fluentd_image_repo: "{{ registry_host }}/fluent"
 mysql_image_repo: "{{ registry_host }}/mysql"
 efk_busybox_image_repo: "{{ registry_host }}/busybox"
-ghcr_image_repo: "{{ registry_host }}/ghcr.io"
 
 ## Kubernetes components
 kubeadm_download_url: "{{ files_repo }}/kubeadm"
-kubectl_download_url: "{{ files_repo }}/kubectl"
+kubectl_download_url: "{{ files_repo }}/kubectl" 
 kubelet_download_url: "{{ files_repo }}/kubelet"
 
 ## CNI Plugins
@@ -48,7 +47,7 @@ calicoctl_download_url: "{{ files_repo }}/calicoctl-linux-amd64"
 calico_crds_download_url: "{{ files_repo }}/calico-3.17.4.tar.gz"
 
 ## hyperregistry
-hyperregistry_download_url: "{{ files_repo }}/superregistry-2.4.1.tgz"
+hyperregistry_download_url: "{{ files_repo }}/hyperregistry-v2.2.2.tgz"
 
 # [Optional] helm: only if you set helm_enabled: true
 helm_download_url: "{{ files_repo }}/helm-v3.5.4-linux-amd64.tar.gz"

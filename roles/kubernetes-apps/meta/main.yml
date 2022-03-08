@@ -259,3 +259,8 @@ dependencies:
     tags:
       - ai_devops
 
+  - role: kubernetes-apps/ai_devops
+    when:
+      - argocd_enabled
+    tags:
+      - argocd
