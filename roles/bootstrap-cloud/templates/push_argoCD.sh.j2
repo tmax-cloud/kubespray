@@ -1,11 +1,16 @@
 #!/bin/bash
 [[ "$0" != "$BASH_SOURCE" ]] && export install_dir=$(dirname "$BASH_SOURCE") || export install_dir=$(dirname $0)
 
-if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
-  gitlab_host="$({{ bin_dir }}/kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}'):{{ ingress_nginx_https_port }}"
+if [[ "{{ custom_domain_name }}" == "" ]]; then
+  if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
+    gitlab_host="$({{ bin_dir }}/kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}'):{{ ingress_nginx_https_port }}"
+  else
+    gitlab_host=$({{ bin_dir }}/kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}')
+  fi
 else
   gitlab_host=$({{ bin_dir }}/kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}')
 fi
+
 gitlab_user="root"
 gitlab_password={{ GITLAB_PASSWORD }}
 repo_name={{ REPO_NAME }}
@@ -26,6 +31,10 @@ GIT_IS_AVAILABLE=$?
 if [ $GIT_IS_AVAILABLE -ne 0 ]; then
   yum install git
 fi
+
+git config --global user.name "Administrator"
+git config --global user.email "admin@example.com"
+git config --global http.sslVerify false
 
 
 
@@ -64,7 +73,6 @@ if [[ "{{gitlab_token}}" == "" ]]; then
   echo "finish create repo"
 
   # if using self-signed certificate, set sslVerify as false
-  git config --global http.sslVerify false
   git clone https://$gitlab_user:$gitlab_password@$gitlab_host/$gitlab_user/$repo_name.git
 
   cp -a $install_dir/argocd_installer/. $install_dir/$repo_name
@@ -83,7 +91,6 @@ else
   echo "finish create repo"
 
   # if using self-signed certificate, set sslVerify as false
-  git config --global http.sslVerify false
   git clone https://gitlab-ci-token:{{ gitlab_token }}@${gitlab_host}/${gitlab_user}/${repo_name}.git
   cp -a $install_dir/argocd_installer/. $install_dir/$repo_name
   cd $repo_name
@@ -91,4 +98,3 @@ else
   git commit -m "inital_commit"
   git push -u origin master
 fi
-
