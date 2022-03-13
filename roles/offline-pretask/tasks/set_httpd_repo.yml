@@ -1,5 +1,14 @@
-- name: Disable existing repositories
-  shell: sed -i "s/enabled=1/enabled=0/g" /etc/yum.repos.d/*
+- name: Find existing repositories
+  find: 
+    paths: /etc/yum.repos.d
+    file_type: file
+  register: all_repositories
+
+- name: Remove existing repositories
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ all_repositories.files }}"
 
 - name: Add httpd repository setting to hosts
   template:
@@ -8,4 +17,3 @@
     mode: '0644'
     owner: root
     group: root
-
