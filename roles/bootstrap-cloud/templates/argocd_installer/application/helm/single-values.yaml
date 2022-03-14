@@ -7,6 +7,7 @@ spec:
   project: default
 
 global:
+  # 마스터와 다르게 싱글의 경우 값변경이 필요하지 않음
   privateRegistry: testregistry.com
 
 modules:
@@ -123,11 +124,11 @@ modules:
   ### template service broker
   tsb:
     enabled: false
-    version: 0.1.3
+    version: 0.1.4
     clusterTsb:
-      version: 0.1.3
+      version: 0.1.4
     templateOperator:
-      version: 0.2.6    
+      version: 0.2.7    
 
   ### catalog controller
   catalogController:
