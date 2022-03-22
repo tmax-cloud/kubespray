@@ -24,6 +24,31 @@
       - argocd-gen-secret-name.py
       - argocd-repo-secret.yml
 
+- name: ArgoCD | Scan nginx-ingress service
+  command: "{{ bin_dir }}/kubectl get services -n {{ ingress_namespace }} {{ ingress_namespace }}-controller -o json"
+  register: "ingress_result"
+  changed_when: false
+  vars:
+    - ingress_namespace: "{{ ingress_nginx_namespace | default('ingress-nginx-system') }}"
+
+- name: ArgoCD | Set Ingress service type
+  set_fact:
+    argocd_ingress_nginx_svc_type: "{{ ingress_result.stdout | from_json | json_query('spec.type') }}"
+
+- name: ArgoCD | Set ingress IP
+  set_fact:
+    argocd_ingress_nginx_ip: "{{ ingress_result.stdout | from_json | json_query('status.loadBalancer.ingress[0].ip')}}"
+    argocd_ingress_nginx_port: 443
+  when:
+    - ingress_nginx_service_type == "LoadBalancer"
+
+- name: ArgoCD | Set ingress IP
+  set_fact:
+    argocd_ingress_nginx_ip: "{{ ansible_default_ipv4.address }}"
+    argocd_ingress_nginx_port: "{{ ingress_result.stdout | from_json | json_query('spec.ports[1].nodePort')}}"
+  when:
+    - ingress_nginx_service_type == "NodePort"
+
 - name: ArgoCD | Generate Manifests
   template:
     src: "{{ item }}.j2"
@@ -50,6 +75,15 @@
     - argocd-ingress.yml
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
+  
+- name: Argocd | Download fnvhash
+  include_tasks: "../../../download/tasks/download_file.yml"
+  vars:
+    download: "{{ download_defaults | combine(downloads.fnvhash) }}"
+
+- name: ArgoCD | Install Pre-package fnvhash
+  ansible.builtin.shell: |
+    sudo pip3 install --no-index -f . {{ local_release_dir }}/fnvhash-0.1.0.tar.gz
 
 - name: ArgoCD | Apply Secret for self-signed Gitlab
   ansible.builtin.shell: |
@@ -58,4 +92,3 @@
   args:
     chdir: "{{ kube_config_dir }}/addons/argocd"
   ignore_errors: true
-

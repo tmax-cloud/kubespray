@@ -15,12 +15,13 @@
   with_items:
     - gitlab-deploy.yml
     - push_argoCD.sh
+    - create_token.sh
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
 
 - name: Gitlab | Copy ArgoCD-installer
   copy:
-    src: "{{ playbook_dir }}/roles/kubernetes-apps/gitlab/templates/argocd_installer"
+    src: "{{ playbook_dir }}/roles/bootstrap-cloud/templates/argocd_installer"
     dest: "{{ kube_config_dir }}/addons/gitlab/"
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
@@ -54,9 +55,18 @@
     chdir: "{{ kube_config_dir }}/addons/gitlab"
   ignore_errors: true
 
+
+- name: Gitlab | create gitlab-token
+  ansible.builtin.shell: |
+    sudo chmod +755 ./create_token.sh
+    sudo ./create_token.sh
+  args:
+    chdir: "{{ kube_config_dir }}/addons/gitlab"
+  ignore_errors: true
+
 - name: Gitlab | push argoCD to gitlab
   ansible.builtin.shell: |
-    sudo chmod +755 push_argoCD.sh
+    sudo chmod +755 ./push_argoCD.sh
     sudo ./push_argoCD.sh
   args:
     chdir: "{{ kube_config_dir }}/addons/gitlab"

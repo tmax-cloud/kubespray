@@ -3,7 +3,7 @@
 is_this_offline: true
 ### Private Container Image Registry
 registry_host: "10.0.10.50:5000"
-files_repo: "file:///tmp/files-repo"
+files_repo: "http://192.168.9.237"
 ### If using CentOS, RedHat, AlmaLinux or Fedora
 # yum_repo: "file:///tmp/packages-repo"
 ### If using Debian
@@ -25,6 +25,7 @@ grafana_image_repo: "{{ registry_host }}/grafana/grafana"
 efk_fluentd_image_repo: "{{ registry_host }}/fluent"
 mysql_image_repo: "{{ registry_host }}/mysql"
 efk_busybox_image_repo: "{{ registry_host }}/busybox"
+ghcr_image_repo: "{{ registry_host }}/ghcr.io"
 
 ## Kubernetes components
 kubeadm_download_url: "{{ files_repo }}/kubeadm"
@@ -51,6 +52,12 @@ hyperregistry_download_url: "{{ files_repo }}/hyperregistry-2.4.1.tgz"
 
 # [Optional] helm: only if you set helm_enabled: true
 helm_download_url: "{{ files_repo }}/helm-v3.5.4-linux-amd64.tar.gz"
+
+# krew
+krew_download_url: "{{ files_repo }}/krew-v0.4.1.tar.gz"
+
+# fnvhash
+fnvhash_download_url : "{{ files_repo }}/fnvhash-0.1.0.tar.gz"
 
 # [Optional] helm: only if you set helm_enabled: true
 # helm_download_url: "{{ files_repo }}/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz"

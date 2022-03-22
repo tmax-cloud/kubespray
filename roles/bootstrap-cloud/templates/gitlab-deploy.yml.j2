@@ -87,6 +87,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: {{ INGRESS_CLASS }}
     nginx.ingress.kubernetes.io/proxy-body-size: "1024m"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:
   tls:
     - hosts:
@@ -141,7 +142,7 @@ spec:
       serviceAccountName: {{ APP_NAME }}-account
       initContainers:
       - name: parse-svc
-        image: docker.io/bitnami/kubectl:1.20.10
+        image: "{{ gitlab_kubectl_repo }}:{{ gitlab_kubectl_tag }}"
         env:
         - name: NODE_IP
           valueFrom:
@@ -175,21 +176,28 @@ spec:
           PORT="${PORT/\.[0-9]*/}"
           PORT_SSH="${PORT_SSH/\.[0-9]*/}"
           # Configure Service
-          if [[ {{ INGRESS_HOST }} == "" ]]; then
+
+          if [[ "{{ custom_domain_name }}" == "" ]]; then
+            if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
+              NOW_IP={{ ansible_default_ipv4.address }}
+            else
               NOW_IP=""
               while [ "$NOW_IP" == "" ]; do
                   NOW_IP=$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.status.loadBalancer.ingress[].ip}')
               done
-              ING_HOST="{{ APP_NAME }}.$NAMESPACE.${NOW_IP}.nip.io"
-              EXTERNAL_IP="http://$ING_HOST/"
+            fi
+            ING_HOST="{{ APP_NAME }}.$NAMESPACE.${NOW_IP}.nip.io"
           else
-              ING_HOST={{ INGRESS_HOST }}
-              EXTERNAL_IP="http://${INGRESS_HOST}/"
+            ING_HOST=gitlab.{{ custom_domain_name }}
           fi
-          NOW_IP=$(kubectl -n {{ NAMESPACE }} get ingress {{ APP_NAME }}-ingress -o jsonpath='{.status.loadBalancer.ingress[].ip}')
+          if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
+            EXTERNAL_IP="http://${ING_HOST}/"
+          else
+            EXTERNAL_IP="http://${ING_HOST}/"
+          fi
           kubectl -n {{ NAMESPACE }} patch ingress {{ APP_NAME }}-ingress --type=json -p '[{"op": "replace", "path": "/spec/rules/0/host", "value": "'$ING_HOST'"}]'
           # Override external url
-          if [[ {{ EXTERNAL_URL }} != "" ]]; then
+          if [[ "{{ EXTERNAL_URL }}" != "" ]]; then
               EXTERNAL_IP="{{ EXTERNAL_URL }}"
           fi
           cat <<EOT >> /tmp/shared/omnibus.env
@@ -201,10 +209,11 @@ spec:
           grafana['enable'] = false
           nginx['client_max_body_size'] = '2500m'
           gitlab_rails['initial_root_password'] = "{{ GITLAB_PASSWORD }}"
+          nginx['ssl_protocols'] = "TLSv1.1"
           EOT
           # Add keycloak
-          if [[ {{ KEYCLOAK_URL }} != "" ]]; then
-            if [[ {{ KEYCLOAK_TLS_SECRET_NAME }} != "" ]]; then
+          if [[ "{{ KEYCLOAK_URL }}" != "" ]]; then
+            if [[ "{{ KEYCLOAK_TLS_SECRET_NAME }}" != "" ]]; then
               kubectl -n {{ NAMESPACE }} get secret {{ KEYCLOAK_TLS_SECRET_NAME }} -o jsonpath='{.data.tls\.crt}' | base64 -d > /tmp/shared/keycloak.pem
             fi
             cat <<EOY >> /tmp/shared/omnibus.env
@@ -236,7 +245,7 @@ spec:
           EOY
           fi
       - name: init-cert
-        image: docker.io/bitnami/kubectl:1.20.10
+        image: "{{ gitlab_kubectl_repo }}:{{ gitlab_kubectl_tag }}"
         securityContext:
           privileged: true
         env:
@@ -298,7 +307,7 @@ spec:
       - name: {{ APP_NAME }}
         securityContext:
           privileged: true
-        image: docker.io/gitlab/gitlab-ce:13.6.4-ce.0
+        image: {{ gitlab_image_repo }}:{{ gitlab_image_tag }}
         command:
         - /bin/sh
         - -c
