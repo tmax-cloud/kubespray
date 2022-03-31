@@ -1,62 +1,42 @@
-# Add etcd's label for prometheus
-- name: Etcd - label | Add k8s-app=etcd
+# Add controlplane's label for prometheus
+- name: controlplane labeling for prometheus - label | Add k8s-app
   lineinfile:
     firstmatch: yes
-    path: '{{ kube_manifest_dir }}/etcd.yaml'
-    regexp: 'k8s-app: etcd'
+    path: '{{ kube_manifest_dir }}/{{ item.name }}.yaml'
+    regexp: '{{ item.regexp }}'
     insertafter: 'labels:'
     state: present
-    line: '    kube-app: etcd'
+    line: '{{ item.line }}'
+  loop: 
+  - { name: 'etcd', regexp: 'k8s-app: etcd', line: '    k8s-app: etcd' }
+  - { name: 'kube-controller-manager', regexp: 'k8s-app: kube-controller-manager', line: '    k8s-app: kube-controller-manager' }
+  - { name: 'kube-scheduler', regexp: 'k8s-app: kube-scheduler', line: '    k8s-app: kube-scheduler' }
 
-# Restart etcd crio/containerd
-- name: Etcd - command | restart etcd crio/containerd
-  shell: "{{ bin_dir }}/crictl pods --name etcd -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
-  register: remove_etcd_container
+# Restart controlplane crio/containerd
+- name: controlplane labeling for prometheus - label | restart controlplane crio/containerd
+  shell: "{{ bin_dir }}/crictl pods --name {{ item }} -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
+  register: remove_container
   retries: 10
-  until: remove_etcd_container.rc == 0
+  until: remove_container.rc == 0
   delay: 1
   when:
     - container_manager in ['crio', 'containerd']
     - inventory_hostname in groups['kube_control_plane']
+  loop:
+  - 'etcd'
+  - 'kube-controller-manager' 
+  - 'kube-scheduler'
 
-# Add kube-controller-manager's label for prometheus
-- name: kube-controller-manager - label | Add k8s-app=kube-controller-manager
-  lineinfile:
-    firstmatch: yes
-    path: '{{ kube_manifest_dir }}/kube-controller-manager.yaml'
-    regexp: 'k8s-app: kube-controller-manager'
-    insertafter: 'labels:'
-    state: present
-    line: '    kube-app: kube-controller-manager'
-
-# Restart kube-controller-manager crio/containerd
-- name: kube-controller-manager - command | restart kube-controller-manager crio/containerd
-  shell: "{{ bin_dir }}/crictl pods --name kube-controller-manager -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
-  register: remove_kube_controller_manager_container
-  retries: 10
-  until: remove_kube_controller_manager_container.rc == 0
+# Waiting for the controlplane component to be running
+- name: controlplane labeling for prometheus - label | wait for the controlplane to be running
+  uri:
+    url: "{{ item }}"
+    validate_certs: no
+  register: result
+  until: result.status == 200
+  retries: 60
   delay: 1
-  when:
-    - container_manager in ['crio', 'containerd']
-    - inventory_hostname in groups['kube_control_plane']
-               
-# Add kube-scheduler's label for prometheus
-- name: kube-scheduler - label | Add k8s-app=kube-scheduler
-  lineinfile:
-    firstmatch: yes
-    path: '{{ kube_manifest_dir }}/kube-scheduler.yaml'
-    regexp: 'k8s-app: kube-scheduler'
-    insertafter: 'labels:'
-    state: present
-    line: '    kube-app: kube-scheduler'
-
-# Restart kube-scheduler crio/containerd
-- name: kube-scheduler - command | restart kube-scheduler crio/containerd
-  shell: "{{ bin_dir }}/crictl pods --name kube-scheduler -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
-  register: remove_kube_scheduler_container
-  retries: 10
-  until: remove_kube_scheduler_container.rc == 0
-  delay: 1
-  when:
-    - container_manager in ['crio', 'containerd']
-    - inventory_hostname in groups['kube_control_plane']
+  loop:
+  - '{{ etcd_health_check_url }}'
+  - '{{ kube_controller_manager_health_check_url }}'
+  - '{{ kube_scheduler_health_check_url }}'
