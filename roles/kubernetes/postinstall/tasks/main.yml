@@ -17,3 +17,9 @@
     - controller_manager_port_0 == false
   tags:
     - controller-manager-port
+
+- import_tasks: controlplane-label-for-prometheus.yaml
+  when:
+    - prometheus_k8s_app_label 
+  tags:
+    - prometheus_k8s_app_label
