@@ -3,12 +3,12 @@
     
 - oidc 변경
 
-    `inventory/tmaxcloud/group_vars/k8s_cluster/k8s_cluster.yml` 에서
+    `inventory/tmaxcloud/group_vars/k8s_cluster/k8s-cluster.yml` 에서
     `kube_oidc_auth`을 true로 변경 후, 원하는 OIDC 변수 값을 변경한다.
 
     사용하지 않는 변수는 주석 처리한다. 
 
-
+    `inventory/tmaxcloud/group_vars/k8s_cluster/k8s-cluster.yml`
     ```bash
     ## It is possible to activate / deactivate selected authentication methods (oidc, static token auth)
     kube_oidc_auth: false
@@ -32,6 +32,7 @@
 
     예시)
 
+    `inventory/tmaxcloud/group_vars/k8s_cluster/k8s-cluster.yml`
     ``` bash
     ## It is possible to activate / deactivate selected authentication methods (oidc, static token auth)
     kube_oidc_auth: true
@@ -58,12 +59,12 @@
 
 - audit 변경
         
-    `inventory/tmaxcloud/group_vars/k8s_cluster/k8s_cluster.yml` 에서
+    `inventory/tmaxcloud/group_vars/k8s_cluster/k8s-cluster.yml` 에서
 
     `kubernetes_audit`와 `kubernetes_audit_webhook`을 모두 true로 변경 후, 원하는 변수 값을 변경한다.
 
     사용하지 않는 값은 주석 처리한다. 
-
+    `inventory/tmaxcloud/group_vars/k8s_cluster/k8s-cluster.yml`
     ```bash
     # audit log for kubernetes
     kubernetes_audit: false
@@ -78,7 +79,8 @@
     <br/>
 
     예시)
-
+    
+    `inventory/tmaxcloud/group_vars/k8s_cluster/k8s-cluster.yml`
     ``` bash
 
     # audit log for kubernetes

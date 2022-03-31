@@ -39,6 +39,19 @@ master_ip: "address of master node"
 
 ```
 
+<br/>
+
+### Prometheus Scraping 설정을 위한 control plane label 설정
+
+`roles/kubernetes/postinstall/defaults/main.yml`에서 prometheus_k8s_app_label 값 true로 변경시 etcd, kube-scheduler, kube-controller-manager에 `k8s-app: {{ componet }}` label이 추가된다. 
+
+`roles/kubernetes/postinstall/defaults/main.yml`
+``` bash
+prometheus_k8s_app_label: true
+```
+
+<br/>
+
 ## Grafana Keycloak 연동
 * 목적 : 'Keycloak 연동'
 * 순서: 
