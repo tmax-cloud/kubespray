@@ -31,7 +31,7 @@ resource "aws_subnet" "cluster-vpc-subnets-public" {
 
   tags = merge(var.default_tags, tomap({
     Name = "kubernetes-${var.aws_cluster_name}-${element(var.aws_avail_zones, count.index)}-public"
-    "kubernetes.io/cluster/${var.aws_cluster_name}" = "owned"
+    "kubernetes.io/cluster/${var.aws_cluster_name}" = "shared"
     "kubernetes.io/role/elb" = "1"
   }))
 }
@@ -50,7 +50,7 @@ resource "aws_subnet" "cluster-vpc-subnets-private" {
 
   tags = merge(var.default_tags, tomap({
     Name = "kubernetes-${var.aws_cluster_name}-${element(var.aws_avail_zones, count.index)}-private"
-    "kubernetes.io/cluster/${var.aws_cluster_name}" = "owned"
+    "kubernetes.io/cluster/${var.aws_cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb" = "1"
   }))
 }
