@@ -9,6 +9,8 @@ global:
   # 기본시나리오에서는 privateRegistry값만 변경해주면 된다
   # e.x) 172.22.6.2:5000 or hyperregistry.domain.com
   privateRegistry: testregistry.com
+  # 값 변경 필요 없음
+  adminUser: test@test.co.kr
 
 modules:
   ### gateway-bootstrap
@@ -51,7 +53,7 @@ modules:
 
   ### strimzi-kafka-operator
   strimziKafka:
-    enabled: true
+    enabled: false
 
   ### hyperauth
   hyperAuth:
@@ -60,9 +62,12 @@ modules:
 
   ### efk
   efk:
-    enabled: true
+    enabled: false
     es:
       version: 7.2.1
+      limitMemory: 8Gi
+      requestMemory: 5Gi
+      jvmHeap: "-Xms4g -Xmx4g"
       volumeSize: 50Gi
     busyBox:
       version: 1.32.0
@@ -78,15 +83,15 @@ modules:
   prometheus:
     enabled: true
     versions:
-      prometheus: v2.11.0
+      prometheus: v2.30.3
       cmReload: v0.0.1
-      cmReloader: v0.34.0
-      operator: v0.34.0
-      alertManager: v0.20.0
-      kubeRbacProxy: v0.4.1
-      kubeStateMetrics: v1.8.0
-      nodeExporter: v0.18.1
-      adapter: v0.5.0
+      cmReloader: v0.51.2
+      operator: v0.51.2
+      alertManager: v0.23.0
+      kubeRbacProxy: v0.11.0
+      kubeStateMetrics: v2.2.3
+      nodeExporter: v1.2.2
+      adapter: v0.9.1
     pvcSize: 10Gi
 
   ### grafana
@@ -96,74 +101,80 @@ modules:
     version: 6.4.3
     imageRepo: grafana/grafana
 
-  ### istio
-  istio:
-    enabled: true
+  ### service-mesh
+  serviceMesh:
+    ### istio
+    istio:
+      enabled: false
 
-  ### jaeger
-  jaeger:
-    enabled: true
-  
-  ### kiali
-  kiali:
-    enabled: true
+    ### jaeger
+    jaeger:
+      enabled: false
+
+    ### kiali
+    kiali:
+      enabled: false
 
   ### cluster-api
   capi:
-    enabled: true
+    enabled: false
     providers:
       aws:
-        enabled: true
+        enabled: false
         # description: ...
         credentials: "credential"
       vsphere:
-        enabled: true
+        enabled: false
         credentials: 
           username: "user"
           password: "password"
   
   ### template service broker
   tsb:
-    enabled: true
+    enabled: false
     version: 0.1.4
     clusterTsb:
       version: 0.1.4
     templateOperator:
-      version: 0.2.7    
+      version: 0.2.7
 
   ### catalog controller
   catalogController:
-    enabled: true
+    enabled: false
 
-  ### service broker
-  serviceBroker:
-    enabled: true
-  
   ### hypercloud
   hyperCloud:
     enabled: true
     # description: 'single' or 'multi'
     mode: multi
     kafka:
-      enabled: true
+      enabled: false
+
+  ### hyperregistry
+  harbor:
+    enabled: false
 
   ### tekton pipeline
   tektonPipeline:
-    enabled: true
+    enabled: false
     #namespace: tekton-pipelines
 
   ### tekton trigger
   tektonTrigger:
-    enabled: true
+    enabled: false
 
   ### cicd operator
   cicd:
-    enabled: true
+    enabled: false
+
+  ### redis-operator
+  redis:
+    enabled: false
 
   ### image validating webhook
   imageValidatingWebhook:
     enabled: true
-    
+
   ### ai-devops
   aiDevops:
     enabled: false

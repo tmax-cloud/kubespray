@@ -31,6 +31,12 @@ spec:
             value: {{ .Values.modules.efk.es.version }}
           - name: busybox_image_tag
             value: {{ .Values.modules.efk.busyBox.version }}
+          - name: es_resource_limit_memory
+            value: {{ .Values.modules.efk.es.limitMemory }}
+          - name: es_resource_request_memory
+            value: {{ .Values.modules.efk.es.requestMemory }}
+          - name: es_jvm_heap
+            value: {{ .Values.modules.efk.es.jvmHeap }}
           - name: es_volume_size
             value: {{ .Values.modules.efk.es.volumeSize }}
           - name: kibana_image_tag
@@ -49,6 +55,10 @@ spec:
             value: {{ .Values.modules.efk.fluentd.version }}
           - name: cluster_name
             value: {{ .Values.spec.destination.label }}
+          {{- if ne .Values.spec.destination.label "master" }}
+          - name: kibana_client_id
+            value: {{ .Values.spec.destination.label }}-kibana
+          {{- end }}
     path: manifest/efk
     repoURL: {{ .Values.spec.source.repoURL }}
     targetRevision: {{ .Values.spec.source.targetRevision }}
