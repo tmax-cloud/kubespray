@@ -3,6 +3,9 @@ function (
     private_registry="172.22.6.2:5000",
     es_image_tag="7.2.1",
     busybox_image_tag="1.32.0",
+    es_resource_limit_memory="8Gi",
+    es_resource_request_memory="5Gi",
+    es_jvm_heap="-Xms4g -Xmx4g",
     es_volume_size="50Gi",
     kibana_image_tag="7.2.0",
     kibana_svc_type="ClusterIP",
@@ -23,6 +26,14 @@ local busybox_image_path = "docker.io/busybox:" + busybox_image_tag;
 local kibana_image_path = "docker.elastic.co/kibana/kibana:" + kibana_image_tag;
 local gatekeeper_image_path = "quay.io/keycloak/keycloak-gatekeeper:" + gatekeeper_image_tag;
 local fluentd_image_path = "docker.io/fluent/fluentd-kubernetes-daemonset:" + fluentd_image_tag;
+local gatekeeper_enabled = if hyperauth_url != "" then true else false;
+local resource_uri = if cluster_name == "master" then "" else "/console/kibana";
+local single_kibana_cmdata = if cluster_name == "master" then "" else std.join("", 
+  [
+    "\nserver.basePath: '/console/kibana'",
+    "\nserver.rewriteBasePath: true"
+  ]
+);
 
 [
   {
@@ -59,11 +70,11 @@ local fluentd_image_path = "docker.io/fluent/fluentd-kubernetes-daemonset:" + fl
               "resources": {
                 "limits": {
                   "cpu": "500m",
-                  "memory": "3000Mi"
+                  "memory": es_resource_limit_memory
                 },
                 "requests": {
                   "cpu": "100m",
-                  "memory": "100Mi"
+                  "memory": es_resource_request_memory
                 }
               },
               "ports": [
@@ -107,7 +118,7 @@ local fluentd_image_path = "docker.io/fluent/fluentd-kubernetes-daemonset:" + fl
                 },
                 {
                   "name": "ES_JAVA_OPTS",     
-                  "value": "-Xms2g -Xmx2g"
+                  "value": es_jvm_heap
                 }
               ]
             }
@@ -217,7 +228,40 @@ local fluentd_image_path = "docker.io/fluent/fluentd-kubernetes-daemonset:" + fl
               }
             }
           ],
-          "containers": if hyperauth_url != "" then [
+          "containers": [
+            {
+              "name": "kibana",
+              "image": std.join("",[target_registry, kibana_image_path]),
+              "resources": {
+                "limits": {
+                  "cpu": "500m",
+                  "memory": "1000Mi"
+                },
+                "requests": {
+                  "cpu": "500m",
+                  "memory": "1000Mi"
+                }
+              },
+              "env": [
+                {
+                  "name": "ELASTICSEARCH_URL",
+                  "value": "http://elasticsearch.kube-logging.svc.cluster.local:9200"
+                }
+              ],
+              "ports": [
+                {
+                  "containerPort": 5601
+                }
+              ],
+              "volumeMounts": [
+                {
+                  "mountPath": "/usr/share/kibana/config/kibana.yml",
+                  "name": "config",
+                  "subPath": "kibana.yml"
+                }
+              ]
+            }
+          ] + if gatekeeper_enabled then [
             {
               "name": "gatekeeper",
               "image": std.join("", [target_registry, gatekeeper_image_path]),
@@ -240,9 +284,11 @@ local fluentd_image_path = "docker.io/fluent/fluentd-kubernetes-daemonset:" + fl
                 "--enable-refresh-tokens=true",
                 "--enable-metrics=true",
                 std.join("", ["--encryption-key=", encryption_key]),
-                "--resources=uri=/*|roles=kibana:kibana-manager",
+                std.join("", ["--resources=uri=", resource_uri, "/*|roles=", kibana_client_id, ":kibana-manager"]),
                 "--verbose"
-              ],
+              ] + if cluster_name != "master" then [
+                "--base-uri=/console/kibana"
+              ] else [],
               "ports": [
                 {
                   "name": "service",
@@ -256,73 +302,8 @@ local fluentd_image_path = "docker.io/fluent/fluentd-kubernetes-daemonset:" + fl
                   "readOnly": true
                 }
               ]
-            },
-            {
-              "name": "kibana",
-              "image": std.join("",[target_registry, kibana_image_path]),
-              "resources": {
-                "limits": {
-                  "cpu": "500m",
-                  "memory": "1000Mi"
-                },
-                "requests": {
-                  "cpu": "500m",
-                  "memory": "1000Mi"
-                }
-              },
-              "env": [
-                {
-                  "name": "ELASTICSEARCH_URL",
-                  "value": "http://elasticsearch.kube-logging.svc.cluster.local:9200"
-                }
-              ],
-              "ports": [
-                {
-                  "containerPort": 5601
-                }
-              ],
-              "volumeMounts": [
-                {
-                  "mountPath": "/usr/share/kibana/config/kibana.yml",
-                  "name": "config",
-                  "subPath": "kibana.yml"
-                }
-              ]
             }
-          ] else [
-            {
-              "name": "kibana",
-              "image": std.join("",[target_registry, kibana_image_path]),
-              "resources": {
-                "limits": {
-                  "cpu": "500m",
-                  "memory": "1000Mi"
-                },
-                "requests": {
-                  "cpu": "500m",
-                  "memory": "1000Mi"
-                }
-              },
-              "env": [
-                {
-                  "name": "ELASTICSEARCH_URL",
-                  "value": "http://elasticsearch.kube-logging.svc.cluster.local:9200"
-                }
-              ],
-              "ports": [
-                {
-                  "containerPort": 5601
-                }
-              ],
-              "volumeMounts": [
-                {
-                  "mountPath": "/usr/share/kibana/config/kibana.yml",
-                  "name": "config",
-                  "subPath": "kibana.yml"
-                }
-              ]
-            }
-          ]
+          ] else [],
         }
       }
     }
@@ -335,7 +316,15 @@ local fluentd_image_path = "docker.io/fluent/fluentd-kubernetes-daemonset:" + fl
       "namespace": "kube-logging"
     },
     "data": {
-      "kibana.yml": std.join("", ["server.name: kibana", "\nserver.host: '0'", "\nelasticsearch.hosts: [ 'http://elasticsearch:9200' ]", "\nelasticsearch.requestTimeout: '100000ms'"])
+      "kibana.yml": std.join("", 
+        [
+          "server.name: kibana",
+          "\nserver.host: '0'",
+          single_kibana_cmdata,
+          "\nelasticsearch.hosts: [ 'http://elasticsearch:9200' ]",
+          "\nelasticsearch.requestTimeout: '100000ms'"
+        ]
+      )
     }
   },
   {
@@ -410,7 +399,7 @@ local fluentd_image_path = "docker.io/fluent/fluentd-kubernetes-daemonset:" + fl
       "selector": {
         "matchLabels": {
           "app": "fluentd"
-         }
+        }
       },
       "template": {
         "metadata": {
@@ -442,7 +431,7 @@ local fluentd_image_path = "docker.io/fluent/fluentd-kubernetes-daemonset:" + fl
                 {
                   "name": "FLUENT_ELASTICSEARCH_SCHEME",
                   "value": "http",
-                 },
+                },
                 {
                   "name": "FLUENTD_SYSTEMD_CONF",
                   "value": "disable",

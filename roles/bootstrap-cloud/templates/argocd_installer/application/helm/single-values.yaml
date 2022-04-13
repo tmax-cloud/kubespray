@@ -9,12 +9,13 @@ spec:
 global:
   # 마스터와 다르게 싱글의 경우 값변경이 필요하지 않음
   privateRegistry: testregistry.com
+  adminUser: test@test.co.kr
 
 modules:
   ### gateway-bootstrap
   gatewayBootstrap:
     enabled: true
-    svc_type: "LoadBalancer"
+    svc_type: LoadBalancer
     tls:
       selfsigned:
         enabled: false
@@ -60,9 +61,12 @@ modules:
 
   ### efk
   efk:
-    enabled: true
+    enabled: false
     es:
       version: 7.2.1
+      limitMemory: 8Gi
+      requestMemory: 5Gi
+      jvmHeap: "-Xms4g -Xmx4g"
       volumeSize: 50Gi
     busyBox:
       version: 1.32.0
@@ -78,46 +82,48 @@ modules:
   prometheus:
     enabled: true
     versions:
-      prometheus: v2.11.0
+      prometheus: v2.30.3
       cmReload: v0.0.1
-      cmReloader: v0.34.0
-      operator: v0.34.0
-      alertManager: v0.20.0
-      kubeRbacProxy: v0.4.1
-      kubeStateMetrics: v1.8.0
-      nodeExporter: v0.18.1
-      adapter: v0.5.0
+      cmReloader: v0.51.2
+      operator: v0.51.2
+      alertManager: v0.23.0
+      kubeRbacProxy: v0.11.0
+      kubeStateMetrics: v2.2.3
+      nodeExporter: v1.2.2
+      adapter: v0.9.1
     pvcSize: 10Gi
 
   ### grafana
   grafana:
-    enabled: false
+    enabled: true
     pvcSize: 10Gi
     version: 6.4.3
     imageRepo: grafana/grafana
 
-  ### istio
-  istio:
-    enabled: true
+  ### service-mesh
+  serviceMesh:
+    ### istio
+    istio:
+      enabled: false
 
-  ### jaeger
-  jaeger:
-    enabled: true
-  
-  ### kiali
-  kiali:
-    enabled: false
+    ### jaeger
+    jaeger:
+      enabled: false
+
+    ### kiali
+    kiali:
+      enabled: false
 
   ### cluster-api
   capi:
     enabled: false
     providers:
       aws:
-        enabled: true
+        enabled: false
         # description: ...
         credentials: "credential"
       vsphere:
-        enabled: true
+        enabled: false
         credentials: 
           username: "user"
           password: "password"
@@ -129,14 +135,10 @@ modules:
     clusterTsb:
       version: 0.1.4
     templateOperator:
-      version: 0.2.7    
+      version: 0.2.7
 
   ### catalog controller
   catalogController:
-    enabled: false
-
-  ### service broker
-  serviceBroker:
     enabled: false
   
   ### hypercloud
@@ -145,7 +147,11 @@ modules:
     # description: 'single' or 'multi'
     mode: multi
     kafka:
-      enabled: true
+      enabled: false
+
+  ### hyperregistry
+  harbor:
+    enabled: true
 
   ### tekton pipeline
   tektonPipeline:
@@ -158,6 +164,10 @@ modules:
 
   ### cicd operator
   cicd:
+    enabled: false
+
+  ### redis-operator
+  redis:
     enabled: false
 
   ### image validating webhook
