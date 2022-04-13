@@ -9,7 +9,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   rules:
-  - host: argocd.{{ custom_domain_name }}
+  - host: {{ argocd_subdomain }}.{{ custom_domain_name }}
     http:
       paths:
       - path: /
@@ -21,5 +21,5 @@ spec:
               name: https
   tls:
   - hosts:
-    - argocd.{{ custom_domain_name }}
+    - {{ argocd_subdomain }}.{{ custom_domain_name }}
     secretName: argocd-secret
