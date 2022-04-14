@@ -52,13 +52,7 @@ etcd:
       election-timeout: "{{ etcd_election_timeout }}"
       heartbeat-interval: "{{ etcd_heartbeat_interval }}"
       auto-compaction-retention: "{{ etcd_compaction_retention }}"
-{% if MAIN_MASTER_IP is defined %}
-{%- set metric_urls = [] %}
-{%- for ip in MAIN_MASTER_IP  %}
-{{- metric_urls.append( "http://{}:2381".format(ip) ) }}
-{%- endfor %}
-      listen-metrics-urls: {{ metric_urls|join(',') }}
-{% endif %}
+      listen-metrics-urls: http://127.0.0.1:2381
 {% if etcd_snapshot_count is defined %}
       snapshot-count: "{{ etcd_snapshot_count }}"
 {% endif %}
