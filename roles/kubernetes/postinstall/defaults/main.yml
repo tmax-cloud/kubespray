@@ -1,11 +1,13 @@
 ---
 api_server_dns_cfwhn: false
 
-scheduler_port_0: true
+scheduler_port_0: false
 
-controller_manager_port_0: true
+controller_manager_port_0: false
 
-prometheus_k8s_app_label: false
+prometheus_k8s_app_label: true
+
+master_ip_in_listen_metrics_urls: true
 
 etcd_health_check_url: 'http://127.0.0.1:2381/health'
 
