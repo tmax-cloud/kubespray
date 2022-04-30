@@ -188,7 +188,7 @@ spec:
             fi
             ING_HOST="{{ APP_NAME }}.$NAMESPACE.${NOW_IP}.nip.io"
           else
-            ING_HOST={{{{ gitlab_subdomain }}}}.{{ custom_domain_name }}
+            ING_HOST={{ gitlab_subdomain }}.{{ custom_domain_name }}
           fi
           if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
             EXTERNAL_IP="http://${ING_HOST}/"
