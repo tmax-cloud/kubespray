@@ -8,6 +8,10 @@
 # This value can be 'nfs' or 'efs-sc' provided by the hypercloud, or any other value user create
 default_storageclass_name: nfs
 
+# StorageClass name required for pvc used by postgreSQL
+# If you are using nfs the value should be 'nfs'
+postgresql_sc_name: efs-sc-postgresql
+
 # nfs-external-provisioner
 nfs_external_provisioner_enabled: true
 nfs_namespace: nfs

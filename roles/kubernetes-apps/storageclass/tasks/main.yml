@@ -1,0 +1,23 @@
+---
+# tasks file for storageclass
+- name: StorageClass | Generate Manifests
+  template:
+    src: "{{ item.file }}.j2"
+    dest: "{{ kube_config_dir }}/{{ item.file }}"
+  with_items:
+    - { name: storageclass, file: aws-efs-storageclass-postgre.yml }
+  register: storageclass_manifests
+  when: inventory_hostname == groups['kube_control_plane'][0]
+
+- name: StorageClass | Apply Manifests
+  kube:
+    kubectl: "{{ bin_dir }}/kubectl"
+    filename: "{{ kube_config_dir }}/{{ item.item.file }}"
+    state: "latest"
+    wait: true
+  with_items:
+    - "{{ storageclass_manifests.results }}"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+  loop_control:
+    label: "{{ item.item.file }}"

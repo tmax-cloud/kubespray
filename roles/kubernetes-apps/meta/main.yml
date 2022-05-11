@@ -130,6 +130,12 @@ dependencies:
     tags:
       - default_storageclass
 
+  - role: kubernetes-apps/storageclass
+    when:
+      - aws_efs_csi_enabled
+    tags:
+      - storageclass
+
   - role: kubernetes-apps/ingress_controller/ingress_nginx
     when:
       - ingress_nginx_enabled
