@@ -1,3 +1,4 @@
 ---
 # defaults file for storageclass
-# postgresql_sc_name: efs-sc-postgresql
+# sc_name_0: efs-sc-0
+# sc_name_999: efs-sc-999

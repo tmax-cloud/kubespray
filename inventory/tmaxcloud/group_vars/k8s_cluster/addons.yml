@@ -9,8 +9,9 @@
 default_storageclass_name: nfs
 
 # StorageClass name required for pvc used by postgreSQL
-# If you are using nfs the value should be 'nfs'
-postgresql_sc_name: efs-sc-postgresql
+# If you are using nfs the value of 'sc_name_0' and 'sc_name_999' should be 'nfs'
+sc_name_0: efs-sc-0
+sc_name_999: efs-sc-999
 
 # nfs-external-provisioner
 nfs_external_provisioner_enabled: true
