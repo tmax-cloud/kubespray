@@ -5,7 +5,8 @@
     src: "{{ item.file }}.j2"
     dest: "{{ kube_config_dir }}/{{ item.file }}"
   with_items:
-    - { name: storageclass, file: aws-efs-storageclass-postgre.yml }
+    - { name: storageclass-0, file: aws-efs-storageclass-0.yml }
+    - { name: storageclass-999, file: aws-efs-storageclass-999.yml }
   register: storageclass_manifests
   when: inventory_hostname == groups['kube_control_plane'][0]
 
