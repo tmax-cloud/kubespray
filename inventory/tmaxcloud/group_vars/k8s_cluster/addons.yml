@@ -259,6 +259,9 @@ registry_operator_storage_class: "nfs"
 hyperregistry_enabled: false
 hyperregistry_ingress_nginx_class: "{{ ingress_nginx_class | default('nginx-system') }}"
 hyperregistry_storage_class: "nfs"
+# hyperregistry db is used 999 uid, 
+# if you use efs-sc you need to efs-sc-999 storageclass
+hyperregistry_database_storage_class: "nfs"
 hyperregistry_registry_disk_size: 100G
 
 # catalog-controller
