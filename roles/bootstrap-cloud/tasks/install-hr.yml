@@ -17,6 +17,22 @@
     dest: "{{ kube_config_dir }}/addons/hyperregistry/{{ item }}"
   with_items: ["hr-nginx-values.yml", "oidc-integration.sh"]
 
+- name: HyperRegistry | Change storageClass
+  ansible.builtin.shell:
+    sed -i "s/@@hyperregistry_database_storage_class@@/"efs-sc-999"/g" ./hr-nginx-values.yml
+  args:
+    chdir: "{{ kube_config_dir }}/addons/hyperregistry"
+  ignore_errors: true
+  tags:
+    - aws
+
+- name: HyperRegistry | Change storageClass
+  ansible.builtin.shell:
+    sed -i "s/@@hyperregistry_database_storage_class@@/'""'/g" ./hr-nginx-values.yml
+  args:
+    chdir: "{{ kube_config_dir }}/addons/hyperregistry"
+  ignore_errors: true
+
 - name: HyperRegistry | Check if it was installed
   shell: |
     /usr/local/bin/helm status {{ hyperregistry_release_name }} -n {{ hyperregistry_namespace }} -o json
