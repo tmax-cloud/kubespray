@@ -114,7 +114,7 @@ metadata:
   labels:
     app: {{ APP_NAME }}
 spec:
-  storageClassName: {{ STORAGE_CLASS }}
+  storageClassName: @@STORAGE_CLASS@@
   accessModes:
   - ReadWriteMany
   resources:
