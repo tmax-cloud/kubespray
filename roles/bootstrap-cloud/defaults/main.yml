@@ -2,7 +2,8 @@ hyperregistry_namespace: hyperregistry
 hyperregistry_admin_password: admin
 hyperregistry_ingress_nginx_class: nginx-system
 hyperregistry_ingress_nginx_ip: ""
-hyperregistry_storage_class: ""
+hyperregistry_storage_class: "efs-sc"
+hyperregistry_database_storage_class: "efs-sc-999"
 hyperregistry_registry_disk_size: 50G
 hyperregistry_chartmuseum_disk_size: 10G
 hyperregistry_jobservice_disk_size: 5G
