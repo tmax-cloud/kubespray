@@ -12,6 +12,7 @@
   set_fact:
     ingress_nginx_templates:
       - Namespace.yml
+      - ingress-cert-gen.sh
       - ServiceAccount.yml
       - ClusterRole.yml
       - ClusterRoleBinding.yml
@@ -37,6 +38,25 @@
     filename: "{{ kube_config_dir }}/addons/ingress_nginx/{{ item }}"
     state: "latest"
     wait: true
-  with_items: "{{ ingress_nginx_templates }}"
+  with_items:
+    - Namespace.yml
+    - ServiceAccount.yml
+    - ClusterRole.yml
+    - ClusterRoleBinding.yml
+    - Role.yml
+    - RoleBinding.yml
+    - ConfigMap.yml
+    - Job.yml
+    - Deployment.yml
+    - Service.yml
+    - ValidatingWebhookConfiguration.yml
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: NGINX Ingress Controller | Apply secret
+  ansible.builtin.shell: |
+    sudo chmod +755 ./ingress-cert-gen.sh
+    sudo ./ingress-cert-gen.sh
+  args:
+    chdir: "{{ kube_config_dir }}/addons/ingress_nginx"
+  ignore_errors: true

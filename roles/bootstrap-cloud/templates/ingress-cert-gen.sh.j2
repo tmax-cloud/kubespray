@@ -1,0 +1,23 @@
+#!/bin/bash
+
+mkdir -p certs
+HOST=""
+KEY_FILE="certs/ca.key"
+CERT_FILE="certs/ca.pem"
+CERT_NAME="ingress-tls"
+
+if [ {{ custom_domain_name }} == "" ] 
+then
+    HOST="*.nip.io"
+else
+    HOST="*.{{ custom_domain_name }}"
+fi
+
+# generate certificate
+openssl genrsa -out ${KEY_FILE} 2048
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ${KEY_FILE} -out ${CERT_FILE} -subj "/CN=${HOST}/O=${HOST}"
+
+# create secret
+echo `kubectl create secret tls ${CERT_NAME} --key ${KEY_FILE} --cert ${CERT_FILE} --namespace=ingress-nginx-system`
+
+rm -r certs
