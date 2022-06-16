@@ -37,6 +37,19 @@
     - "'not found' not in already_installed_result.stderr"
     - "'failed' in already_installed_result.stdout | from_json | json_query('info.status')"
 
+- name: HyperRegistry | Create Namespace
+  shell: |
+    {{ bin_dir }}/kubectl create ns {{ hyperregistry_namespace }}
+  ignore_errors: true
+
+- name: HyperRegistry | Get CA to ingress nginx and Create Secret 
+  shell: |
+    {{ bin_dir }}/kubectl get secret ingress-tls -n {{ ingress_namespace }} -o yaml | \
+      sed s/"namespace: {{ ingress_namespace }}"/"namespace: {{ hyperregistry_namespace }}"/ | \
+      {{ bin_dir }}/kubectl apply -n {{ hyperregistry_namespace }} -f -
+  vars:
+   - ingress_namespace: "{{ ingress_nginx_namespace | default('ingress-nginx-system') }}"
+
 - name: HyperRegistry | Release HyperRegistry from helm
   shell: |
     /usr/local/bin/helm install {{ hyperregistry_release_name }} {{ chart }} \
