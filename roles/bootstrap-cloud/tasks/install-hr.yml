@@ -49,6 +49,7 @@
       {{ bin_dir }}/kubectl apply -n {{ hyperregistry_namespace }} -f -
   vars:
    - ingress_namespace: "{{ ingress_nginx_namespace | default('ingress-nginx-system') }}"
+  ignore_errors: true
 
 - name: HyperRegistry | Release HyperRegistry from helm
   shell: |
