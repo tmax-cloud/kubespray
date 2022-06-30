@@ -74,7 +74,6 @@ fnvhash_download_url: "https://files.pythonhosted.org/packages/2f/01/14ef74ea03a
 argocd_enabled: true
 argocd_subdomain: "argocd"
 argocd_release_name: "argocd"
-argocd_download_url: "https://tmax-cloud.github.io/argocd-helm/v0.0.1.tgz"
 
 download_defaults:
   container: false
