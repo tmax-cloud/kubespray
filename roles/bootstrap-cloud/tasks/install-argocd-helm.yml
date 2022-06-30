@@ -1,0 +1,49 @@
+---
+- name: ArgoCD | Create addon dir
+  file:
+    path: "{{ kube_config_dir }}/addons/argocd"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+#- name: ArgoCD | Create values.yml
+#  template:
+#    src: "{{ item }}.j2"
+#    dest: "{{ kube_config_dir }}/addons/ArgoCD/{{ item }}"
+#  with_items: ["hr-nginx-values.yml", "oidc-integration.sh"]
+
+- name: ArgoCD | Copy ArgoCD chart
+  copy:
+    src: "{{ playbook_dir }}/roles/bootstrap-cloud/templates/argocd"
+    dest: "{{ kube_config_dir }}/addons/argocd/"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: ArgoCD | Check if it was installed
+  shell: |
+    /usr/local/bin/helm status {{ argocd_release_name }} -n {{ argocd_namespace }} -o json
+  register: already_installed_result
+  failed_when:
+    - "already_installed_result.rc != 0"
+    - "'not found' not in already_installed_result.stderr"
+
+#- name: ArgoCD | Upgrade failed release
+#  shell: |
+#      /usr/local/bin/helm upgrade {{ argocd_release_name }} {{ chart }} \
+#        --create-namespace -n {{ argocd_namespace }} \
+#        -f {{ kube_config_dir }}/addons/argocd/hr-nginx-values.yml
+#  vars:
+#    - chart: "{{ argocd_download_url | regex_replace('^file://', '') }}"
+#  when:
+#    - "already_installed_result.rc == 0"
+#    - "'not found' not in already_installed_result.stderr"
+#    - "'failed' in already_installed_result.stdout | from_json | json_query('info.status')"
+
+- name: ArgoCD | Release ArgoCD from helm
+  shell: |
+    /usr/local/bin/helm install {{ argocd_release_name }} {{ kube_config_dir }}/addons/argocd/argocd \
+      --create-namespace -n {{ argocd_namespace }}
+  when:
+    - "already_installed_result.rc != 0"
+    - "'not found' in already_installed_result.stderr"
