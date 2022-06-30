@@ -1,0 +1,43 @@
+# Default values for argocd.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicas: 1
+
+global:
+    registry:
+      is_offline: false
+      private_registry:
+
+image:
+  redis:
+    repository: {{ redis_image_repo }}
+    tag: {{ redis_image_tag }}
+  argocdServer:
+    repository: {{ argocd_image_repo }}
+    tag: {{ argocd_image_tag }}
+  dex:
+    repository: {{ dex_image_repo }}
+    tag: {{ dex_image_tag }}
+
+dex:
+  replicas: 1
+repoServer:
+  replicas: 1
+redis:
+  replicas: 1
+argocdServer:
+  replicas: 1
+controller:
+  replicas: 1
+
+ingress:
+  hosts:
+    domain: {{ custom_domain_name }}
+    subdomain: {{ argocd_subdomain }}
+  tls:
+    enabled: true
+    secretName:
+  enableTraefik: false
+
+

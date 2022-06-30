@@ -7,11 +7,11 @@
     group: root
     mode: 0755
 
-#- name: ArgoCD | Create values.yml
-#  template:
-#    src: "{{ item }}.j2"
-#    dest: "{{ kube_config_dir }}/addons/ArgoCD/{{ item }}"
-#  with_items: ["hr-nginx-values.yml", "oidc-integration.sh"]
+- name: ArgoCD | Create values.yml
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ kube_config_dir }}/addons/argocd/{{ item }}"
+  with_items: ["argocd-values.yml"]
 
 - name: ArgoCD | Copy ArgoCD chart
   copy:
@@ -43,7 +43,7 @@
 - name: ArgoCD | Release ArgoCD from helm
   shell: |
     /usr/local/bin/helm install {{ argocd_release_name }} {{ kube_config_dir }}/addons/argocd/argocd \
-      --create-namespace -n {{ argocd_namespace }}
+      --create-namespace -n {{ argocd_namespace }} -f {{ kube_config_dir }}/addons/argocd/argocd-values.yml
   when:
     - "already_installed_result.rc != 0"
     - "'not found' in already_installed_result.stderr"
