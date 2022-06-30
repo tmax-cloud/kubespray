@@ -28,17 +28,15 @@
     - "already_installed_result.rc != 0"
     - "'not found' not in already_installed_result.stderr"
 
-#- name: ArgoCD | Upgrade failed release
-#  shell: |
-#      /usr/local/bin/helm upgrade {{ argocd_release_name }} {{ chart }} \
-#        --create-namespace -n {{ argocd_namespace }} \
-#        -f {{ kube_config_dir }}/addons/argocd/hr-nginx-values.yml
-#  vars:
-#    - chart: "{{ argocd_download_url | regex_replace('^file://', '') }}"
-#  when:
-#    - "already_installed_result.rc == 0"
-#    - "'not found' not in already_installed_result.stderr"
-#    - "'failed' in already_installed_result.stdout | from_json | json_query('info.status')"
+- name: ArgoCD | Upgrade failed release
+  shell: |
+      /usr/local/bin/helm upgrade {{ argocd_release_name }} {{ kube_config_dir }}/addons/argocd/argocd \
+        --create-namespace -n {{ argocd_namespace }} \
+        -f {{ kube_config_dir }}/addons/argocd/argocd-values.yml
+  when:
+    - "already_installed_result.rc == 0"
+    - "'not found' not in already_installed_result.stderr"
+    - "'failed' in already_installed_result.stdout | from_json | json_query('info.status')"
 
 - name: ArgoCD | Release ArgoCD from helm
   shell: |
