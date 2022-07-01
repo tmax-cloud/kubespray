@@ -2,7 +2,6 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-application-controller-network-policy
-  namespace: {{ argocd_namespace }}
 spec:
   ingress:
   - from:
@@ -19,7 +18,6 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-dex-server-network-policy
-  namespace: {{ argocd_namespace }}
 spec:
   ingress:
   - from:
@@ -46,7 +44,6 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-redis-network-policy
-  namespace: {{ argocd_namespace }}
 spec:
   ingress:
   - from:
@@ -72,7 +69,6 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-repo-server-network-policy
-  namespace: {{ argocd_namespace }}
 spec:
   ingress:
   - from:
@@ -102,7 +98,6 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: argocd-server-network-policy
-  namespace: {{ argocd_namespace }}
 spec:
   ingress:
   - {}
