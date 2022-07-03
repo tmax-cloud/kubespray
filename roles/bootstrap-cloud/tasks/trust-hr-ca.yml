@@ -7,7 +7,7 @@
   check_mode: false
 
 - name: HyperRegistry | Get harbor CA from secret
-  shell: /usr/local/bin/kubectl get secret hyperregistry-harbor-ingress -n hyperregistry -o jsonpath="{.data['ca\.crt']}" | base64 --decode > /tmp/{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt
+  shell: /usr/local/bin/kubectl get secret ingress-tls -n hyperregistry -o jsonpath="{.data['ca\.crt']}" | base64 --decode > /tmp/{{ hyperregistry_release_name }}.{{ custom_domain_name }}.crt
   when: inventory_hostname == groups['kube_control_plane'][0]
 
 - name: HyperRegistry | Fetch harbor CA
