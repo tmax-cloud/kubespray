@@ -21,7 +21,7 @@ hyperregistry_release_name: hyperregistry
 hyperregistry_core_subdomain: hyperregistry
 hyperregistry_notary_subdomain: hyperregistry-notary
 
-registry_host: 192.168.0.2:5000
+registry_host: 192.168.9.67:5000
 
 #gitlab
 APP_NAME: gitlab
@@ -42,7 +42,7 @@ KEYCLOAK_SECRET: ""
 KEYCLOAK_CERT_FILE: ""
 GITLAB_PASSWORD: password        # root사용자 비밀번호
 REPO_NAME: argocd-installer      # gitlab에 등록될 repository 이름
-STORAGE_CLASS: "" # ex) nfs, csi-cephfs-sc
+STORAGE_CLASS: "csi-cephfs-sc" # ex) nfs, csi-cephfs-sc
 gitlab_token: token-string-here123
 gitlab_kubectl_repo: "{{ docker_image_repo }}/bitnami/kubectl"
 gitlab_kubectl_tag: "1.20.10"
