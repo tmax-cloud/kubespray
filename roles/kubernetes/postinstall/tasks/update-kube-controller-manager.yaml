@@ -1,0 +1,50 @@
+# Add kube-controller-manager's label for prometheus
+- name: update kube-controller-manager | Add k8s-app label for prometheus
+  lineinfile:
+    firstmatch: yes
+    path: '{{ kube_manifest_dir }}/kube-controller-manager.yaml'
+    regexp: 'k8s-app: kube-controller-manager'
+    insertafter: 'labels:'
+    state: present
+    line: '    k8s-app: kube-controller-manager'
+  when:
+  - prometheus_k8s_app_label
+  tags:
+  - prometheus-k8s-app-label 
+
+
+# Delete kube-controller manager's command/--port
+- name: update kube-controller-manager | Delete command/--port=0
+  lineinfile:
+    path        : '{{ kube_manifest_dir }}/kube-controller-manager.yaml'
+    regexp      : '- --port=0'
+    state       : absent
+  register: updated
+  when:
+  - controller_manager_port_0 == false
+  tags:
+  - kube-controller-manager-port
+
+
+# Restart kube-controller-manager crio/containerd
+- name: update kube-controller-manager | restart kube-controller-manager crio/containerd
+  shell: "{{ bin_dir }}/crictl pods --name kube-controller-manager -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
+  register: remove_container
+  retries: 10
+  until: remove_container.rc == 0
+  delay: 1
+  when:
+    - container_manager in ['crio', 'containerd']
+    - inventory_hostname in groups['kube_control_plane']
+
+# Waiting for the kube-controller-manager component to be running
+- name: update kube-controller-manager | wait for the kube-controller-manager to be running
+  uri:
+    url: '{{ kube_controller_manager_health_check_url }}'
+    validate_certs: no
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 1
+
+

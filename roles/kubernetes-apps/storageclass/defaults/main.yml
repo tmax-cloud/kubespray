@@ -1,0 +1,4 @@
+---
+# defaults file for storageclass
+# sc_name_0: efs-sc-0
+# sc_name_999: efs-sc-999

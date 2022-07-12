@@ -6,7 +6,12 @@
 # Default storage class name
 # It should be changed to the storage class name user want to use
 # This value can be 'nfs' or 'efs-sc' provided by the hypercloud, or any other value user create
-default_storageclass_name: efs-sc
+default_storageclass_name: nfs
+
+# StorageClass name required for pvc used by postgreSQL
+# If you are using nfs the value of 'sc_name_0' and 'sc_name_999' should be 'nfs'
+sc_name_0: efs-sc-0
+sc_name_999: efs-sc-999
 
 # nfs-external-provisioner
 nfs_external_provisioner_enabled: true
@@ -17,8 +22,8 @@ nfs_path: /root/test
 # aws-efs-csi-driver
 aws_efs_csi_enabled: false
 aws_efs_csi_namespace: aws-efs-csi
-aws_efs_csi_filesystem_id: fs-xxxx
 aws_efs_csi_controller_replicas: 1
+aws_efs_filesystem_id: fs-xxxx
 
 # Helm deployment
 helm_enabled: false
@@ -107,7 +112,7 @@ rbd_provisioner_enabled: false
 # rbd_provisioner_reclaim_policy: Delete
 
 # Nginx ingress controller deployment
-ingress_nginx_enabled: false
+# ingress_nginx_enabled: false
 # ingress_nginx_host_network: false
 ingress_publish_status_address: ""
 # ingress_nginx_nodeselector:

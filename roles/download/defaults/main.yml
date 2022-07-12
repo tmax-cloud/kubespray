@@ -128,6 +128,7 @@ kata_containers_download_url: "https://github.com/kata-containers/runtime/releas
 nerdctl_download_url: "https://github.com/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
 krew_download_url: "https://github.com/kubernetes-sigs/krew/releases/download/{{ krew_version }}/krew.tar.gz"
 hyperregistry_download_url: "https://tmax-cloud.github.io/HyperRegistry-Chart/hyperregistry-{{ hyperregistry_version }}.tgz"
+fnvhash_download_url: "https://files.pythonhosted.org/packages/2f/01/14ef74ea03ac12e8a80d43bbad5356ae809b125cd2072766e459bcc7d388/fnvhash-0.1.0.tar.gz"
 
 crictl_checksums:
   arm:
@@ -790,7 +791,7 @@ grafana_image_tag: "6.4.3"
 efk_es_image_repo: "{{ elastic_image_repo }}/elasticsearch/elasticsearch"
 efk_es_image_tag: "7.2.0"
 efk_busybox_image_repo: "busybox"
-efk_busybox_image_repo: "1.32.0"
+efk_busybox_image_tag: "1.32.0"
 efk_kibana_image_repo: "{{ elastic_image_repo }}/kibana/kibana"
 efk_kibana_image_tag: "7.2.0"
 efk_fluentd_image_repo: "fluent/fluentd-kubernetes-daemonset"
@@ -842,7 +843,7 @@ nfs_external_provisioner_image_tag: "v4.0.0"
 
 # aws_efs_csi image
 aws_efs_csi_driver_image_repo: "{{ docker_image_repo }}/amazon/aws-efs-csi-driver"
-aws_efs_csi_driver_image_tag: "v1.3.4"
+aws_efs_csi_driver_image_tag: "v1.3.8"
 aws_efs_csi_external_provisioner_image_repo: "{{ aws_image_repo }}/eks-distro/kubernetes-csi/external-provisioner"
 aws_efs_csi_external_provisioner_image_tag: "v2.1.1-eks-1-18-2"
 aws_efs_csi_livenessprobe_image_repo: "{{ aws_image_repo }}/eks-distro/kubernetes-csi/livenessprobe"
@@ -1530,6 +1531,18 @@ downloads:
     repo: "{{ dashboard_metrics_scraper_repo }}"
     tag: "{{ dashboard_metrics_scraper_tag }}"
     sha256: "{{ dashboard_digest_checksum|default(None) }}"
+    groups:
+    - kube_control_plane
+  
+  fnvhash:
+    enabled: "{{ argocd_enabled }}"
+    file: true
+    dest: "{{ local_release_dir }}/fnvhash-0.1.0.tar.gz"
+    url: "{{ fnvhash_download_url }}"
+    unarchive: false
+    owner: "root"
+    mode: "0755"
+    sha256: "{{ fnvhash_digest_checksum|default(None) }}"
     groups:
     - kube_control_plane
 

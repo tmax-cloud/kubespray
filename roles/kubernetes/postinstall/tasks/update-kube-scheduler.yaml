@@ -1,0 +1,49 @@
+# Add kube-scheduler's label for prometheus
+- name: update kube-scheduler | Add k8s-app label for prometheus
+  lineinfile:
+    firstmatch: yes
+    path: '{{ kube_manifest_dir }}/kube-scheduler.yaml'
+    regexp: 'k8s-app: kube-scheduler'
+    insertafter: 'labels:'
+    state: present
+    line: '    k8s-app: kube-scheduler'
+  when:
+  - prometheus_k8s_app_label
+  tags:
+  - prometheus-k8s-app-label 
+
+
+# Delete kube-scheduler's command/--port
+- name: update kube-scheduler | Delete command/--port=0
+  lineinfile:
+    path: '{{ kube_manifest_dir }}/kube-scheduler.yaml'
+    regexp: '- --port=0'
+    state: absent
+  register: updated
+  when:
+  - scheduler_port_0 == false
+  tags:
+  - scheduler_port
+
+
+# Restart kube-scheduler crio/containerd
+- name: update kube-scheduler | restart kube-scheduler crio/containerd
+  shell: "{{ bin_dir }}/crictl pods --name kube-scheduler -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
+  register: remove_container
+  retries: 10
+  until: remove_container.rc == 0
+  delay: 1
+  when:
+    - container_manager in ['crio', 'containerd']
+    - inventory_hostname in groups['kube_control_plane']
+
+# Waiting for the kube-schduler component to be running
+- name: update kube-scheduler | wait for the kube-scheduler to be running
+  uri:
+    url: '{{ kube_scheduler_health_check_url }}'
+    validate_certs: no
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 1
+

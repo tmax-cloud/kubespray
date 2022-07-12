@@ -139,3 +139,28 @@ variable "aws_elb_api_internal" {
   type          = bool
   default	= true
 }
+
+variable "aws_elb_api_public_subnet" {
+  description   = "where to attach AWS ELB API endpoint (public/private subnet)"
+  type          = bool
+  default	= true
+}
+
+/*
+* VPN Connection
+*
+*/
+variable "vpn_connection_enable" {
+  description = "Controls if VPN_Connection should be created"
+  type          = bool
+}
+
+variable "customer_gateway_ip" {
+  type        = string
+  description = "The IP address of the gateway's Internet-routable external interface"
+}
+
+variable "local_cidr" {
+  type        = string
+  description = "The IPv4 CIDR on the customer gateway (on-premises) side of the VPN connection."
+}

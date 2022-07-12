@@ -5,3 +5,15 @@
     - api_server_dns_cfwhn
   tags:
     - dns-policy-cfwhn
+
+- import_tasks: update-etcd.yaml
+  tags:
+    - update-etcd
+
+- import_tasks: update-kube-controller-manager.yaml
+  tags:
+    - update-kube-controller-manager
+
+- import_tasks: update-kube-scheduler.yaml
+  tags:
+    - update-kube-scheduler

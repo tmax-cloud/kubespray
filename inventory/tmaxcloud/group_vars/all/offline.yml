@@ -3,7 +3,7 @@
 is_this_offline: true
 ### Private Container Image Registry
 registry_host: "10.0.10.50:5000"
-files_repo: "file:///tmp/files-repo"
+files_repo: "http://192.168.9.237"
 ### If using CentOS, RedHat, AlmaLinux or Fedora
 # yum_repo: "file:///tmp/packages-repo"
 ### If using Debian
@@ -25,6 +25,7 @@ grafana_image_repo: "{{ registry_host }}/grafana/grafana"
 efk_fluentd_image_repo: "{{ registry_host }}/fluent"
 mysql_image_repo: "{{ registry_host }}/mysql"
 efk_busybox_image_repo: "{{ registry_host }}/busybox"
+aws_image_repo: "{{ registry_host }}/public.ecr.aws"
 
 ## Kubernetes components
 kubeadm_download_url: "{{ files_repo }}/kubeadm"
