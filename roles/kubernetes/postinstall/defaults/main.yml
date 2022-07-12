@@ -1,2 +1,14 @@
 ---
 api_server_dns_cfwhn: false
+
+scheduler_port_0: false
+
+controller_manager_port_0: false
+
+prometheus_k8s_app_label: true
+
+etcd_health_check_url: 'http://127.0.0.1:2381/health'
+
+kube_controller_manager_health_check_url: 'https://127.0.0.1:10257/healthz'
+
+kube_scheduler_health_check_url: 'https://127.0.0.1:10259/healthz'
