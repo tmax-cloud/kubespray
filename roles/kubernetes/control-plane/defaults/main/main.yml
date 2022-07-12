@@ -138,8 +138,24 @@ kube_kubeadm_controller_extra_args: {}
 #    hostPath: /host/path
 #    mountPath: /mount/path
 #    readOnly: true
-apiserver_extra_volumes: {}
-controller_manager_extra_volumes: {}
+
+apiserver_extra_volumes:
+  - name: timezone-seoul
+    hostPath: /usr/share/zoneinfo/Asia/Seoul
+    mountPath: /etc/localtime
+    type: ""
+
+controller_manager_extra_volumes:
+  - name: timezone-seoul
+    hostPath: /usr/share/zoneinfo/Asia/Seoul
+    mountPath: /etc/localtime
+    type: ""
+
+scheduler_extra_volumes:
+  - name: timezone-seoul
+    hostPath: /usr/share/zoneinfo/Asia/Seoul
+    mountPath: /etc/localtime
+    type: ""
 
 ## Encrypting Secret Data at Rest
 kube_encrypt_secret_data: false
