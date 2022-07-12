@@ -1,0 +1,35 @@
+# Add etcd's label for prometheus
+- name: update etcd | Add k8s-app label for prometheus
+  lineinfile:
+    firstmatch: yes
+    path: '{{ kube_manifest_dir }}/etcd.yaml'
+    regexp: 'k8s-app: etcd'
+    insertafter: 'labels:'
+    state: present
+    line: '    k8s-app: etcd'
+  when:
+  - prometheus_k8s_app_label
+  tags:
+  - prometheus-k8s-app-label 
+
+# Restart etcd crio/containerd
+- name: update etcd | restart etcd crio/containerd
+  shell: "{{ bin_dir }}/crictl pods --name etcd -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
+  register: remove_container
+  retries: 10
+  until: remove_container.rc == 0
+  delay: 1
+  when:
+    - container_manager in ['crio', 'containerd']
+    - inventory_hostname in groups['kube_control_plane']
+
+# Waiting for the etcd component to be running
+- name: update etcd | wait for the etcd to be running
+  uri:
+    url: '{{ etcd_health_check_url }}'
+    validate_certs: no
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 1
+
