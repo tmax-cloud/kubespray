@@ -12,6 +12,39 @@
   tags:
   - prometheus-k8s-app-label 
 
+# add etcd timezone
+- name: update etcd | Add etcd timezone(mountPath)
+  lineinfile:
+    firstmatch: yes
+    state: present
+    dest: '{{ kube_manifest_dir }}/etcd.yaml'
+    insertafter: 'volumeMounts:'
+    line: '{{ item }}'
+  with_items:
+    - '      name: {{ timezone_extra_volumes.name }}'
+    - '    - mountPath: {{ timezone_extra_volumes.mountPath }}'
+  when:
+  - etcd_timezone
+  tags:
+  - etcd_timezone
+
+# add etcd timezone
+- name: update etcd | Add etcd timezone(hostPath)
+  lineinfile:
+    firstmatch: yes
+    state: present
+    dest: '{{ kube_manifest_dir }}/etcd.yaml'
+    insertafter: 'volumes:'
+    line: '{{ item }}'
+  with_items:
+    - '    name: {{ timezone_extra_volumes.name }}'
+    - '      path: {{ timezone_extra_volumes.hostPath }}'
+    - '  - hostPath: '
+  when:
+  - etcd_timezone
+  tags:
+  - etcd_timezone
+
 # Restart etcd crio/containerd
 - name: update etcd | restart etcd crio/containerd
   shell: "{{ bin_dir }}/crictl pods --name etcd -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
