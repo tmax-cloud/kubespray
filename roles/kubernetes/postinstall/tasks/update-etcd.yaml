@@ -45,6 +45,17 @@
   tags:
   - etcd_timezone
 
+# add host ip to etcd's command/listen-metrics-urls
+- name: update etcd | Add host ip to etcd's command/listen-metrics-urls
+  replace:
+    path: '{{ kube_manifest_dir }}/etcd.yaml'
+    regexp: '--listen-metrics-urls=http://127.0.0.1:2381'
+    replace: '--listen-metrics-urls=http://127.0.0.1:2381,https://{{ ip | default(fallback_ips[inventory_hostname]) }}:2381'
+  when:
+  - master_ip_in_listen_metrics_urls
+  tags:
+  - listen-metrics-urls
+
 # Restart etcd crio/containerd
 - name: update etcd | restart etcd crio/containerd
   shell: "{{ bin_dir }}/crictl pods --name etcd -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
