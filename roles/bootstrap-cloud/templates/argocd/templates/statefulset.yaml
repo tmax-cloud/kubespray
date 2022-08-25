@@ -162,6 +162,10 @@ spec:
           name: argocd-home
         - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
           name: argocd-application-controller-secret
+        {{- if ne .Values.global.time_zone "UTC" }}
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
         workingDir: /home/argocd
       serviceAccountName: argocd-application-controller
       volumes:
@@ -181,3 +185,8 @@ spec:
       - name: argocd-application-controller-secret
         secret:
           secretName: argocd-application-controller-token
+      {{- if ne .Values.global.time_zone "UTC" }}
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
+      {{- end}}

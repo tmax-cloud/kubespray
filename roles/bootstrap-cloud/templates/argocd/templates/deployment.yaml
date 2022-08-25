@@ -51,6 +51,10 @@ spec:
           name: dexconfig
         - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
           name: argocd-dex-server-secret
+        {{- if ne .Values.global.time_zone "UTC" }}
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
       initContainers:
       - command:
         - cp
@@ -80,6 +84,11 @@ spec:
       - name: argocd-dex-server-secret
         secret:
           secretName: argocd-dex-server-token
+      {{- if ne .Values.global.time_zone "UTC" }}
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
+      {{- end}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -126,6 +135,11 @@ spec:
         image: {{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
         {{- end }}
         imagePullPolicy: Always
+        {{- if ne .Values.global.time_zone "UTC" }}
+        volumeMounts:
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
         name: redis
         ports:
         - containerPort: 6379
@@ -133,6 +147,12 @@ spec:
         runAsNonRoot: true
         runAsUser: 999
       serviceAccountName: argocd-redis
+      {{- if ne .Values.global.time_zone "UTC" }}
+      volumes:
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
+      {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -300,6 +320,10 @@ spec:
           name: helm-working-dir
         - mountPath: /home/argocd/cmp-server/plugins
           name: plugins
+        {{- if ne .Values.global.time_zone "UTC" }}
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
       initContainers:
       - command:
         - cp
@@ -346,6 +370,11 @@ spec:
         name: var-files
       - emptyDir: {}
         name: plugins
+      {{- if ne .Values.global.time_zone "UTC" }}
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
+      {{- end}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -579,6 +608,10 @@ spec:
           name: tmp
         - mountPath:  /var/run/secrets/kubernetes.io/serviceaccount
           name: argocd-server-secret
+        {{- if ne .Values.global.time_zone "UTC" }}
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
       serviceAccountName: argocd-server
       volumes:
       - emptyDir: {}
@@ -607,3 +640,8 @@ spec:
       - name: argocd-server-secret
         secret:
           secretName: argocd-server-token
+      {{- if ne .Values.global.time_zone "UTC" }}
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
+      {{- end}}
