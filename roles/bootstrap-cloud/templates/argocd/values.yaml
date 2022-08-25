@@ -5,9 +5,10 @@
 replicas: 1
 
 global:
-    registry:
-      is_offline: false
-      private_registry:
+  registry:
+    is_offline: false
+    private_registry:
+  time_zone: Asia/Seoul
 
 image:
   redis:
