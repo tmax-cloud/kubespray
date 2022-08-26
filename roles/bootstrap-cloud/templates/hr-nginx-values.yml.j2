@@ -1,3 +1,6 @@
+global:
+  time_zone: "Asia/Seoul"
+
 expose:
   # Set the way how to expose the service. Set the type as "ingress",
   # "clusterIP", "nodePort" or "loadBalancer" and fill the information
@@ -18,7 +21,7 @@ expose:
     # The tls certificate can be generated manually or by cert manager
     # 3) none: configure no tls certificate for the ingress. If the default
     # tls certificate is configured in the ingress controller, choose this option
-    certSource: auto
+    certSource: secret
     auto:
       # The common name used to generate the certificate, it's necessary
       # when the type isn't "ingress"
@@ -27,12 +30,12 @@ expose:
       # The name of secret which contains keys named:
       # "tls.crt" - the certificate
       # "tls.key" - the private key
-      secretName: ""
+      secretName: "ingress-tls"
       # The name of secret which contains keys named:
       # "tls.crt" - the certificate
       # "tls.key" - the private key
       # Only needed when the "expose.type" is "ingress".
-      notarySecretName: ""
+      notarySecretName: "ingress-tls"
   ingress:
     hosts:
       core: {{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}
@@ -342,7 +345,7 @@ harborAdminPassword: {{ hyperregistry_admin_password }}
 # The name of the secret which contains key named "ca.crt". Setting this enables the
 # download link on portal to download the certificate of CA when the certificate isn't
 # generated automatically
-caSecretName: ""
+caSecretName: "ingress-tls"
 
 # The secret key used for encryption. Must be a string of 16 chars.
 secretKey: "not-a-secure-key"

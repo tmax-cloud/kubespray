@@ -17,6 +17,43 @@
     dest: "{{ kube_config_dir }}/addons/hyperregistry/{{ item }}"
   with_items: ["hr-nginx-values.yml", "oidc-integration.sh"]
 
+- name: HyperRegistry | Check if namespace was existed
+  shell: |
+    {{ bin_dir }}/kubectl get namespace {{ hyperregistry_namespace }} -o json
+  register: already_existed_namespace
+  failed_when:
+    - "already_existed_namespace.rc != 0"
+    - "'not found' not in already_existed_namespace.stderr"
+
+- name: HyperRegistry | Create namespace
+  shell: |
+    {{ bin_dir }}/kubectl create namespace {{ hyperregistry_namespace }}
+  when:
+    - "already_existed_namespace.rc != 0"
+    - "'not found' in already_existed_namespace.stderr"
+
+- name: HyperRegistry | Check if CA was existed
+  shell: |
+    {{ bin_dir }}/kubectl get secret ingress-tls -n {{ hyperregistry_namespace }} -o json
+  register: already_existed_secret
+  failed_when:
+    - "already_existed_secret.rc != 0"
+    - "'not found' not in already_existed_secret.stderr"
+
+- name: HyperRegistry | Delete old CA
+  shell: |
+    {{ bin_dir }}/kubectl delete secret ingress-tls -n {{ hyperregistry_namespace }}
+  when:
+    - "already_existed_secret.rc == 0"
+
+- name: HyperRegistry | Create secret with CA imported from ingress nginx
+  shell: |
+    {{ bin_dir }}/kubectl get secret ingress-tls -n {{ ingress_namespace }} -o yaml | \
+      sed s/"namespace: {{ ingress_namespace }}"/"namespace: {{ hyperregistry_namespace }}"/ | \
+      {{ bin_dir }}/kubectl apply -n {{ hyperregistry_namespace }} -f -
+  vars:
+   - ingress_namespace: "{{ ingress_nginx_namespace | default('ingress-nginx-system') }}"
+
 - name: HyperRegistry | Check if it was installed
   shell: |
     /usr/local/bin/helm status {{ hyperregistry_release_name }} -n {{ hyperregistry_namespace }} -o json
