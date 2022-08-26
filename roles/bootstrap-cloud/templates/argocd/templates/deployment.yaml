@@ -2,87 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/component: dex-server
-    app.kubernetes.io/name: argocd-dex-server
-    app.kubernetes.io/part-of: argocd
-  name: argocd-dex-server
-  namespace: {{ argocd_namespace }}
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: argocd-dex-server
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: argocd-dex-server
-    spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchLabels:
-                  app.kubernetes.io/part-of: argocd
-              topologyKey: kubernetes.io/hostname
-            weight: 5
-      containers:
-      - command:
-        - /shared/argocd-dex
-        - rundex
-        image: "{{ dex_image_repo }}:{{ dex_image_tag }}"
-        imagePullPolicy: Always
-        name: dex
-        ports:
-        - containerPort: 5556
-        - containerPort: 5557
-        - containerPort: 5558
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-        volumeMounts:
-        - mountPath: /shared
-          name: static-files
-        - mountPath: /tmp
-          name: dexconfig
-        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
-          name: argocd-dex-server-secret
-      initContainers:
-      - command:
-        - cp
-        - -n
-        - /usr/local/bin/argocd
-        - /shared/argocd-dex
-        image: "{{ argocd_image_repo }}:{{ argocd_image_tag }}"
-        imagePullPolicy: Always
-        name: copyutil
-        volumeMounts:
-        - mountPath: /shared
-          name: static-files
-        - mountPath: /tmp
-          name: dexconfig
-        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
-          name: argocd-dex-server-secret
-      serviceAccountName: argocd-dex-server
-      volumes:
-      - emptyDir: {}
-        name: static-files
-      - emptyDir: {}
-        name: dexconfig
-      - name: argocd-dex-server-secret
-        secret:
-          secretName: argocd-dex-server-token
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
     app.kubernetes.io/component: redis
     app.kubernetes.io/name: argocd-redis
     app.kubernetes.io/part-of: argocd
   name: argocd-redis
-  namespace: {{ argocd_namespace }}
 spec:
+  replicas: {{ .Values.redis.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-redis
@@ -112,8 +37,19 @@ spec:
         - ""
         - --appendonly
         - "no"
-        image: "{{ redis_image_repo }}:{{ redis_image_tag }}"
+        - --loglevel
+        - "error"
+        {{- if .Values.global.registry.is_offline }}
+        image: {{ .Values.global.private_registry }}/{{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
+        {{- else }}
+        image: {{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
+        {{- end }}
         imagePullPolicy: Always
+        {{- if ne .Values.global.time_zone "UTC" }}
+        volumeMounts:
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
         name: redis
         ports:
         - containerPort: 6379
@@ -121,6 +57,12 @@ spec:
         runAsNonRoot: true
         runAsUser: 999
       serviceAccountName: argocd-redis
+      {{- if ne .Values.global.time_zone "UTC" }}
+      volumes:
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
+      {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -130,8 +72,8 @@ metadata:
     app.kubernetes.io/name: argocd-repo-server
     app.kubernetes.io/part-of: argocd
   name: argocd-repo-server
-  namespace: {{ argocd_namespace }}
 spec:
+  replicas: {{ .Values.repoServer.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-repo-server
@@ -241,7 +183,11 @@ spec:
           value: /helm-working-dir
         - name: HELM_DATA_HOME
           value: /helm-working-dir
-        image: "{{ argocd_image_repo }}:{{ argocd_image_tag }}"
+        {{- if .Values.global.registry.is_offline }}
+        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        {{- else }}
+        image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        {{- end }}
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
@@ -284,13 +230,21 @@ spec:
           name: helm-working-dir
         - mountPath: /home/argocd/cmp-server/plugins
           name: plugins
+        {{- if ne .Values.global.time_zone "UTC" }}
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
       initContainers:
       - command:
         - cp
         - -n
         - /usr/local/bin/argocd
         - /var/run/argocd/argocd-cmp-server
-        image: "{{ argocd_image_repo }}:{{ argocd_image_tag }}"
+        {{- if .Values.global.registry.is_offline }}
+        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        {{- else }}
+        image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        {{- end }}
         name: copyutil
         volumeMounts:
         - mountPath: /var/run/argocd
@@ -326,6 +280,11 @@ spec:
         name: var-files
       - emptyDir: {}
         name: plugins
+      {{- if ne .Values.global.time_zone "UTC" }}
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
+      {{- end}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -335,8 +294,8 @@ metadata:
     app.kubernetes.io/name: argocd-server
     app.kubernetes.io/part-of: argocd
   name: argocd-server
-  namespace: {{ argocd_namespace }}
 spec:
+  replicas: {{ .Values.argocdServer.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-server
@@ -517,7 +476,11 @@ spec:
               key: server.http.cookie.maxnumber
               name: argocd-cmd-params-cm
               optional: true
-        image: "{{ argocd_image_repo }}:{{ argocd_image_tag }}"
+        {{- if .Values.global.registry.is_offline }}
+        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        {{- else }}
+        image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        {{- end }}
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
@@ -555,6 +518,10 @@ spec:
           name: tmp
         - mountPath:  /var/run/secrets/kubernetes.io/serviceaccount
           name: argocd-server-secret
+        {{- if ne .Values.global.time_zone "UTC" }}
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
       serviceAccountName: argocd-server
       volumes:
       - emptyDir: {}
@@ -583,184 +550,8 @@ spec:
       - name: argocd-server-secret
         secret:
           secretName: argocd-server-token
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  labels:
-    app.kubernetes.io/component: application-controller
-    app.kubernetes.io/name: argocd-application-controller
-    app.kubernetes.io/part-of: argocd
-  name: argocd-application-controller
-  namespace: {{ argocd_namespace }}
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: argocd-application-controller
-  serviceName: argocd-application-controller
-  template:
-    metadata:
-      labels:
-        app.kubernetes.io/name: argocd-application-controller
-    spec:
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-          - podAffinityTerm:
-              labelSelector:
-                matchLabels:
-                  app.kubernetes.io/name: argocd-application-controller
-              topologyKey: kubernetes.io/hostname
-            weight: 100
-          - podAffinityTerm:
-              labelSelector:
-                matchLabels:
-                  app.kubernetes.io/part-of: argocd
-              topologyKey: kubernetes.io/hostname
-            weight: 5
-      containers:
-      - command:
-        - argocd-application-controller
-        env:
-        - name: ARGOCD_RECONCILIATION_TIMEOUT
-          valueFrom:
-            configMapKeyRef:
-              key: timeout.reconciliation
-              name: argocd-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_REPO_SERVER
-          valueFrom:
-            configMapKeyRef:
-              key: repo.server
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_REPO_SERVER_TIMEOUT_SECONDS
-          valueFrom:
-            configMapKeyRef:
-              key: controller.repo.server.timeout.seconds
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_STATUS_PROCESSORS
-          valueFrom:
-            configMapKeyRef:
-              key: controller.status.processors
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_OPERATION_PROCESSORS
-          valueFrom:
-            configMapKeyRef:
-              key: controller.operation.processors
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_LOGFORMAT
-          valueFrom:
-            configMapKeyRef:
-              key: controller.log.format
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_LOGLEVEL
-          valueFrom:
-            configMapKeyRef:
-              key: controller.log.level
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_METRICS_CACHE_EXPIRATION
-          valueFrom:
-            configMapKeyRef:
-              key: controller.metrics.cache.expiration
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_SELF_HEAL_TIMEOUT_SECONDS
-          valueFrom:
-            configMapKeyRef:
-              key: controller.self.heal.timeout.seconds
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_REPO_SERVER_PLAINTEXT
-          valueFrom:
-            configMapKeyRef:
-              key: controller.repo.server.plaintext
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APPLICATION_CONTROLLER_REPO_SERVER_STRICT_TLS
-          valueFrom:
-            configMapKeyRef:
-              key: controller.repo.server.strict.tls
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_APP_STATE_CACHE_EXPIRATION
-          valueFrom:
-            configMapKeyRef:
-              key: controller.app.state.cache.expiration
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: REDIS_SERVER
-          valueFrom:
-            configMapKeyRef:
-              key: redis.server
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: REDISDB
-          valueFrom:
-            configMapKeyRef:
-              key: redis.db
-              name: argocd-cmd-params-cm
-              optional: true
-        - name: ARGOCD_DEFAULT_CACHE_EXPIRATION
-          valueFrom:
-            configMapKeyRef:
-              key: controller.default.cache.expiration
-              name: argocd-cmd-params-cm
-              optional: true
-        image: "{{ argocd_image_repo }}:{{ argocd_image_tag }}"
-        imagePullPolicy: Always
-        livenessProbe:
-          httpGet:
-            path: /healthz
-            port: 8082
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        name: argocd-application-controller
-        ports:
-        - containerPort: 8082
-        readinessProbe:
-          httpGet:
-            path: /healthz
-            port: 8082
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - all
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-        volumeMounts:
-        - mountPath: /app/config/controller/tls
-          name: argocd-repo-server-tls
-        - mountPath: /home/argocd
-          name: argocd-home
-        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
-          name: argocd-application-controller-secret
-        workingDir: /home/argocd
-      serviceAccountName: argocd-application-controller
-      volumes:
-      - emptyDir: {}
-        name: argocd-home
-      - name: argocd-repo-server-tls
-        secret:
-          items:
-          - key: tls.crt
-            path: tls.crt
-          - key: tls.key
-            path: tls.key
-          - key: ca.crt
-            path: ca.crt
-          optional: true
-          secretName: argocd-repo-server-tls
-      - name: argocd-application-controller-secret
-        secret:
-          secretName: argocd-application-controller-token
----
+      {{- if ne .Values.global.time_zone "UTC" }}
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
+      {{- end}}

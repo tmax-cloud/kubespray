@@ -1,0 +1,42 @@
+#!/bin/bash
+
+mkdir -p certs
+HOST=""
+KEY_FILE="certs/ca.key"
+CERT_FILE="certs/ca.crt"
+export HOST_IP=$(kubectl get svc -n {{ ingress_nginx_namespace }} {{ ingress_nginx_namespace }}-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+
+if [[ {{ custom_domain_name }} == "" ]] ; then
+    HOST="*.${HOST_IP}.nip.io"
+else
+    HOST="*.{{ custom_domain_name }}"
+fi
+
+cat <<EOF > certs/v3.ext
+subjectKeyIdentifier   = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+basicConstraints       = CA:TRUE
+keyUsage               = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement, keyCertSign
+subjectAltName         = DNS:$HOST
+issuerAltName          = issuer:copy
+EOF
+
+openssl genrsa -out ${KEY_FILE} 2048
+openssl req -new -nodes -key ${KEY_FILE} -out ca.csr -subj "/CN=${HOST}/O=${HOST}" -days 365
+openssl x509 -req -in ca.csr -signkey ${KEY_FILE} -out ${CERT_FILE} -days 365 -sha256 -extfile ./certs/v3.ext
+
+cat <<EOF > certs/{{ ingress_nginx_tls }}.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ ingress_nginx_tls }}
+  namespace: {{ ingress_nginx_namespace }}
+type: kubernetes.io/tls
+data:
+  ca.crt: $(cat ${CERT_FILE} | base64 -w 0 )  
+  tls.crt: $(cat ${CERT_FILE} | base64 -w 0 )
+  tls.key: $(cat ${KEY_FILE} | base64 -w 0 )
+EOF
+
+kubectl apply -f certs/{{ ingress_nginx_tls }}.yaml
