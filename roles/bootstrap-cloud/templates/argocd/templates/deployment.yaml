@@ -425,12 +425,12 @@ spec:
               key: repo.server
               name: argocd-cmd-params-cm
               optional: true
-        - name: ARGOCD_SERVER_DEX_SERVER
-          valueFrom:
-            configMapKeyRef:
-              key: server.dex.server
-              name: argocd-cmd-params-cm
-              optional: true
+#        - name: ARGOCD_SERVER_DEX_SERVER
+#          valueFrom:
+#            configMapKeyRef:
+#              key: server.dex.server
+#              name: argocd-cmd-params-cm
+#              optional: true
         - name: ARGOCD_SERVER_DISABLE_AUTH
           valueFrom:
             configMapKeyRef:
