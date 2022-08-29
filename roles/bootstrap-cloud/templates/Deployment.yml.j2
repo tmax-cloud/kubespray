@@ -94,12 +94,11 @@ spec:
             - name: webhook-cert
               mountPath: /usr/local/certificates/
               readOnly: true
-            {% if timezone_extra_volumes %}
-            {% for volume in timezone_extra_volumes %}
-            - name: {{ volume.name }}
-              mountPath: {{ volume.mountPath }}
-            {% endfor %}
-            {% endif %}
+{% if timezone_extra_volumes %}
+            - name: {{ timezone_extra_volumes.name }}
+              mountPath: {{ timezone_extra_volumes.mountPath }}
+              readOnly: {{ timezone_extra_volumes.readOnly | d(not (timezone_extra_volumes.writable | d(false))) | lower }}
+{% endif %}
           resources:
             requests:
               cpu: 100m
@@ -113,12 +112,9 @@ spec:
         - name: webhook-cert
           secret:
             secretName: ingress-nginx-system-admission
-        {% if timezone_extra_volumes %}
-        {% for volume in timezone_extra_volumes %}
-        - name: {{ volume.name }}
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
           hostPath:
-          path: {{ volume.hostPath }}
-          readOnly: {{ volume.readOnly | d(not (volume.writable | d(false))) }}
-        {% endfor %}
-        {% endif %}
+            path: {{ timezone_extra_volumes.hostPath }}
+{% endif %}
 
