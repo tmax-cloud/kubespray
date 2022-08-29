@@ -63,7 +63,7 @@
     filename: "{{ kube_config_dir }}/addons/argocd/{{ item }}"
     state: "latest"
     wait: true
-  with_items: 
+  with_items:
     - argocd-crd.yml
     - argocd-namespace.yml
     - argocd-rbac.yml
@@ -75,7 +75,11 @@
     - argocd-ingress.yml
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
-  
+
+- name: Argocd | Remove exist fnvhash
+  ansible.builtin.shell: |
+    sudo rm -rf {{ local_release_dir }}/fnvhash-0.1.0.tar.gz
+
 - name: Argocd | Download fnvhash
   include_tasks: "../../../download/tasks/download_file.yml"
   vars:
