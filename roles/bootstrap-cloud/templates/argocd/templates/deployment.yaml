@@ -37,8 +37,8 @@ spec:
         - ""
         - --appendonly
         - "no"
-        - --loglevel
-        - "error"
+        - --loglevel # warning, notice, verbose, debug 
+        - "warning"
         {{- if .Values.global.registry.is_offline }}
         image: {{ .Values.global.private_registry }}/{{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
         {{- else }}
@@ -104,6 +104,8 @@ spec:
         - argocd-repo-server
         - --redis
         - argocd-redis:6379
+        - --loglevel # debug, info, warn, error
+        - "warn"
         env:
         - name: ARGOCD_RECONCILIATION_TIMEOUT
           valueFrom:
@@ -325,6 +327,8 @@ spec:
         - --staticassets
         - /shared/app
         - --insecure
+        - --loglevel # debug, info, warn, error
+        - "warn"
         env:
         - name: ARGOCD_SERVER_INSECURE
           valueFrom:

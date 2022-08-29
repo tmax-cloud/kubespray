@@ -36,6 +36,8 @@ spec:
       containers:
       - command:
         - argocd-application-controller
+        - --loglevel
+        - "warn"
         env:
         - name: ARGOCD_RECONCILIATION_TIMEOUT
           valueFrom:
