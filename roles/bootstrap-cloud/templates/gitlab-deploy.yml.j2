@@ -336,12 +336,11 @@ spec:
           mountPath: /tmp/shared
         - name: {{ APP_NAME }}-account-secret
           mountPath: /var/run/secrets/kubernetes.io/serviceaccount
-        {% if timezone_extra_volumes %}
-        {% for volume in timezone_extra_volumes %}
-        - name: {{ volume.name }}
-          mountPath: {{ volume.mountPath }}
-        {% endfor %}
-        {% endif %}
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
+          mountPath: {{ timezone_extra_volumes.mountPath }}
+          readOnly: {{ timezone_extra_volumes.readOnly | d(not (timezone_extra_volumes.writable | d(false))) | lower }}
+{% endif %}
         resources:
           limits:
             cpu: {{ RESOURCE_CPU }}
@@ -367,12 +366,9 @@ spec:
           claimName: {{ APP_NAME }}-pvc
       - name: shared
         emptyDir: {}
-      {% if timezone_extra_volumes %}
-      {% for volume in timezone_extra_volumes %}
-      - name: {{ volume.name }}
+{% if timezone_extra_volumes %}
+      - name: {{ timezone_extra_volumes.name }}
         hostPath:
-        path: {{ volume.hostPath }}
-        readOnly: {{ volume.readOnly | d(not (volume.writable | d(false))) }}
-      {% endfor %}
-      {% endif %}
+          path: {{ timezone_extra_volumes.hostPath }}
+{% endif %}
 
