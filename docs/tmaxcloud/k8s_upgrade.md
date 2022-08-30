@@ -4,6 +4,11 @@
 #### 하나의 MINOR 버전에서 다음 MINOR 버전으로, 또는 동일한 MINOR의 PATCH 버전 사이에서만 업그레이드할 수 있다.
 #### ex) 1.15 버전에서 1.17 버전으로 한번에 업그레이드는 불가능 하다. 1.15 -> 1.16 -> 1.17 스텝을 진행 해야 한다.
 
+#### inventory/tmaxcloud/group_vars/all/all.yml 파일을 수정한다.
+```yml
+deploy_container_engine: true
+```
+
 #### k8s version을 upgrade 하기위해 upgrade-cluster.yml을 수행한다.
 ```yml
 ansible-playbook -i {inventory.ini file path} --become --become-user=root upgrade-cluster.yml -e kube_version={k8s_version} -v
