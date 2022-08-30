@@ -108,6 +108,13 @@ hyperregistry_version: "v2.2.2"
 
 # Get kubernetes major version (i.e. 1.17.4 => 1.17)
 kube_major_version: "{{ kube_version | regex_replace('^v([0-9])+\\.([0-9]+)\\.[0-9]+', 'v\\1.\\2') }}"
+
+#etcd_supported_versions:
+#  v1.23: "v3.5.3"
+#  v1.22: "v3.5.3"
+#  v1.21: "v3.5.3"
+#etcd_version: "{{ etcd_supported_versions[kube_major_version] }}"
+
 crictl_supported_versions:
   v1.24: "v1.24.0"
   v1.23: "v1.23.0"
@@ -124,6 +131,8 @@ kubeadm_download_url: "https://storage.googleapis.com/kubernetes-release/release
 etcd_download_url: "https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ image_arch }}.tar.gz"
 cni_download_url: "https://github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ image_arch }}-{{ cni_version }}.tgz"
 calicoctl_download_url: "https://github.com/projectcalico/calicoctl/releases/download/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
+calico_crds_download_url: "https://github.com/projectcalico/calico/archive/{{ calico_version }}.tar.gz"
+#crictl_download_url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
 calico_crds_download_url: "https://github.com/projectcalico/calico/archive/{{ calico_version }}.tar.gz"
 crictl_download_url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
 helm_download_url: "https://get.helm.sh/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz"
@@ -242,7 +251,6 @@ kubelet_checksums:
     v1.21.4: 12c849ccc627e9404187adf432a922b895c8bdecfd7ca901e1928396558eb043
     v1.21.3: 5d21da1145c25181605b9ad0810401545262fc421bbaae683bdb599632e834c1
     v1.21.2: 525cf5506595e70bffc4c1845b3c535c7121fa2ee3daac6ca3edc69d8d63b89f
-    v1.21.1: 5b37d7fc2da65a25896447685166769333b5896488de21bc9667edb4e799905e  
     v1.21.1: 5b37d7fc2da65a25896447685166769333b5896488de21bc9667edb4e799905e
     v1.21.0: 17832b192be5ea314714f7e16efd5e5f65347974bbbf41def6b02f68931380c4
     v1.20.7: 79a1db001b51973297578b9cc2ba5a8d686eea216dfbd12649c7f041c624675e
@@ -294,7 +302,7 @@ kubelet_checksums:
     v1.21.5: 600f70fe0e69151b9d8ac65ec195bcc840687f86ba397fce27be1faae3538a6f
     v1.21.4: cdd46617d1a501531c62421de3754d65f30ad24d75beae2693688993a12bb557
     v1.21.3: 5bd542d656caabd75e59757a3adbae3e13d63c7c7c113d2a72475574c3c640fe
-    v1.21.2: aaf144b19c0676e1fe34a93dc753fb38f4de057a0e2d7521b0bef4e82f8ccc28  
+    v1.21.2: aaf144b19c0676e1fe34a93dc753fb38f4de057a0e2d7521b0bef4e82f8ccc28
     v1.21.1: e77ff3ea404b2e69519ea4dce41cbdf11ae2bcba75a86d409a76eecda1c76244
     v1.21.0: 681c81b7934ae2bf38b9f12d891683972d1fbbf6d7d97e50940a47b139d41b35
     v1.20.7: f96eda810ec4c8f40f6455eaab9be46a8d0958d72f8432b48a8a0d7c52867c5f
@@ -347,7 +355,7 @@ kubectl_checksums:
     v1.21.5: 51955c2fec47b83c904004fedde970b6c8f37a7a5f3c2910b6dd63b99fa697e5
     v1.21.4: bb741dae49b17b7784dc2460467c876e9f961c14f628de7553d023cdef85b1ac
     v1.21.3: 603b6e57c5546c079faee6b606014e83b95ea076146fbf73329f3069968f83bf
-    v1.21.2: 898c2cd54b651873a8fb18bcb0792eb4772a78f845d758fa9b0eee278aede869  
+    v1.21.2: 898c2cd54b651873a8fb18bcb0792eb4772a78f845d758fa9b0eee278aede869
     v1.21.1: d963971fd796b04ccaa389cf59900834e01c151a52c531585ac68aae779c0d91
     v1.21.0: 6d79f6ebec2eda45b0808a895fa5d06bd8611c02d34b584eaa94857f365b25aa
     v1.20.7: c40e092c40ce0f0f1ccf4b7df7752d080c6a631e21a0c57a215028abd8ccb0d8
@@ -399,7 +407,7 @@ kubectl_checksums:
     v1.21.5: fca8de7e55b55cceab9902aae03837fb2f1e72b97aa09b2ac9626bdbfd0466e4
     v1.21.4: 8ac78de847118c94e2d87844e9b974556dfb30aff0e0d15fd03b82681df3ac98
     v1.21.3: 2be58b5266faeeb93f38fa72d36add13a950643d2ae16a131f48f5a21c66ef23
-    v1.21.2: 5753051ed464d0f1af05a3ca351577ba5680a332d5b2fa7738f287c8a40d81cf  
+    v1.21.2: 5753051ed464d0f1af05a3ca351577ba5680a332d5b2fa7738f287c8a40d81cf
     v1.21.1: d7e1163f4127efd841e5f5db6eacced11c2a3b20384457341b19ca295d0c535f
     v1.21.0: a4dd7100f547a40d3e2f83850d0bab75c6ea5eb553f0a80adcf73155bef1fd0d
     v1.20.7: a3c8c6488145ba3bc8b2d8a8d46d6599e9d6c2d339a03d25822b6d8b06d61646
@@ -451,7 +459,7 @@ kubectl_checksums:
     v1.21.5: 060ede75550c63bdc84e14fcc4c8ab3017f7ffc032fc4cac3bf20d274fab1be4
     v1.21.4: 9410572396fb31e49d088f9816beaebad7420c7686697578691be1651d3bf85a
     v1.21.3: 631246194fc1931cb897d61e1d542ef2321ec97adcb859a405d3b285ad9dd3d6
-    v1.21.2: 55b982527d76934c2f119e70bf0d69831d3af4985f72bb87cd4924b1c7d528da  
+    v1.21.2: 55b982527d76934c2f119e70bf0d69831d3af4985f72bb87cd4924b1c7d528da
     v1.21.1: 58785190e2b4fc6891e01108e41f9ba5db26e04cebb7c1ac639919a931ce9233
     v1.21.0: 9f74f2fa7ee32ad07e17211725992248470310ca1988214518806b39b1dad9f0
     v1.20.7: 2ea3006a64d48657ac72223a01c6df0e5b827703263f2586da28044ea9e97daf
@@ -474,6 +482,35 @@ kubectl_checksums:
     v1.19.2: f51adfe7968ee173dbfb3dabfc10dc774983cbf8a3a7c1c75a1423b91fda6821
     v1.19.1: da4de99d4e713ba0c0a5ef6efe1806fb09c41937968ad9da5c5f74b79b3b38f5
     v1.19.0: 79bb0d2f05487ff533999a639c075043c70a0a1ba25c1629eb1eef6ebe3ba70f
+  ppc64le:
+    v1.24.0: 153a1ca1593ef4cb56b16922f8e229986a621d396112f0cfad6fa568ad00fa75
+    v1.23.6: 3fdba4f852046b0ee782048cad9c1fe4db9c98cb882ff78b5bca4632984c7700
+    v1.23.5: d625dbea2879d12ca1c61b1c00084405a34514abaea1096110c8c8661cfac84f
+    v1.23.4: 1648768124315c5cbcfa6c24a31a34037558c09b91ead60267e13d6c7f3b597b
+    v1.23.3: 7297e595ed549bac93decda41c9830a3e032fd374467d679c98ef35dcdd1d2aa
+    v1.23.2: 97d50dc4ff0a6c70bbfcbd45f6959e6201c6317392b2894008017380669f6015
+    v1.23.1: 514e50afdb5b8953adfffe4941e903748348830bdd82805fd4489c3334a02a4a
+    v1.23.0: e96f2b16d8a10fe6531dfac9143efa4960432cf2ae8b26ffd174fa00eb28a851
+    v1.22.9: 4ac554b2eb811c10276761ec185e1dbd96b24df4ed141159960c2325d6451f6e
+    v1.22.8: 30d5cba5bdee3bb9395a988867a161ff52e7dc01a40cd4fa2a2adb1c08b76227
+    v1.22.7: b25bcc11619ea61a60a1cfa8bfd4ef15ccb8db008251013b3473cc04082754bc
+    v1.22.6: d9acb45bcbcead81e8f61572dd800d82e605af2532edb4be1633b732b009d2e2
+    v1.22.5: a613f330b10b24992780149184ea3257210932ea9f569af323f84e9debfea535
+    v1.22.4: a89d158be97df1f7b4d56ed28b219c8f09427511283b78917352b9e90b9f37bf
+    v1.22.3: b55409b40c60fddf24e6e93cbcee2e33c3c5d8f4a6b3f9c8cf4eb1f23119388d
+    v1.22.2: f8c8c4734846c56a8eae6e5c877c84e38513337ea1ca08d63e019ffe82114342
+    v1.22.1: 4eced82fb83c405937c35c18de5ac25befa68ca5ab016b3d279011d7f3701eea
+    v1.22.0: 7ea30171a5db9dfbdc240674f5cde00fb75a8193ef73783950b8d10c810b6a5b
+    v1.21.12: 7c537ace6677ea3ea7fff2e412aabbb858174edee687cb3a26d33ab16c2a16c8
+    v1.21.11: 1a617321711c2b8b8a5b1ba909f5f3c4e6f6ed7284fa24ac3a527fdada31abcb
+    v1.21.10: ce2ea17f905f683ec3a4aa87c0e2f4a642e5ee3a059a0b6836c3c3985015d577
+    v1.21.6: c16d92482eafabf78c23ae49c6e823c141a0d96f0e24a5b653469591533b3340
+    v1.21.5: a65361555f9286b723876c5db6c960341ed2fd722a2dadd78fa0cb658f9b543a
+    v1.21.4: 8a2bde6528b82381178c2a93238bd70d5238120a4ea476c5b226fff1b991ffae
+    v1.21.3: 6fd63f4abe4331f314af17cfae2f42850b134fc7707d38f4b3ac617d23fb1d52
+    v1.21.2: 0f410281654b654b3d61dcc3754d1bb1d90d8648b8a56f8eaf4dd82ef19a39f8
+    v1.21.1: 42d648988f45bbeb6d2660156332ad0c3ca9a5df40f5cf4a4272249ec2c2749e
+    v1.21.0: 3d8702c2d341bbed07f6e9c952815c558034d817e3d1a672c1d7d042b021e9c0
 kubeadm_checksums:
   arm:
     v1.24.0: c463bf24981dea705f4ee6e547abd5cc3b3e499843f836aae1a04f5b80abf4c2
@@ -504,7 +541,7 @@ kubeadm_checksums:
     v1.21.5: 39c98582b0a2444e7d6bc85dc5eac5217aee5dd18c2de7e1d5aed09415023201
     v1.21.4: f1ff5765439624c162489e4f037d12d9f8adf96c04cb298c06aeb7217d620349
     v1.21.3: 25eac1922276a0b4aabda92df67882be25a2462e84245f4231f5a888a8ab8bae
-    v1.21.2: 75251be6394ca3fedf578a1ba3bc7d7f01e60402b83658ccf2439d1c48379846  
+    v1.21.2: 75251be6394ca3fedf578a1ba3bc7d7f01e60402b83658ccf2439d1c48379846
     v1.21.1: d2a6b582ae5407f2dcd3da902060cadbe5212577ffc9f546245e0d83d4490582
     v1.21.0: 878e4c848412c3d6ac35323e6be1bd09f9648069ea1caa8e618fd2a6a6925b2f
     v1.20.7: fa277ba17e5bf15742bacff504294ccb585f9aff84c9bdb7d3c1652c307e3f02
@@ -556,7 +593,7 @@ kubeadm_checksums:
     v1.21.5: 5a273b023eaa60d7820436b0f0062c4bd467274d6f2b86a9e13270c91d663618
     v1.21.4: 30645f57296281d214a9dd787a90bd16207df4b1fca7ac320913c616818a92cd
     v1.21.3: 5bff1c6cd1d683ce191d271b968d7b776ae5ed7403bdab5fa88446100e74972c
-    v1.21.2: 245125dc436f649466123a2d2c922d17f300cbc20d2b75edad5e42d734ead4a3  
+    v1.21.2: 245125dc436f649466123a2d2c922d17f300cbc20d2b75edad5e42d734ead4a3
     v1.21.1: 1c9a93ac74f2756c1eb40a9d18bb7e146eeab0b33177c0f66f5e617ed7261d1b
     v1.21.0: 50bb95d1827455346b5643dcf83a52520733c3a582b8b1ffb50f04a8e66f00e7
     v1.20.7: 564e740f971c14469855153bc981407279f3efa46e1d1243fc9b09a293c8fa6b
@@ -608,7 +645,7 @@ kubeadm_checksums:
     v1.21.5: e384171fcb3c0de924904007bfd7babb0f970997b93223ed7ffee14d29019353
     v1.21.4: 286794aed41148e82a77087d79111052ea894796c6ae81fc463275dcd848f98d
     v1.21.3: 82fff4fc0cdb1110150596ab14a3ddcd3dbe53f40c404917d2e9703f8f04787a
-    v1.21.2: 6a83e52e51f41d67658a13ce8ac9deb77a6d82a71ced2d106756f6d38756ec00  
+    v1.21.2: 6a83e52e51f41d67658a13ce8ac9deb77a6d82a71ced2d106756f6d38756ec00
     v1.21.1: 1553c07a6a777c4cf71d45d5892915f0ea6586b8a80f9fea39e7a659d6315d42
     v1.21.0: 7bdaf0d58f0d286538376bc40b50d7e3ab60a3fe7a0709194f53f1605129550f
     v1.20.7: 7bb0b40ea1e44cab716ab12b8bb793b3130373f1d67cf7b888667597fe226c05
@@ -631,6 +668,35 @@ kubeadm_checksums:
     v1.19.2: 377dbf06469709aafb7a9a6c925e890bf48727b905455c2a81fee28727716f2f
     v1.19.1: d5afcf4ff916b4c6810f10f76176c73238f0854b7748b2cde8afbd91de65a3c9
     v1.19.0: 88ce7dc5302d8847f6e679aab9e4fa642a819e8a33d70731fb7bc8e110d8659f
+  ppc64le:
+    v1.24.0: 286de74330365bf660d480297a7aba165a956f6fbb98acd11df2f672e21d7b5c
+    v1.23.6: 0b975ac27fa794134a5a25dfbf6df598e2b62e483134326788443131f6d8e5e4
+    v1.23.5: bec93d18fd5e5ef6d5da3d18edb282e58a64ff34ec3544d82dc31a3255d9ed1d
+    v1.23.4: 9c681254bf7cfce8b94326364d677f1944c0afb070f666f7fd438bd37133f7cc
+    v1.23.3: fd87d972db45dd6f623dd4ca06075e7e697f1bdaa7936c5c06924d1189ba7ff8
+    v1.23.2: 2d76c4d9795e25867b9b6fe7853f94efb8c2f2b3052adab4073fddca93eedc01
+    v1.23.1: 6b645c868834197bcb25104f468c601477967341aba6326bdf5d0957dcaa9edc
+    v1.23.0: 895c84055bca698f50ecdf1fc01d2f368563f77384b1dd00bdacbf6d0c825cc1
+    v1.22.9: aca9539afc208343b0138d2e9e56b018ea782b74068389e7381e1c361f584446
+    v1.22.8: 715dcac3dc5055306fc9b56352f5323df7947479c831993fecadc3a7c9072071
+    v1.22.7: 1496cb57091c6189728f295fbc6f8ea944f08fa9f844d917f7f7ca1a3b896acb
+    v1.22.6: a3aed2613b0566d1c829c15ff1206c25743bade24c4087b039824860d07de517
+    v1.22.5: d877c380f3fe4ee3c68f02ffa185252129aaba390129fd6a3542f6d9c5e88a6f
+    v1.22.4: 3e4cc45da8067f0da56e848b39531874c0a144840f4794731a4fb3b4689a8de2
+    v1.22.3: f993698da6f64a222edb92e352331c46516dbef9e235b12471c9d697aac74524
+    v1.22.2: 115bdf1e9e4821cf02aa77875930b4640cfba6b3560492ac75fe6159e897be6f
+    v1.22.1: 45e5145abf4700ddb5de3469ddb6b316e7588595e4a3e64f44064738808b9c97
+    v1.22.0: 22a7d995e78e93abca2999c911b065d63f51f33982dc305f23762a8d7c045d25
+    v1.21.12: c66a01b7fe383e5db61bd0e8d9c579a025db4699c6ca48c6f786ca4eef9de3ae
+    v1.21.11: 5e05d8d87b511cdcea212ab07c42bceb9386d033941e9b6a883b89f38b19de29
+    v1.21.10: fc44609f9e88f5c5bde04b2b4f39cfaf55aa03bf17e2e100e1d99a3d2cdaad5a
+    v1.21.6: b292528714c770c6164bb5120f8499ff05134b97f2b35ca269a6109ff49f48b1
+    v1.21.5: cc74675911c1ac86ebcee97ff9b6b655b88222ccb167805e3767d356638cbcce
+    v1.21.4: b0a03a001680d4a3f3477b363dcc110a30f2a846dfa6e968be002b6c318c7b9b
+    v1.21.3: c320777c6c018379865206fa90d23e0d1f48476eec5c1dd1d748243149997607
+    v1.21.2: e961cf2f8900344e7aa088ea788a37d1f354e0683a6fcfef612b12ec168475db
+    v1.21.1: d9e386b726742efb966ed1e75d72fdf4c6016c7d640a3401504bfbf0cd41046c
+    v1.21.0: 4cea170557e57a8937fbdc9be1a25243770cfe6c1ff2bb7229c9aeb2d6974ca9
 
 etcd_binary_checksums:
   # Etcd does not have arm32 builds at the moment, having some dummy value is
@@ -725,7 +791,7 @@ nerdctl_archive_checksums:
   amd64:
     0.8.1: 7c3573db282749079e06f4c592b4585d53628d13fd762746b30389f854d79a47
 
-etcd_binary_checksum: "{{ etcd_binary_checksums[image_arch] }}"
+etcd_binary_checksum: "{{ etcd_binary_checksums[image_arch][etcd_version] }}"
 cni_binary_checksum: "{{ cni_binary_checksums[image_arch] }}"
 kubelet_binary_checksum: "{{ kubelet_checksums[image_arch][kube_version] }}"
 kubectl_binary_checksum: "{{ kubectl_checksums[image_arch][kube_version] }}"
@@ -1773,13 +1839,31 @@ downloads:
     sha256: "{{ snapshot_controller_digest_checksum|default(None) }}"
     groups:
     - kube_node
-
+    
   csi_resizer:
     enabled: "{{ cinder_csi_enabled or aws_ebs_csi_enabled }}"
     container: true
     repo: "{{ csi_resizer_image_repo }}"
     tag: "{{ csi_resizer_image_tag }}"
     sha256: "{{ csi_resizer_digest_checksum|default(None) }}"
+    groups:
+    - kube_node
+
+  csi_node_driver_registrar:
+    enabled: "{{ cinder_csi_enabled or aws_ebs_csi_enabled }}"
+    container: true
+    repo: "{{ csi_node_driver_registrar_image_repo }}"
+    tag: "{{ csi_node_driver_registrar_image_tag }}"
+    sha256: "{{ csi_node_driver_registrar_digest_checksum|default(None) }}"
+    groups:
+    - kube_node
+
+  cinder_csi_plugin:
+    enabled: "{{ cinder_csi_enabled }}"
+    container: true
+    repo: "{{ cinder_csi_plugin_image_repo }}"
+    tag: "{{ cinder_csi_plugin_image_tag }}"
+    sha256: "{{ cinder_csi_plugin_digest_checksum|default(None) }}"
     groups:
     - kube_node
 
@@ -1827,7 +1911,7 @@ downloads:
     sha256: "{{ dashboard_digest_checksum|default(None) }}"
     groups:
     - kube_control_plane
-  
+
   fnvhash:
     enabled: "{{ argocd_enabled }}"
     file: true
@@ -1852,3 +1936,4 @@ download_defaults:
   unarchive: false
   owner: kube
   mode: None
+
