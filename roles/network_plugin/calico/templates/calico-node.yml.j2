@@ -368,7 +368,6 @@ spec:
         - name: {{ timezone_extra_volumes.name }}
           hostPath:
             path: {{ timezone_extra_volumes.hostPath }}
-            readOnly: {{ timezone_extra_volumes.readOnly | d(not (timezone_extra_volumes.writable | d(false))) }}
 {% endif %}
 {% if typha_enabled and typha_secure %}
         - name: typha-client
