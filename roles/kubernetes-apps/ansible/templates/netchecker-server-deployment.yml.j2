@@ -39,17 +39,15 @@ spec:
             - "-kubeproxyinit"
             - "-endpoint=0.0.0.0:8081"
 {% if timezone_extra_volumes %}
-{% for volume in timezone_extra_volumes %}
           volumeMounts:
-            - name: {{ volume.name }}
-              mountPath: {{ volume.mountPath }}
+            - name: {{ timezone_extra_volumes.name }}
+              mountPath: {{ timezone_extra_volumes.mountPath }}
 
       volumes:
-        - name: {{ volume.name }}
+        - name: {{ timezone_extra_volumes.name }}
           hostPath:
-            path: {{ volume.hostPath }}
-          readOnly: {{ volume.readOnly | d(not (volume.writable | d(false))) }}
-{% endfor %}
+            path: {{ timezone_extra_volumes.hostPath }}
+          readOnly: {{ timezone_extra_volumes.readOnly | d(not (timezone_extra_volumes.writable | d(false))) }}
 {% endif %}
       tolerations:
         - effect: NoSchedule

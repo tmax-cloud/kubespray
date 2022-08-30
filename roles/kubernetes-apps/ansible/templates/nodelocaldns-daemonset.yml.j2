@@ -73,10 +73,8 @@ spec:
         - name: xtables-lock
           mountPath: /run/xtables.lock
 {% if timezone_extra_volumes %}
-{% for volume in timezone_extra_volumes %}
-        - name: {{ volume.name }}
-          mountPath: {{ volume.mountPath }}
-{% endfor %}
+        - name: {{ timezone_extra_volumes.name }}
+          mountPath: {{ timezone_extra_volumes.mountPath }}
 {% endif %}
       volumes:
         - name: config-volume
@@ -94,12 +92,10 @@ spec:
             path: /run/xtables.lock
             type: FileOrCreate
 {% if timezone_extra_volumes %}
-{% for volume in timezone_extra_volumes %}
-        - name: {{ volume.name }}
+        - name: {{ timezone_extra_volumes.name }}
           hostPath:
-            path: {{ volume.hostPath }}
-            readOnly: {{ volume.readOnly | d(not (volume.writable | d(false))) }}
-{% endfor %}
+            path: {{ timezone_extra_volumes.hostPath }}
+            readOnly: {{ timezone_extra_volumes.readOnly | d(not (timezone_extra_volumes.writable | d(false))) }}
 {% endif %}
       # Minimize downtime during a rolling upgrade or deletion; tell Kubernetes to do a "force
       # deletion": https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods.
