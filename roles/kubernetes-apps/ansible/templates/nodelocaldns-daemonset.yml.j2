@@ -72,6 +72,12 @@ spec:
           mountPath: /etc/coredns
         - name: xtables-lock
           mountPath: /run/xtables.lock
+{% if timezone_extra_volumes %}
+{% for volume in timezone_extra_volumes %}
+        - name: {{ volume.name }}
+          mountPath: {{ volume.mountPath }}
+{% endfor %}
+{% endif %}
       volumes:
         - name: config-volume
           configMap:
@@ -87,6 +93,14 @@ spec:
           hostPath:
             path: /run/xtables.lock
             type: FileOrCreate
+{% if timezone_extra_volumes %}
+{% for volume in timezone_extra_volumes %}
+        - name: {{ volume.name }}
+          hostPath:
+            path: {{ volume.hostPath }}
+            readOnly: {{ volume.readOnly | d(not (volume.writable | d(false))) }}
+{% endfor %}
+{% endif %}
       # Minimize downtime during a rolling upgrade or deletion; tell Kubernetes to do a "force
       # deletion": https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods.
       terminationGracePeriodSeconds: 0
