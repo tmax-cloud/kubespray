@@ -62,6 +62,10 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/csi/sockets/pluginproxy/
+{% if timezone_extra_volumes %}
+            - name: {{ timezone_extra_volumes.name }}
+              mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
           ports:
             - name: healthz
               containerPort: 9909
@@ -89,6 +93,10 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/csi/sockets/pluginproxy/
+{% if timezone_extra_volumes %}
+            - name: {{ timezone_extra_volumes.name }}
+              mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
         - name: liveness-probe
           image: {{ aws_efs_csi_livenessprobe_image_repo }}:{{ aws_efs_csi_livenessprobe_image_tag }}
           imagePullPolicy: IfNotPresent
@@ -98,6 +106,15 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
+{% if timezone_extra_volumes %}
+            - name: {{ timezone_extra_volumes.name }}
+              mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
       volumes:
         - name: socket-dir
           emptyDir: {}
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
+          hostPath:
+            path: {{ timezone_extra_volumes.hostPath }}
+{% endif %}
