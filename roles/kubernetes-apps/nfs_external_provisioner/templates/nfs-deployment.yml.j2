@@ -26,6 +26,10 @@ spec:
           volumeMounts:
             - name: nfs-client-root
               mountPath: /persistentvolumes
+{% if timezone_extra_volumes %}
+            - name: {{ timezone_extra_volumes.name }}
+              mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
           env:
             - name: PROVISIONER_NAME
               value: k8s-sigs.io/nfs-subdir-external-provisioner
@@ -38,3 +42,8 @@ spec:
           nfs:
             server: {{ nfs_server }}
             path: {{ nfs_path }}
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
+          hostPath:
+            path: {{ timezone_extra_volumes.hostPath }}
+{% endif %}
