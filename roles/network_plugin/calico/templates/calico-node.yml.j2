@@ -322,6 +322,10 @@ spec:
               mountPath: /etc/typha-ca/ca.crt
               readOnly: true
 {% endif %}
+{% if timezone_extra_volumes %}
+            - name: {{ timezone_extra_volumes.name }}
+              mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
 
       volumes:
         # Used by calico/node.
@@ -359,6 +363,11 @@ spec:
         - name: host-local-net-dir
           hostPath:
             path: /var/lib/cni/networks
+{% endif %}
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
+          hostPath:
+            path: {{ timezone_extra_volumes.hostPath }}
 {% endif %}
 {% if typha_enabled and typha_secure %}
         - name: typha-client

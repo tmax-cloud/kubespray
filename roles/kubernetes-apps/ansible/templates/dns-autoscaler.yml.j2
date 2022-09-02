@@ -75,6 +75,11 @@ spec:
             path: /healthz
             port: 8080
             scheme: HTTP
+        volumeMounts:
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
+          mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
         command:
         - /cluster-proportional-autoscaler
         - --namespace=kube-system
@@ -83,4 +88,10 @@ spec:
         - --v=2
         - --configmap=dns-autoscaler{{ coredns_ordinal_suffix }}
         - --target=Deployment/coredns{{ coredns_ordinal_suffix }}
+{% if timezone_extra_volumes %}
+      volumes:
+        - name: {{ timezone_extra_volumes.name }}
+          hostPath:
+            path: {{ timezone_extra_volumes.hostPath }}
+{% endif %}
       serviceAccountName: dns-autoscaler

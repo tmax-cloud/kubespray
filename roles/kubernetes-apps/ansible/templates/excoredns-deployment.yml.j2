@@ -52,6 +52,10 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/coredns
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
+          mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
         resources:
           limits:
             memory: {{ dns_memory_limit }}
@@ -69,3 +73,8 @@ spec:
             items:
             - key: Corefile
               path: Corefile
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
+          hostPath:
+            path: {{ timezone_extra_volumes.hostPath }}
+{% endif %}

@@ -79,6 +79,10 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/coredns
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
+          mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
         ports:
         - containerPort: 53
           name: dns
@@ -124,4 +128,9 @@ spec:
 {% if dns_etchosts | default(None) %}
             - key: hosts
               path: hosts
+{% endif %}
+{% if timezone_extra_volumes %}
+        - name: {{ timezone_extra_volumes.name }}
+          hostPath:
+            path: {{ timezone_extra_volumes.hostPath }}
 {% endif %}
