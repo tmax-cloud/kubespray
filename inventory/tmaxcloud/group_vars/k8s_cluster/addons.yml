@@ -234,13 +234,13 @@ hypercloud_kafka3_addr: "DNS"
 
 # Cluster API
 cluster_api_enabled: false
-cluster_api_provider_aws: true
-cluster_api_aws_access_key: "AKIAQDF4RKX252P2BFGB"
-cluster_api_aws_secret_key: "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"
+cluster_api_provider_aws: false
+cluster_api_aws_access_key: ""
+cluster_api_aws_secret_key: ""
 cluster_api_aws_region: "us-west-1"
-cluster_api_provider_vsphere: true
-cluster_api_vsphere_username: "tmax@vsphere.local"
-cluster_api_vsphere_password: "Tmax@2323"
+cluster_api_provider_vsphere: false
+cluster_api_vsphere_username: "username"
+cluster_api_vsphere_password: "password"
 
 # Federation
 federation_enabled: false
