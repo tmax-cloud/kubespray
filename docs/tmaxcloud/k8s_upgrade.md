@@ -135,7 +135,7 @@ ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user
     files_repo: 구축한 webserver repo 경로
     ```
     
-### 예시
+#### 예시
   * 예를 들어 아래와 같이 변수들의 값을 설정한다.
     ```yml
     is_this_offline: true
