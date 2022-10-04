@@ -13,7 +13,6 @@ files_repo: "http://192.168.9.237"
 
 ## Container Registry overrides
 kube_image_repo: "{{ registry_host }}/k8s.gcr.io"
-#etcd_image_repo: "{{ registry_host }}/k8s.gcr.io"
 gcr_image_repo: "{{ registry_host }}/gcr.io"
 docker_image_repo: "{{ registry_host }}/docker.io"
 quay_image_repo: "{{ registry_host }}/quay.io"
@@ -28,9 +27,9 @@ efk_busybox_image_repo: "{{ registry_host }}/busybox"
 aws_image_repo: "{{ registry_host }}/public.ecr.aws"
 
 ## Kubernetes components
-kubeadm_download_url: "{{ files_repo }}/kubeadm"
-kubectl_download_url: "{{ files_repo }}/kubectl" 
-kubelet_download_url: "{{ files_repo }}/kubelet"
+kubeadm_download_url: "{{ files_repo }}/kubeadm-{{ kubeadm_version }}-{{ image_arch }}"
+kubectl_download_url: "{{ files_repo }}/kubectl-{{ kubeadm_version }}-{{ image_arch }}" 
+kubelet_download_url: "{{ files_repo }}/kubelet-{{ kubeadm_version }}-{{ image_arch }}"
 
 ## CNI Plugins
 cni_download_url: "{{ files_repo }}/cni-plugins-linux-amd64-v0.9.1.tgz"
