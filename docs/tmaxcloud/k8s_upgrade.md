@@ -29,7 +29,7 @@ ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user
     node 및 pod 정상화 확인
 ```
 
-## 온프라인 구축 가이드
+## 프라인 구축 가이드
 #### 1. image registry를 구축한다.
   * podman을 설치 후 /etc/containers/registries.conf에 insecure registry 등록한다.
     ```bash
