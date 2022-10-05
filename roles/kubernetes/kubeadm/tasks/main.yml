@@ -128,6 +128,36 @@
   tags:
     - kube-proxy
 
+- name: Create kube-config timezone config
+  template:
+    src: "timezone.j2"
+    dest: "{{ kube_config_dir }}/timezone.conf"
+    backup: yes
+  when:
+    - kube_proxy_deployed
+
+- name: Add timezone field in kube-proxy daemonset
+  shell: >-
+    set -o pipefail
+    && volumeMounts=$( head -n 3 {{ kube_config_dir }}/timezone.conf | sed ':a;N;$!ba;s|\n|\\n        |g' | sed 's|/|\\/|g' )
+    && volumes=$( tail -n 4 {{ kube_config_dir }}/timezone.conf | sed ':a;N;$!ba;s|\n|\\n      |g' | sed 's|/|\\/|g' )
+    && {{ bin_dir }}/kubectl --kubeconfig {{ kube_config_dir }}/admin.conf get daemonset kube-proxy -n kube-system -o yaml
+    | sed "s/  volumeMounts:/  $volumeMounts/g"
+    | sed "s/  volumes:/  $volumes/g"
+    | {{ bin_dir }}/kubectl --kubeconfig {{ kube_config_dir }}/admin.conf replace -f -
+  args:
+    executable: /bin/bash
+  run_once: true
+  delegate_to: "{{ groups['kube_control_plane']|first }}"
+  delegate_facts: false
+  when:
+    - kubeadm_config_api_fqdn is not defined
+    - kubeadm_discovery_address != kube_apiserver_endpoint | replace("https://", "")
+    - kube_proxy_deployed
+    - loadbalancer_apiserver_localhost
+  tags:
+    - kube-proxy
+
 - name: Set ca.crt file permission
   file:
     path: "{{ kube_cert_dir }}/ca.crt"

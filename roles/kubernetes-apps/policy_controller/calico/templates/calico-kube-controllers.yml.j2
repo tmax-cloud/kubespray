@@ -64,8 +64,17 @@ spec:
           - mountPath: {{ calico_cert_dir }}
             name: etcd-certs
             readOnly: true
+{% if timezone_extra_volumes %}
+          - name: {{ timezone_extra_volumes.name }}
+            mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
       volumes:
       - hostPath:
           path: {{ calico_cert_dir }}
         name: etcd-certs
+{% endif %}
+{% if timezone_extra_volumes %}
+      - name: {{ timezone_extra_volumes.name }}
+        hostPath:
+          path: {{ timezone_extra_volumes.hostPath }}
 {% endif %}
