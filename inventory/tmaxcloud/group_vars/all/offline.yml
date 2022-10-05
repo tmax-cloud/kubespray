@@ -35,7 +35,7 @@ kubelet_download_url: "{{ files_repo }}/kubelet-{{ kubeadm_version }}-{{ image_a
 cni_download_url: "{{ files_repo }}/cni-plugins-linux-amd64-v0.9.1.tgz"
 
 ## cri-tools
-crictl_download_url: "{{ files_repo }}/crictl-v1.19.0-linux-amd64.tar.gz"
+crictl_download_url: "{{ files_repo }}/crictl-{{ crictl_version }}-linux-amd64.tar.gz"
 
 ## [Optional] etcd: only if you **DON'T** use etcd_deployment=host
 etcd_download_url: "{{ files_repo }}/etcd-v3.4.13-linux-amd64.tar.gz"
