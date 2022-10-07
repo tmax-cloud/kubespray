@@ -2,8 +2,8 @@ hyperregistry_namespace: hyperregistry
 hyperregistry_admin_password: admin
 hyperregistry_ingress_nginx_class: nginx-system
 hyperregistry_ingress_nginx_ip: ""
-hyperregistry_storage_class: "efs-sc"
-hyperregistry_database_storage_class: "efs-sc-999"
+hyperregistry_storage_class: ""
+hyperregistry_database_storage_class: ""
 hyperregistry_registry_disk_size: 50G
 hyperregistry_chartmuseum_disk_size: 10G
 hyperregistry_jobservice_disk_size: 5G
@@ -43,7 +43,7 @@ KEYCLOAK_SECRET: ""
 KEYCLOAK_CERT_FILE: ""
 GITLAB_PASSWORD: password        # root사용자 비밀번호
 REPO_NAME: argocd-installer      # gitlab에 등록될 repository 이름
-STORAGE_CLASS: "efs-sc-0" # ex) nfs, csi-cephfs-sc
+STORAGE_CLASS: "" # ex) nfs, csi-cephfs-sc
 gitlab_token: token-string-here123
 gitlab_kubectl_repo: "{{ docker_image_repo }}/bitnami/kubectl"
 gitlab_kubectl_tag: "1.20.10"
