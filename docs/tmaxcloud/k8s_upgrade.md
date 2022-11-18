@@ -23,6 +23,7 @@ kubectl get pdb <pdb-name> -oyaml
 ###### PDB의 ALLOWED DISRUPTIONS가 drain을 시도하는 node에 뜬 pod(pdb 설정 pod) 개수보다 적을 경우 아래와 같이 다른 노드로 재스케줄링이 필요하다.
 ###### ex) virt-api pod가 drain하려는 node에 2개 떠있는데, ALLOWED DISRUPTIONS는 0 또는 1일 경우 
 ###### 해당 조건에 만족하지 않는 경우 'Cannot evict pod as it would violate the pod's disruption budget' 와 같은 에러가 발생할 수 있다.
+###### warning: node drain시 해당 node상의 pod가 evict되기 때문에, pod의 local-data의 경우 보존되지 않는다.
 
 ##### 4. 해결 방법       
 1) 해당 Pod를 다른 Node로 재스케줄링을 시도한다.
