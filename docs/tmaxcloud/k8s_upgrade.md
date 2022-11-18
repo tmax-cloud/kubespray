@@ -6,9 +6,35 @@
 * kubectl (v1.19.4, v1.20.15, v1.21.14)
 
 ## Prerequisites
-#### 반드시 k8s가 구축된 환경에서 진행되어야 한다.
-#### 하나의 MINOR 버전에서 다음 MINOR 버전으로, 또는 동일한 MINOR의 PATCH 버전 사이에서만 업그레이드할 수 있다.
-#### ex) 1.19 버전에서 1.21 버전으로 한번에 업그레이드는 불가능 하다. 1.19 -> 1.20 -> 1.21 스텝을 진행 해야 한다.
+#### 1. 반드시 k8s가 구축된 환경에서 진행되어야 한다.
+#### 2. 하나의 MINOR 버전에서 다음 MINOR 버전으로, 또는 동일한 MINOR의 PATCH 버전 사이에서만 업그레이드할 수 있다.
+##### ex) 1.19 버전에서 1.21 버전으로 한번에 업그레이드는 불가능 하다. 1.19 -> 1.20 -> 1.21 스텝을 진행 해야 한다.
+
+#### 3. upgrade시 node drain 관련 사전 체크를 한다.
+##### 업그레이드 진행시 해당 노드에 있는 pod가 다른 노드로 재스캐줄링 된다.
+##### 이때 PDB가 존재하는 Pod가 drain하려는 node에 생성되어있는 경우 evict가 제한 되기 때문에, 아래 명령어로 drain이 가능한 상태인지 먼저 확인한다.
+```bash
+kubectl get pdb -A
+or
+kubectl get pdb <pdb-name> -oyaml
+```
+
+##### ALLOWED DISRUPTIONS 및 drain 시키려는 node의 pod 상태를 확인한다.
+###### PDB의 ALLOWED DISRUPTIONS가 drain을 시도하는 node에 뜬 pod(pdb 설정 pod) 개수보다 적을 경우 아래와 같이 다른 노드로 재스케줄링이 필요하다.
+###### ex) virt-api pod가 drain하려는 node에 2개 떠있는데, ALLOWED DISRUPTIONS는 0 또는 1일 경우 
+###### 해당 조건에 만족하지 않는 경우 'Cannot evict pod as it would violate the pod's disruption budget' 와 같은 에러가 발생할 수 있다.
+
+##### 4. 해결 방법       
+1) 해당 Pod를 다른 Node로 재스케줄링을 시도한다.
+ ```bash
+kubectl delete pod <pod-name>
+```
+2) 다른 Node의 리소스 부족, noScheduling 설정 등으로 인해 a번 재스케줄링이 불가할 경우엔 PDB 데이터를 삭제하고 업그레이드 진행 후에 PDB 데이터를 복구한다.
+```bash
+kubectl get pdb <pdb-name> -o yaml > pdb-backup.yaml
+
+kubectl apply -f pdb-backup.yaml
+```
 
 ## 온라인 구축 가이드
 #### k8s version을 upgrade 하기위해 upgrade-cluster.yml을 수행한다.
