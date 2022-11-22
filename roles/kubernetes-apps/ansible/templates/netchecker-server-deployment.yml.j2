@@ -38,6 +38,16 @@ spec:
             - "-logtostderr"
             - "-kubeproxyinit"
             - "-endpoint=0.0.0.0:8081"
+{% if timezone_extra_volumes %}
+          volumeMounts:
+            - name: {{ timezone_extra_volumes.name }}
+              mountPath: {{ timezone_extra_volumes.mountPath }}
+
+      volumes:
+        - name: {{ timezone_extra_volumes.name }}
+          hostPath:
+            path: {{ timezone_extra_volumes.hostPath }}
+{% endif %}
       tolerations:
         - effect: NoSchedule
           operator: Exists

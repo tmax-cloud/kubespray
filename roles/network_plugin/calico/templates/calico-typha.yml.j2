@@ -96,7 +96,13 @@ spec:
             value: /etc/typha/server_certificate.pem
           - name: TYPHA_SERVERKEYFILE
             value: /etc/typha/server_key.pem
+{% endif %}
+{% if timezone_extra_volumes %}
         volumeMounts:
+          - name: {{ timezone_extra_volumes.name }}
+            mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
+{% if typha_secure %}
           - mountPath: /etc/typha
             name: typha-server
             readOnly: true
@@ -130,8 +136,13 @@ spec:
             port: 9098
             host: localhost
           periodSeconds: 10
-{% if typha_secure %}
+{% if timezone_extra_volumes %}
       volumes:
+        - name: {{ timezone_extra_volumes.name }}
+          hostPath:
+            path: {{ timezone_extra_volumes.hostPath }}
+{% endif %}
+{% if typha_secure %}
         - name: typha-server
           secret:
             secretName: typha-server

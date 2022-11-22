@@ -1,0 +1,8 @@
+volumeMounts:
+- name: {{ timezone_extra_volumes.name }}
+  mountPath: {{ timezone_extra_volumes.mountPath }}
+
+volumes:
+- name: {{ timezone_extra_volumes.name }}
+  hostPath:
+    path: {{ timezone_extra_volumes.hostPath }}
