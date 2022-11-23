@@ -50,6 +50,20 @@ gitlab_image_repo: "{{ docker_image_repo }}/gitlab/gitlab-ce"
 gitlab_image_tag: "13.6.4-ce.0"
 gitlab_subdomain: "gitlab"
 
+#gitea
+gitea_subdomain: "gitea"
+gitea_release_name: "gitea"
+gitea_namespace: "gitea-system"
+GITEA_USER: "gitea_admin"
+GITEA_PASSWORD: "r8sA8CPHD9'!'bt6d"
+GITEA_APP_NAME: gitea
+gitea_private_refistry: "test-registry.com"
+gitea_is_offline: false
+gitea_image_repository: "gitea/gitea"
+gitea_image_registry: ""
+gitea_image_tag: ""
+gitea_ingress_class: "nginx-system"
+
 #nginx-controller
 ingress_nginx_namespace: ingress-nginx-system
 ingress_nginx_controller_image_repo: "{{ quay_image_repo }}/kubernetes-ingress-controller/nginx-ingress-controller"
