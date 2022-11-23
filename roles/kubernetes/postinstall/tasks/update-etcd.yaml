@@ -1,4 +1,21 @@
-# Add etcd's label for prometheus
+# check postinstall already deployed
+- name: "check deployed postinstall"
+  stat:
+    path: "{{ kube_config_dir }}/etcd_deployed"
+  register: deployed
+
+# create postinstall etcd deployment file
+- name: create file etcd deployed
+  copy:
+    content: "deployed"
+    dest: "{{ kube_config_dir }}/etcd_deployed"
+    force: no
+    group: sys
+    owner: root
+    mode: 0555
+  when: not deployed.stat.exists
+
+# add etcd's label for prometheus
 - name: update etcd | Add k8s-app label for prometheus
   lineinfile:
     firstmatch: yes
@@ -25,6 +42,7 @@
     - '    - mountPath: {{ timezone_extra_volumes.mountPath }}'
   when:
   - etcd_timezone
+  - not deployed.stat.exists
   tags:
   - etcd_timezone
 
@@ -42,6 +60,7 @@
     - '  - hostPath: '
   when:
   - etcd_timezone
+  - not deployed.stat.exists
   tags:
   - etcd_timezone
 
@@ -53,10 +72,11 @@
     replace: '--listen-metrics-urls=http://127.0.0.1:2381,http://{{ ip | default(fallback_ips[inventory_hostname]) }}:2381'
   when:
   - master_ip_in_listen_metrics_urls
+  - not deployed.stat.exists
   tags:
   - listen-metrics-urls
 
-# Restart etcd crio/containerd
+# restart etcd crio/containerd
 - name: update etcd | restart etcd crio/containerd
   shell: "{{ bin_dir }}/crictl pods --name etcd -q | xargs -I% --no-run-if-empty bash -c '{{ bin_dir }}/crictl stopp % && {{ bin_dir }}/crictl rmp %'"
   register: remove_container
@@ -67,7 +87,7 @@
     - container_manager in ['crio', 'containerd']
     - inventory_hostname in groups['kube_control_plane']
 
-# Waiting for the etcd component to be running
+# waiting for the etcd component to be running
 - name: update etcd | wait for the etcd to be running
   uri:
     url: '{{ etcd_health_check_url }}'
