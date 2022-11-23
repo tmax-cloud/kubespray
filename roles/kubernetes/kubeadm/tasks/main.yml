@@ -148,8 +148,8 @@
       changed_when: false
       shell: >-
         set -o pipefail
-        && volumeMounts=$( head -n 3 {{ kube_config_dir }}/timezone.conf2 | sed ':a;N;$!ba;s|\n|\\n        |g' | sed 's|/|\\/|g' )
-        && volumes=$( tail -n 4 {{ kube_config_dir }}/timezone.conf2 | sed ':a;N;$!ba;s|\n|\\n      |g' | sed 's|/|\\/|g' )
+        && volumeMounts=$( head -n 3 {{ kube_config_dir }}/timezone.conf | sed ':a;N;$!ba;s|\n|\\n        |g' | sed 's|/|\\/|g' )
+        && volumes=$( tail -n 4 {{ kube_config_dir }}/timezone.conf | sed ':a;N;$!ba;s|\n|\\n      |g' | sed 's|/|\\/|g' )
         && {{ bin_dir }}/kubectl --kubeconfig {{ kube_config_dir }}/admin.conf get daemonset kube-proxy -n kube-system -o yaml
         | sed "s/  volumeMounts:/  $volumeMounts/g"
         | sed "s/  volumes:/  $volumes/g"
