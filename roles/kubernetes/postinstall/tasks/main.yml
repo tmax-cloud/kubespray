@@ -7,9 +7,6 @@
     - dns-policy-cfwhn
 
 - import_tasks: update-etcd.yaml
-  run_once: true
-  delegate_to: "{{ groups['kube_control_plane']|first }}"
-  delegate_facts: false
   tags:
     - update-etcd
 
