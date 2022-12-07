@@ -1216,8 +1216,10 @@ kafka_cluster_operator_image_repo: "{{ quay_image_repo }}/strimzi/operator"
 hyperauth_kafka_image_repo: "{{ quay_image_repo }}/strimzi/kafka"
 
 ## nfs_external_provisioner image
-nfs_external_provisioner_image_repo: "{{ docker_image_repo }}/tmaxcloudck/nfs-subdir-external-provisioner"
-nfs_external_provisioner_image_tag: "v4.0.2"
+#nfs_external_provisioner_image_repo: "{{ docker_image_repo }}/tmaxcloudck/nfs-subdir-external-provisioner"
+#nfs_external_provisioner_image_tag: "v4.0.2"
+nfs_external_provisioner_image_repo: "{{ gcr_image_repo }}/k8s-staging-sig-storage/nfs-subdir-external-provisioner"
+nfs_external_provisioner_image_tag: "v4.0.0"
 
 # aws_efs_csi image
 aws_efs_csi_driver_image_repo: "{{ docker_image_repo }}/amazon/aws-efs-csi-driver"
