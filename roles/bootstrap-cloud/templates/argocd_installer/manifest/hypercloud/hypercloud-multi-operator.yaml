@@ -3,7 +3,7 @@ kind: "CustomResourceDefinition"
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: "hypercloud5-system/hypercloud-multi-operator-serving-cert"
-    controller-gen.kubebuilder.io/version: "v0.3.0"
+    controller-gen.kubebuilder.io/version: "v0.6.2"
   name: "clustermanagers.cluster.tmax.io"
 spec:
   additionalPrinterColumns:
@@ -47,6 +47,7 @@ spec:
     shortNames:
     - "clm"
     singular: "clustermanager"
+  preserveUnknownFields: false
   scope: "Namespaced"
   subresources:
     status: {}
@@ -60,6 +61,9 @@ spec:
         awsSpec:
           description: "%clustermanagers.yaml.spec.validation.openAPIV3Schema.properties.awsSpec"
           properties:
+            masterDiskSize:
+              description: "%clustermanagers.yaml.spec.validation.openAPIV3Schema.properties.awsSpec.properties.masterDiskSize"
+              type: "integer"
             masterType:
               description: "%clustermanagers.yaml.spec.validation.openAPIV3Schema.properties.awsSpec.properties.masterType"
               type: "string"
@@ -69,6 +73,9 @@ spec:
             sshKey:
               description: "%clustermanagers.yaml.spec.validation.openAPIV3Schema.properties.awsSpec.properties.sshKey"
               type: "string"
+            workerDiskSize:
+              description: "%clustermanagers.yaml.spec.validation.openAPIV3Schema.properties.awsSpec.properties.workerDiskSize"
+              type: "integer"
             workerType:
               description: "%clustermanagers.yaml.spec.validation.openAPIV3Schema.properties.awsSpec.properties.workerType"
               type: "string"
@@ -102,10 +109,22 @@ spec:
         status:
           description: "%clustermanagers.yaml.spec.validation.openAPIV3Schema.properties.status"
           properties:
+            applicationLink:
+              type: "string"
+            argoReady:
+              type: "boolean"
+            authClientReady:
+              type: "boolean"
             controlPlaneEndpoint:
               type: "string"
             controlPlaneReady:
               type: "boolean"
+            gatewayReady:
+              type: "boolean"
+            gatewayReadyMigration:
+              type: "boolean"
+            masterNum:
+              type: "integer"
             masterRun:
               type: "integer"
             nodeInfo:
@@ -155,14 +174,23 @@ spec:
                 - "systemUUID"
                 type: "object"
               type: "array"
+            openSearchReady:
+              type: "boolean"
             phase:
               type: "string"
+            prometheusReady:
+              description: "%clustermanagers.yaml.spec.validation.openAPIV3Schema.properties.status.properties.prometheusReady"
+              type: "boolean"
             provider:
               type: "string"
             ready:
               type: "boolean"
+            traefikReady:
+              type: "boolean"
             version:
               type: "string"
+            workerNum:
+              type: "integer"
             workerRun:
               type: "integer"
           type: "object"
@@ -235,7 +263,7 @@ kind: "CustomResourceDefinition"
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: "hypercloud5-system/hypercloud-multi-operator-serving-cert"
-    controller-gen.kubebuilder.io/version: "v0.3.0"
+    controller-gen.kubebuilder.io/version: "v0.6.2"
   name: "clusterclaims.claim.tmax.io"
 spec:
   additionalPrinterColumns:
@@ -256,6 +284,7 @@ spec:
     shortNames:
     - "cc"
     singular: "clusterclaim"
+  preserveUnknownFields: false
   scope: "Namespaced"
   subresources:
     status: {}
@@ -279,6 +308,7 @@ spec:
               type: "string"
             masterNum:
               description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.masterNum"
+              minimum: 1
               type: "integer"
             provider:
               description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.provider"
@@ -289,6 +319,10 @@ spec:
             providerAwsSpec:
               description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerAwsSpec"
               properties:
+                masterDiskSize:
+                  description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerAwsSpec.properties.masterDiskSize"
+                  minimum: 8
+                  type: "integer"
                 masterType:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerAwsSpec.properties.masterType"
                   type: "string"
@@ -314,6 +348,10 @@ spec:
                 sshKey:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerAwsSpec.properties.sshKey"
                   type: "string"
+                workerDiskSize:
+                  description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerAwsSpec.properties.workerDiskSize"
+                  minimum: 8
+                  type: "integer"
                 workerType:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerAwsSpec.properties.workerType"
                   type: "string"
@@ -323,9 +361,11 @@ spec:
               properties:
                 podCidr:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerVsphereSpec.properties.podCidr"
+                  pattern: "^[0-9]+.[0-9]+.[0-9]+.[0-9]+\\/[0-9]+"
                   type: "string"
                 vcenterCpuNum:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerVsphereSpec.properties.vcenterCpuNum"
+                  minimum: 2
                   type: "integer"
                 vcenterDataCenter:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerVsphereSpec.properties.vcenterDataCenter"
@@ -335,6 +375,7 @@ spec:
                   type: "string"
                 vcenterDiskSize:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerVsphereSpec.properties.vcenterDiskSize"
+                  minimum: 20
                   type: "integer"
                 vcenterFolder:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerVsphereSpec.properties.vcenterFolder"
@@ -350,6 +391,7 @@ spec:
                   type: "string"
                 vcenterMemSize:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerVsphereSpec.properties.vcenterMemSize"
+                  minimum: 2048
                   type: "integer"
                 vcenterNetwork:
                   description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.providerVsphereSpec.properties.vcenterNetwork"
@@ -369,9 +411,11 @@ spec:
               type: "object"
             version:
               description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.version"
+              pattern: "^v[0-9].[0-9]+.[0-9]+"
               type: "string"
             workerNum:
               description: "%clusterclaims.yaml.spec.validation.openAPIV3Schema.properties.spec.properties.workerNum"
+              minimum: 1
               type: "integer"
           required:
           - "clusterName"
@@ -393,6 +437,7 @@ spec:
               - "Rejected"
               - "Error"
               - "ClusterDeleted"
+              - "Cluster Deleted"
               type: "string"
             reason:
               type: "string"
@@ -417,7 +462,7 @@ kind: "CustomResourceDefinition"
 metadata:
   annotations:
     cert-manager.io/inject-ca-from: "hypercloud5-system/hypercloud-multi-operator-serving-cert"
-    controller-gen.kubebuilder.io/version: "v0.3.0"
+    controller-gen.kubebuilder.io/version: "v0.6.2"
   name: "clusterregistrations.cluster.tmax.io"
 spec:
   additionalPrinterColumns:
@@ -440,6 +485,7 @@ spec:
     shortNames:
     - "clr"
     singular: "clusterregistration"
+  preserveUnknownFields: false
   scope: "Namespaced"
   subresources:
     status: {}
@@ -472,6 +518,8 @@ spec:
         status:
           description: "%clusterregistrations.yaml.spec.validation.openAPIV3Schema.properties.status"
           properties:
+            clusterValidated:
+              type: "boolean"
             masterNum:
               type: "integer"
             masterRun:
@@ -531,6 +579,8 @@ spec:
               type: "boolean"
             reason:
               type: "string"
+            secretReady:
+              type: "boolean"
             version:
               type: "string"
             workerNum:
@@ -596,7 +646,6 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
   name: hypercloud-multi-operator-manager-role
 rules:
 - apiGroups:
@@ -617,6 +666,7 @@ rules:
   resources:
   - namespaces
   - secrets
+  - serviceaccounts
   verbs:
   - create
   - delete
@@ -624,6 +674,18 @@ rules:
   - list
   - patch
   - post
+  - update
+  - watch
+- apiGroups:
+  - argoproj.io
+  resources:
+  - applications
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
   - update
   - watch
 - apiGroups:
@@ -724,6 +786,26 @@ rules:
   - cluster.x-k8s.io
   resources:
   - machinedeployments/status
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - machines
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cluster.x-k8s.io
+  resources:
+  - machines/status
   verbs:
   - get
   - list
@@ -987,6 +1069,7 @@ spec:
   dnsNames:
   - hypercloud-multi-operator-webhook-service.hypercloud5-system.svc
   - hypercloud-multi-operator-webhook-service.hypercloud5-system.svc.cluster.local
+  # isCA: false
   issuerRef:
     group: cert-manager.io
     kind: ClusterIssuer
@@ -1014,7 +1097,7 @@ webhooks:
       namespace: hypercloud5-system
       path: /mutate-claim-tmax-io-v1alpha1-clusterclaim
   failurePolicy: Fail
-  name: mclusterclaim.kb.io
+  name: mutation.webhook.clusterclaim
   rules:
   - apiGroups:
     - claim.tmax.io
@@ -1042,13 +1125,14 @@ webhooks:
       namespace: hypercloud5-system
       path: /validate-claim-tmax-io-v1alpha1-clusterclaim
   failurePolicy: Fail
-  name: vclusterclaim.kb.io
+  name: validation.webhook.clusterclaim
   rules:
   - apiGroups:
     - claim.tmax.io
     apiVersions:
     - v1alpha1
     operations:
+    - CREATE
     - UPDATE
     - DELETE
     resources:
@@ -1064,7 +1148,7 @@ webhooks:
       namespace: hypercloud5-system
       path: /validate-cluster-tmax-io-v1alpha1-clustermanager
   failurePolicy: Fail
-  name: vclustermanager.kb.io
+  name: validation.webhook.clustermanager
   rules:
   - apiGroups:
     - cluster.tmax.io
@@ -1084,7 +1168,7 @@ webhooks:
       namespace: hypercloud5-system
       path: /validate-cluster-tmax-io-v1alpha1-clusterregistration
   failurePolicy: Fail
-  name: vclusterregistration.kb.io
+  name: validation.webhook.clusterregistration
   rules:
   - apiGroups:
     - cluster.tmax.io
@@ -1093,6 +1177,7 @@ webhooks:
     operations:
     - CREATE
     - UPDATE
+    - DELETE
     resources:
     - clusterregistrations
   sideEffects: NoneOnDryRun
