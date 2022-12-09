@@ -29,7 +29,13 @@ spec:
           - name: hypercloud_domain_host
             value: {{ .Values.global.domain }}
           - name: hyperauth_subdomain
-            value: {{ .Values.modules.hyperAuth.subdomain }}
+            value: {{ include "hyperAuth.subdomain" . }}
+          - name: storage_class
+            value: {{ .Values.modules.hyperAuth.storageClass }}
+          - name: timezone_setting
+            value: {{ .Values.global.timeZone }}
+          - name: self_signed
+            value: "{{ .Values.modules.gatewayBootstrap.tls.selfsigned.enabled }}"
     path: manifest/hyperauth
     repoURL: {{ .Values.spec.source.repoURL }}
     targetRevision: {{ .Values.spec.source.targetRevision }}
