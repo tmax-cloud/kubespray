@@ -1,0 +1,81 @@
+- name: Gitea | Create addon dir
+  file:
+    path: "{{ kube_config_dir }}/addons/gitea"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Gitea | Create values.yml, gitea_push_argoCD.sh
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ kube_config_dir }}/addons/gitea/{{ item }}"
+  with_items: ["gitea-values.yml", "gitea_push_argoCD.sh"]
+
+- name: Gitea | Copy Gitea chart
+  copy:
+    src: "{{ playbook_dir }}/roles/bootstrap-cloud/templates/gitea"
+    dest: "{{ kube_config_dir }}/addons/gitea/"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Gitea | Copy ArgoCD-installer
+  copy:
+    src: "{{ playbook_dir }}/roles/bootstrap-cloud/templates/argocd_installer"
+    dest: "{{ kube_config_dir }}/addons/gitea/"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Gitea | Check if it was installed
+  shell: |
+    /usr/local/bin/helm status {{ gitea_release_name }} -n {{ gitea_namespace }} -o json
+  register: already_installed_result
+  failed_when:
+    - "already_installed_result.rc != 0"
+    - "'not found' not in already_installed_result.stderr"
+
+- name: Gitea | Upgrade failed release
+  shell: |
+    /usr/local/bin/helm upgrade {{ gitea_release_name }} {{ kube_config_dir }}/addons/gitea/gitea \
+      --create-namespace -n {{ gitea_namespace }} \
+      -f {{ kube_config_dir }}/addons/gitea/gitea-values.yml
+  when:
+    - "already_installed_result.rc == 0"
+    - "'not found' not in already_installed_result.stderr"
+    - "'failed' in already_installed_result.stdout | from_json | json_query('info.status')"
+
+- name: Gitea | Release Gitea from helm
+  shell: |
+    /usr/local/bin/helm install {{ gitea_release_name }} {{kube_config_dir }}/addons/gitea/gitea \
+      --create-namespace -n {{ gitea_namespace }} -f {{ kube_config_dir }}/addons/gitea/gitea-values.yml
+  when:
+    - "already_installed_result.rc != 0"
+    - "'not found' in already_installed_result.stderr"
+
+- name: Gitea | wait for gitea to be deployed
+  shell: "echo $({{ bin_dir }}/kubectl -n gitea-system get pod -o jsonpath='{.items[0].status.containerStatuses[0].ready}');"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: Gitea | Check gitea installed
+  ansible.builtin.shell: |
+    while true; do
+      sleep 5s
+      status=$({{ bin_dir }}/kubectl -n gitea-system get pod -o jsonpath='{.items[0].status.containerStatuses[0].ready}')
+      if [[ "$status" == "true" ]]; then
+        break
+      fi
+    done
+  args:
+    chdir: "{{ kube_config_dir }}/addons/gitea"
+  ignore_errors: true
+
+- name: Gitea | push argoCD to gitea
+  ansible.builtin.shell: |
+    sudo chmod +755 ./gitea_push_argoCD.sh
+    sudo ./gitea_push_argoCD.sh
+  args:
+    chdir: "{{ kube_config_dir }}/addons/gitea"
+  ignore_errors: true

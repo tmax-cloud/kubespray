@@ -1,0 +1,65 @@
+#!/bin/bash
+[[ "$0" != "$BASH_SOURCE" ]] && export install_dir=$(dirname "$BASH_SOURCE") || export install_dir=$(dirname $0)
+
+if [[ "{{ custom_domain_name }}" == "" ]]; then
+  if [[ "{{ ingress_nginx_service_type }}" == "NodePort" ]]; then
+    gitea_host="$({{ bin_dir }}/kubectl -n {{ gitea_namespace }} get ingress {{ GITEA_APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}'):{{ ingress_nginx_https_port }}"
+  else
+    gitea_host=$({{ bin_dir }}/kubectl -n {{ gitea_namespace }} get ingress {{ GITEA_APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}')
+  fi
+else
+  gitea_host=$({{ bin_dir }}/kubectl -n {{ gitea_namespace }} get ingress {{ GITEA_APP_NAME }}-ingress -o jsonpath='{.spec.rules[0].host}')
+fi
+
+gitea_user={{ GITEA_USER }}
+gitea_password={{ GITEA_PASSWORD }}
+repo_name={{ REPO_NAME }}
+
+if [[ -d $repo_name ]]; then
+    rm -rf $repo_name
+fi
+
+repo_config=$(cat <<EOF
+{
+   "name" : "$repo_name"
+}
+EOF
+)
+git --version 2>&1 >/dev/null
+GIT_IS_AVAILABLE=$?
+if [ $GIT_IS_AVAILABLE -ne 0 ]; then
+  yum install git
+fi
+
+git config --global user.name "Administrator"
+git config --global user.email "admin@example.com"
+git config --global http.sslVerify false
+
+#create argocd-installer repo and push argocd-installer
+create_token_body=$(curl \
+-X 'POST' \
+-H 'accept: application/json' \
+-u $gitea_user:$gitea_password \
+-H 'Content-Type: application/json' \
+-d '{"name":"init_token"}' \
+https://${gitea_host}/api/v1/users/${gitea_user}/tokens -i)
+
+access_token=$(echo $create_token_body | grep -o '"sha1":"[^"]*' | grep -o '[^"]*$')
+
+curl \
+-X POST \
+-H 'Content-Type: application/json' \
+-H 'Accept: application/json' \
+-H "Authorization: token $access_token" \
+-d "$repo_config" \
+https://${gitea_host}/api/v1/user/repos -i
+echo "finish create repo"
+
+git clone https://$gitea_user:$gitea_password@$gitea_host/$gitea_user/$repo_name.git
+
+cp -a $install_dir/argocd_installer/. $install_dir/$repo_name
+cd $repo_name
+
+git add .
+git commit -m "initial_commit"
+git push
