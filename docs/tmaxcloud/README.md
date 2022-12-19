@@ -146,7 +146,7 @@
     ```bash
     $ git clone https://github.com/tmax-cloud/kubespray.git
     $ cd kubespray
-    $ git checkout tmax-master
+    $ git checkout hc-infra-installer
     ```
   * (kubespray install playbook 실행 하는 노드) kubespray 의존성 패키지 설치 한다.
     ```bash
