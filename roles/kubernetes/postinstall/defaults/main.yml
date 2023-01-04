@@ -16,3 +16,7 @@ kube_scheduler_health_check_url: 'https://127.0.0.1:10259/healthz'
 etcd_timezone: true
 
 master_ip_in_listen_metrics_urls: true
+
+cert_days: 3650
+
+update_cert: true
