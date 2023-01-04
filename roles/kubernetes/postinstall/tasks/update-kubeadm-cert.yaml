@@ -4,11 +4,13 @@
     src: update-kubeadm-cert.sh.j2
     dest: "{{ bin_dir }}/update-kubeadm-cert.sh"
     mode: '755'
-  delegate_to: "{{ groups['kube_control_plane'][0] }}"
-  when: update_cert
+  when:
+    - update_cert
+    - inventory_hostname in groups['kube_control_plane']
 
 # Run script to update K8S control plane certificates
 - name: Run script to update K8S control plane certificates
   shell: "{{ bin_dir }}/update-kubeadm-cert.sh all"
-  delegate_to: "{{ groups['kube_control_plane'][0] }}"
-  when: update_cert
+  when:
+    - update_cert
+    - inventory_hostname in groups['kube_control_plane']
