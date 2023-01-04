@@ -19,4 +19,4 @@ master_ip_in_listen_metrics_urls: true
 
 cert_days: 3650
 
-update_cert: true
+update_cert: false
