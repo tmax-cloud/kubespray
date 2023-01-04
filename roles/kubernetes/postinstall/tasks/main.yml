@@ -1,5 +1,5 @@
 ---
-- import_tasks: 0010-update-api-server.yml
+- import_tasks: update-api-server.yml
   when:
     - dns_mode != 'none'
     - api_server_dns_cfwhn
@@ -17,3 +17,7 @@
 - import_tasks: update-kube-scheduler.yaml
   tags:
     - update-kube-scheduler
+
+- import_tasks: update-kubeadm-cert.yaml
+  tags:
+    - update-kubeadm-cert
