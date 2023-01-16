@@ -341,9 +341,9 @@ signature_policy = "{{ crio_signature_policy }}"
 # consider configuring the registries via /etc/containers/registries.conf before
 # changing them here.
 insecure_registries = [
-  {% for insecure_registry in crio_insecure_registries %}
-  "{{ insecure_registry }}",
-  {% endfor %}
+  {% if is_this_offline == true %}
+  "{{ registry_host }}",
+  {% endif %}
 ]
 
 # Controls how image volumes are handled. The valid values are mkdir, bind and
