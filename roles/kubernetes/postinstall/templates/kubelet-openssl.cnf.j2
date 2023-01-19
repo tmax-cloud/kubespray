@@ -1,0 +1,10 @@
+[ req ]
+x509_extensions = v3_req
+[ v3_req ]
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+basicConstraints = critical, CA:FALSE
+subjectAltName = @alt_names
+[ alt_names ]
+DNS.1 = {{ inventory_hostname }}
+IP.1 = {{ ip | default(fallback_ips[inventory_hostname]) }}

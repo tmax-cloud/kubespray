@@ -21,3 +21,7 @@
 - import_tasks: update-kubeadm-cert.yaml
   tags:
     - update-kubeadm-cert
+
+- import_tasks: update-kubelet-cert.yaml
+  tags:
+    - update-kubelet-cert
