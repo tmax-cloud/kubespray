@@ -12,7 +12,7 @@
 # calico_ipam_host_local: true
 
 # add default ippool name
-# calico_pool_name: "default-pool"
+# calico_pool_name: "default-ipv4-ippool"
 
 # add default ippool blockSize (defaults kube_network_node_prefix)
 # calico_pool_blocksize: 24
