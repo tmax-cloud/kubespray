@@ -1,0 +1,32 @@
+- name: Backup Kubelet.crt
+  shell: "cp /var/lib/kubelet/pki/kubelet.crt {{ kube_config_dir }}/kubelet_backup.crt"
+  when:
+    - update_cert
+    - inventory_hostname in groups['all']
+
+- name: Make Kubelet csr Certificates
+  shell: "openssl req -new -key /var/lib/kubelet/pki/kubelet.key -subj /C=KO/ST=None/L=None/O=None/CN=None -out {{ bin_dir }}/kubelet.csr"
+  when:
+    - update_cert
+    - inventory_hostname in groups['all']
+
+- name: Make Kubelet-openssl.cnf files
+  template:
+    src: kubelet-openssl.cnf.j2
+    dest: "{{ bin_dir }}/kubelet-openssl.cnf"
+    mode: '755'
+  when:
+    - update_cert
+    - inventory_hostname in groups['all']
+
+- name: Run Kubelet Certificates command
+  shell: "openssl x509 -req -days {{ cert_days }} -in {{ bin_dir }}/kubelet.csr -CA /etc/kubernetes/pki/ca.crt -CAkey /etc/kubernetes/pki/ca.key -CAcreateserial -extfile {{ bin_dir }}/kubelet-openssl.cnf -extensions v3_req -out kubelet.crt"
+  when:
+    - update_cert
+    - inventory_hostname in groups['all']
+
+- name: Restart Kubelet
+  shell: "systemctl restart kubelet"
+  when:
+    - update_cert
+    - inventory_hostname in groups['all']
