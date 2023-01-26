@@ -16,15 +16,6 @@
     - "skopeo"
   when: ansible_os_family == "Debian"
 
-- name: HyperRegistry | Wait up for running Core service
-  uri:
-    url: "https://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/api/v2.0/health"
-    validate_certs: no
-  register: core_health_result
-  until: core_health_result.status == 200
-  retries: 60
-  delay: 10
-
 - name: HyperRegistry | Login harbor
   become: true
   shell: |
