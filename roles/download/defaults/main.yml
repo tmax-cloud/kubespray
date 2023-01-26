@@ -50,7 +50,7 @@ image_arch: "{{host_architecture | default('amd64')}}"
 
 # Versions
 kubeadm_version: "{{ kube_version }}"
-etcd_version: v3.4.13
+etcd_version: v3.5.6
 crun_version: 0.19
 kata_containers_version: 1.12.1
 runc_version: v1.1.1
@@ -61,7 +61,7 @@ nvcr_image_repo: "nvcr.io"
 
 # gcr and kubernetes image repo define
 gcr_image_repo: "gcr.io"
-kube_image_repo: "k8s.gcr.io"
+kube_image_repo: "registry.k8s.io"
 us_gcr_image_repo: "us.gcr.io"
 
 # ghcr repo
@@ -84,7 +84,7 @@ aws_image_repo: "public.ecr.aws"
 
 # TODO(mattymo): Move calico versions to roles/network_plugins/calico/defaults
 # after migration to container download
-calico_version: "v3.17.4"
+calico_version: "v3.24.5"
 calico_ctl_version: "{{ calico_version }}"
 calico_cni_version: "{{ calico_version }}"
 calico_policy_version: "{{ calico_version }}"
@@ -116,6 +116,7 @@ kube_major_version: "{{ kube_version | regex_replace('^v([0-9])+\\.([0-9]+)\\.[0
 #etcd_version: "{{ etcd_supported_versions[kube_major_version] }}"
 
 crictl_supported_versions:
+  v1.25: "v1.25.0"
   v1.24: "v1.24.0"
   v1.23: "v1.23.0"
   v1.22: "v1.22.0"
@@ -145,6 +146,7 @@ fnvhash_download_url: "https://files.pythonhosted.org/packages/2f/01/14ef74ea03a
 
 crictl_checksums:
   arm:
+    v1.25.0: c4efe3649af5542f2b07cdfc0be62e9e13c7bb846a9b59d57e190c764f28dae4
     v1.24.0: 1ab8a88d6ce1e9cff1c76fc454d2d41cf0c89e98c6db15a41804a3a5874cbf89
     v1.23.0: c20f7a118183d1e6da24c3709471ea0b4dee51cb709f958e0d90f3acb4eb59ae
     v1.22.0: b74f7cc52ce79c6d7fd776beb6353f4628e9c36f17ba2b8e6c48155714057f07
@@ -152,6 +154,7 @@ crictl_checksums:
     v1.20.0: ed5ffdd386261ec1146731421d4ac9c5c7f91e08486fee409452a3364bef792a
     v1.19.0: b72fd3c4b35f60f5db2cfcd8e932f6000cf9c2978b54adfcf60ee5e2d452e92f
   arm64:
+    v1.25.0: 651c939eca010bbf48cc3932516b194028af0893025f9e366127f5b50ad5c4f4
     v1.24.0: b6fe172738dfa68ca4c71ade53574e859bf61a3e34d21b305587b1ad4ab28d24
     v1.23.0: 91094253e77094435027998a99b9b6a67b0baad3327975365f7715a1a3bd9595
     v1.22.0: a713c37fade0d96a989bc15ebe906e08ef5c8fe5e107c2161b0665e9963b770e
@@ -159,6 +162,7 @@ crictl_checksums:
     v1.20.0: eda6879710eb046d335162d4afe8494c6f8161142ad3188022852f64b92806a8
     v1.19.0: ec040d14ca03e8e4e504a85dae5353e04b5d9d8aea3df68699258992c0eb8d88
   amd64:
+    v1.25.0: 86ab210c007f521ac4cdcbcf0ae3fb2e10923e65f16de83e0e1db191a07f0235
     v1.24.0: 3df4a4306e0554aea4fdc26ecef9eea29a58c8460bebfaca3405799787609880
     v1.23.0: b754f83c80acdc75f93aba191ff269da6be45d0fc2d3f4079704e7d1424f1ca8
     v1.22.0: 45e0556c42616af60ebe93bf4691056338b3ea0001c0201a6a8ff8b1dbc0652a
@@ -170,6 +174,7 @@ crictl_checksums:
 # Kubernetes versions above Kubespray's current target version are untested and should be used with caution.
 kubelet_checksums:
   arm:
+    v1.25.0: ad45ac3216aa186648fd034dec30a00c1a2d2d1187cab8aae21aa441a13b4faa
     v1.24.0: fd19ff957c73e5397f9af931c82bdb95791e47dc7d3135d38720ecda211758a3
     v1.23.6: 2f3fb387c20de1da586ac6bc43fa714fb7c2116b4243a2ef1e28ecfbba324cea
     v1.23.5: 9505cf63fb56a1d90d1db9c1507587621455a152ef16d871e802875e1e7b4587
@@ -224,6 +229,7 @@ kubelet_checksums:
     v1.19.1: 3985c8d02c1c2f2016fceccd9cc14865e2d047f32c8f0b42aeedcc8450de572e
     v1.19.0: bb433ef7981297bdee6ffc4e23376e8db24a0e47321ebe94bf9d4b9f7a2f0e3b
   arm64:
+    v1.25.0: 69572a7b3d179d4a479aa2e0f90e2f091d8d84ef33a35422fc89975dc137a590
     v1.24.0: 8f066c9a048dd1704bf22ccf6e994e2fa2ea1175c9768a786f6cb6608765025e
     v1.23.6: 11a0310e8e7af5a11539ac26d6c14cf1b77d35bce4ca74e4bbd053ed1afc8650
     v1.23.5: 61f7e3ae0eb00633d3b5163c046cfcae7e73b5f26d4ffcf343f3a45904323583
@@ -278,6 +284,7 @@ kubelet_checksums:
     v1.19.1: 143bed1f04cba4e6749a72abf9258d19f31e1a310f94bd041cd30ce62a1f73ff
     v1.19.0: d8fa5a9739ecc387dfcc55afa91ac6f4b0ccd01f1423c423dbd312d787bbb6bf
   amd64:
+    v1.25.0: 7f9183fce12606818612ce80b6c09757452c4fb50aefea5fc5843951c5020e24
     v1.24.0: 3d98ac8b4fb8dc99f9952226f2565951cc366c442656a889facc5b1b2ec2ba52
     v1.23.6: fbb83e35f6b9f7cae19c50694240291805ca9c4028676af868306553b3e9266c
     v1.23.5: 253b9db2299b09b91e4c09781ce1d2db6bad2099cf16ba210245159f48d0d5e4
@@ -333,6 +340,7 @@ kubelet_checksums:
     v1.19.0: 3f03e5c160a8b658d30b34824a1c00abadbac96e62c4d01bf5c9271a2debc3ab
 kubectl_checksums:
   arm:
+    v1.25.0: 0b907cfdcabafae7d2d4ac7de55e3ef814df999acdf6b1bd0ecf6abbef7c7131
     v1.24.0: 410fc0b3c718f8f431fe4f7d5820bf8133b16ffb76187a53fa90929a77a38cbc
     v1.23.6: 30d8e9656334b57e78c8dbc5d5f245a64b9a74c4fd03db47182fa7a21c2f5e32
     v1.23.5: 58420bc549e1683a4529066b38b2ac657611ed3b70041be78fba3b29401415db
@@ -387,6 +395,7 @@ kubectl_checksums:
     v1.19.1: e63bbf3161c49d60e46ffaf7d3cfd689834516205be1be881d2e652115535e93
     v1.19.0: 5885bb723a55ab95e8687e0ad52620ce4c08f76fd20c0973f5cd19c753b513c8
   arm64:
+    v1.25.0: 24db547bbae294c5c44f2b4a777e45f0e2f3d6295eace0d0c4be2b2dfa45330d
     v1.24.0: 449278789de283648e4076ade46816da249714f96e71567e035e9d17e1fff06d
     v1.23.6: 4be771c8e6a082ba61f0367077f480237f9858ef5efe14b1dbbfc05cd42fc360
     v1.23.5: 15cd560c04def7bbe5ee3f6f75e2cfd3913371c7e76354f4b2d5d6f536b70e39
@@ -441,6 +450,7 @@ kubectl_checksums:
     v1.19.1: 332bbdb4560f9b7fcbb96c8f2cebbc4996e409384ca07510e5c5990998158c20
     v1.19.0: d4adf1b6b97252025cb2f7febf55daa3f42dc305822e3da133f77fd33071ec2f
   amd64:
+    v1.25.0: e23cc7092218c95c22d8ee36fb9499194a36ac5b5349ca476886b7edc0203885
     v1.24.0: 94d686bb6772f6fb59e3a32beff908ab406b79acdfb2427abdc4ac3ce1bb98d7
     v1.23.6: 703a06354bab9f45c80102abff89f1a62cbc2c6d80678fd3973a014acc7c500a
     v1.23.5: 715da05c56aa4f8df09cb1f9d96a2aa2c33a1232f6fd195e3ffce6e98a50a879
@@ -525,6 +535,7 @@ kubectl_checksums:
     v1.21.0: 3d8702c2d341bbed07f6e9c952815c558034d817e3d1a672c1d7d042b021e9c0
 kubeadm_checksums:
   arm:
+    v1.25.0: 67b6b58cb6abd5a4c9024aeaca103f999077ce6ec8e2ca13ced737f5139ad2f0
     v1.24.0: c463bf24981dea705f4ee6e547abd5cc3b3e499843f836aae1a04f5b80abf4c2
     v1.23.6: da2221f593e63195736659e96103a20e4b7f2060c3030e8111a4134af0d37cfb
     v1.23.5: 9ea3e52cb236f446a33cf69e4ed6ac28a76103c1e351b2675cb9bfcb77222a61
@@ -579,6 +590,7 @@ kubeadm_checksums:
     v1.19.1: 0e910cf9c771976f6eb079098ad428f3e99080624f478e3d71b670005a7c3651
     v1.19.0: 62fca8b373f8c63409bcfcb7c585f8de882a8a119d88d39666e1ab3a11be188b
   arm64:
+    v1.25.0: 07d9c6ffd3676502acd323c0ca92f44328a1f0e89a7d42a664099fd3016cf16b
     v1.24.0: 3e0fa21b8ebce04ca919fdfea7cc756e5f645166b95d6e4b5d9912d7721f9004
     v1.23.6: a4db7458e224c3a2a7b468fc2704b31fec437614914b26a9e3d9efb6eecf61ee
     v1.23.5: 22a8468abc5d45b3415d694ad52cc8099114248c3d1fcf4297ec2b336f5cc274
@@ -633,6 +645,7 @@ kubeadm_checksums:
     v1.19.1: dcdabd2fdec9b4dd8febd1625e1fbbe15362919041e5f4ce3aab629e4aea7540
     v1.19.0: db1c432646e6e6484989b6f7191f3610996ac593409f12574290bfc008ea11f5
   amd64:
+    v1.25.0: 10b30b87af2cdc865983d742891eba467d038f94f3926bf5d0174f1abf6628f8
     v1.24.0: 5e58a29eaaf69ea80e90d9780d2a2d5f189fd74f94ec3bec9e3823d472277318
     v1.23.6: 9213c7d738e86c9a562874021df832735236fcfd5599fd4474bab3283d34bfd7
     v1.23.5: 8eebded187ee84c97003074eaa347e34131fef3acdf3e589a9b0200f94687667
@@ -720,22 +733,26 @@ etcd_binary_checksums:
   # Etcd does not have arm32 builds at the moment, having some dummy value is
   # required to avoid "no attribute" error
   arm:
+    v3.5.6: 0
     v3.5.0: 0
     v3.5.1: 0
     v3.5.2: 0
   arm64:
+    v3.5.6: 888e25c9c94702ac1254c7655709b44bb3711ebaabd3cb05439f3dd1f2b51a87
     v3.5.0: 444e10e6880595d75aaf55762901c722049b29d56fef50b2f23464bb7f9db74d
     v3.5.1: 86203022e23d7368bac23d96095270dc6300f356ea882e435926a9effd7e5f0e
     v3.5.2: 256cad725542d6fd463e81b8a19b86ead4cdfe113f7fb8a1eabc6c32c25d068b
     v3.5.3: 8b00f2f51568303799368ee4a3c9b9ff8a3dd9f8b7772c4f6589e46bc62f7115
     v3.4.13: 1934ebb9f9f6501f706111b78e5e321a7ff8d7792d3d96a76e2d01874e42a300
   amd64:
+    v3.5.6: 4db32e3bc06dd0999e2171f76a87c1cffed8369475ec7aa7abee9023635670fb
     v3.5.0: 864baa0437f8368e0713d44b83afe21dce1fb4ee7dae4ca0f9dd5f0df22d01c4
     v3.5.1: 728a14914217ce60de2e1299fc1a2c2c5564e7ffd0d9dadf3f5073103ab619b4
     v3.5.2: c068ea3cdcc8ec8fbef75995cef7f63f8206766cdea6b93a91e6d4cdbe79952a
     v3.5.3: e13e119ff9b28234561738cd261c2a031eb1c8688079dcf96d8035b3ad19ca58
     v3.4.13: 2ac029e47bab752dacdb7b30032f230f49e2f457cbc32e8f555c2210bb5ff107
   ppc64le:
+    v3.5.6: e235cb885996b8aac133975e0077eaf0a2f8dc7062ad052fa7395668a365906b
     v3.5.0: bde45588b66ed2fe0a7082b1cdb08124efff4960edfa6af4dd2f645886004a86
     v3.5.1: 4c2598f43c1565428f8b645e741739a1e84300d5f2af3e4b335982862c98dc6f
     v3.5.2: 3d37187b042a32b7234a1e2a4612374db50c9a50e0cdd63baaa0d52d91335186
@@ -895,7 +912,7 @@ haproxy_image_tag: 2.3
 # bundle with kubeadm; if not 'basic' upgrade can sometimes fail
 coredns_image_is_namespaced: "{{ (kube_major_version | regex_replace('^v', '') | float) >= 1.21 }}"
 
-coredns_version: "v1.7.0"
+coredns_version: "v1.9.3"
 coredns_image_repo: "{{ kube_image_repo }}{{'/coredns/coredns' if (coredns_image_is_namespaced | bool) else '/coredns' }}"
 coredns_image_tag: "{{ coredns_version if (coredns_image_is_namespaced | bool) else (coredns_version | regex_replace('^v', '')) }}"
 
