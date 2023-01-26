@@ -20,7 +20,7 @@
     - inventory_hostname in groups['all']
 
 - name: Run Kubelet Certificates command
-  shell: "openssl x509 -req -days {{ cert_days }} -in {{ bin_dir }}/kubelet.csr -CA {{ kube_config_dir }}/pki/ca.crt -CAkey {{ kube_config_dir }}/pki/ca.key -CAcreateserial -extfile {{ bin_dir }}/kubelet-openssl.cnf -extensions v3_req -out kubelet.crt"
+  shell: "openssl x509 -req -days {{ cert_days }} -in {{ bin_dir }}/kubelet.csr -CA {{ kube_config_dir }}/pki/ca.crt -CAkey {{ kube_config_dir }}/pki/ca.key -CAcreateserial -extfile {{ bin_dir }}/kubelet-openssl.cnf -extensions v3_req -out /var/lib/kubelet/pki/kubelet.crt"
   when:
     - update_cert
     - inventory_hostname in groups['all']

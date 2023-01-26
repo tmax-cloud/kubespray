@@ -31,3 +31,35 @@ https://github.com/tmax-cloud/install-k8s/blob/5.0/KUBE_CERTIFICATE_UPDATE_READM
 update_cert: true
 cert_days: 3650
 ```
+
+# KUBELET 인증서 기간 설정 변경
+
+kubelet 인증서 기간 설정을 원한다면 아래 경로에서 변수를 설정한다.
+- 위의 k8s 인증서 갱신시에 kubelet 인증서도 재발급되기 때문에 중복해서 갱신하지 않아도 된다. 
+- inventory/tmaxcloud/group_vars/k8s_cluster/k8s-cluster.yml 을 수정한다.
+
+```yml
+## k8s certs days
+update_cert: true
+cert_days: {change cert days}
+```
+
+인스톨러로 kubelet 인증서 기간 갱신만 다시 하고 싶은 경우 아래와 같은 명령어를 수행한다.
+```yml
+ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root cluster.yml -v -t update-kubelet-cert
+```
+
+수동으로 kubelet 인증서 갱신이 필요한 경우 아래 링크를 참조하여 갱신한다.
+```yml
+https://github.com/tmax-cloud/install-k8s/blob/5.0/KUBELET_CERTIFICATE_UPDATE_README.md
+```
+
+### 예시
+
+예를 들어 아래와 같이 변수들의 값을 설정한다.
+
+```yml
+## k8s certs days
+update_cert: true
+cert_days: 3650
+```
