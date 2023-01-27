@@ -65,9 +65,9 @@ gitea_image_tag: ""
 gitea_ingress_class: "nginx-system"
 
 #nginx-controller
-ingress_nginx_namespace: ingress-nginx-system
-ingress_nginx_controller_image_repo: "{{ quay_image_repo }}/kubernetes-ingress-controller/nginx-ingress-controller"
-ingress_nginx_controller_image_tag: 0.33.0
+ingress_nginx_namespace: ingress-nginx
+ingress_nginx_controller_image_repo: "registry.k8s.io/ingress-nginx/controller"
+ingress_nginx_controller_image_tag: v1.5.1@sha256:4ba73c697770664c1e00e9f968de14e08f606ff961c76e5d7033a4a9c593c629
 ingress_nginx_certgen_image_repo: "{{ docker_image_repo }}/jettech/kube-webhook-certgen"
 ingress_nginx_certgen_image_tag: v1.2.2
 ingress_nginx_http_port: 30080
