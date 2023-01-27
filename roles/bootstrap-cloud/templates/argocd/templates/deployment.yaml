@@ -37,31 +37,38 @@ spec:
         - ""
         - --appendonly
         - "no"
-        - --loglevel # warning, notice, verbose, debug 
-        - "warning"
+        - --loglevel
+        - {{ .Values.redis.logLevel }}
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
         {{- else }}
         image: {{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
         {{- end }}
         imagePullPolicy: Always
-        {{- if ne .Values.global.time_zone "UTC" }}
+        name: redis
+        resources:
+          limits:
+            cpu: 500m
+            memory: 256Mi
+          requests:
+            cpu: 250m
+            memory: 128Mi
+        ports:
+        - containerPort: 6379
         volumeMounts:
+        {{- if ne .Values.timezone "UTC" }}
         - name: timezone-config
           mountPath: /etc/localtime
         {{- end }}
-        name: redis
-        ports:
-        - containerPort: 6379
       securityContext:
         runAsNonRoot: true
         runAsUser: 999
       serviceAccountName: argocd-redis
-      {{- if ne .Values.global.time_zone "UTC" }}
       volumes:
+      {{- if ne .Values.timezone "UTC" }}
       - name: timezone-config
         hostPath: 
-          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.timezone }}
       {{- end }}
 ---
 apiVersion: apps/v1
@@ -104,8 +111,8 @@ spec:
         - argocd-repo-server
         - --redis
         - argocd-redis:6379
-        - --loglevel # debug, info, warn, error
-        - "warn"
+        - --loglevel
+        - {{ .Values.repoServer.logLevel }}
         env:
         - name: ARGOCD_RECONCILIATION_TIMEOUT
           valueFrom:
@@ -186,7 +193,7 @@ spec:
         - name: HELM_DATA_HOME
           value: /helm-working-dir
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- else }}
         image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- end }}
@@ -199,6 +206,13 @@ spec:
           initialDelaySeconds: 30
           periodSeconds: 5
         name: argocd-repo-server
+        resources:
+          limits:
+            cpu: 1
+            memory: 512Mi
+          requests:
+            cpu: 250m 
+            memory: 256Mi
         ports:
         - containerPort: 8081
         - containerPort: 8084
@@ -216,6 +230,10 @@ spec:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
         volumeMounts:
+        {{- if ne .Values.timezone "UTC" }}
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
         - mountPath: /app/config/ssh
           name: ssh-known-hosts
         - mountPath: /app/config/tls
@@ -232,10 +250,6 @@ spec:
           name: helm-working-dir
         - mountPath: /home/argocd/cmp-server/plugins
           name: plugins
-        {{- if ne .Values.global.time_zone "UTC" }}
-        - name: timezone-config
-          mountPath: /etc/localtime
-        {{- end }}
       initContainers:
       - command:
         - cp
@@ -243,15 +257,24 @@ spec:
         - /usr/local/bin/argocd
         - /var/run/argocd/argocd-cmp-server
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- else }}
         image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- end }}
         name: copyutil
         volumeMounts:
+        {{- if ne .Values.timezone "UTC" }}
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
         - mountPath: /var/run/argocd
           name: var-files
       volumes:
+      {{- if ne .Values.timezone "UTC" }}
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.timezone }}
+      {{- end }}
       - configMap:
           name: argocd-ssh-known-hosts-cm
         name: ssh-known-hosts
@@ -282,11 +305,6 @@ spec:
         name: var-files
       - emptyDir: {}
         name: plugins
-      {{- if ne .Values.global.time_zone "UTC" }}
-      - name: timezone-config
-        hostPath: 
-          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
-      {{- end}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -327,8 +345,8 @@ spec:
         - --staticassets
         - /shared/app
         - --insecure
-        - --loglevel # debug, info, warn, error
-        - "warn"
+        - --loglevel
+        - {{ .Values.argocdServer.logLevel }}
         env:
         - name: ARGOCD_SERVER_INSECURE
           valueFrom:
@@ -366,12 +384,6 @@ spec:
               key: repo.server
               name: argocd-cmd-params-cm
               optional: true
-#        - name: ARGOCD_SERVER_DEX_SERVER
-#          valueFrom:
-#            configMapKeyRef:
-#              key: server.dex.server
-#              name: argocd-cmd-params-cm
-#              optional: true
         - name: ARGOCD_SERVER_DISABLE_AUTH
           valueFrom:
             configMapKeyRef:
@@ -481,7 +493,7 @@ spec:
               name: argocd-cmd-params-cm
               optional: true
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- else }}
         image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- end }}
@@ -493,6 +505,13 @@ spec:
           initialDelaySeconds: 3
           periodSeconds: 30
         name: argocd-server
+        resources:
+          limits:
+            cpu: 500m
+            memory: 256Mi
+          requests:
+            cpu: 125m
+            memory: 128Mi
         ports:
         - containerPort: 8080
         - containerPort: 8083
@@ -510,6 +529,10 @@ spec:
           readOnlyRootFilesystem: true
           runAsNonRoot: true
         volumeMounts:
+        {{- if ne .Values.timezone "UTC" }}
+        - name: timezone-config
+          mountPath: /etc/localtime
+        {{- end }}
         - mountPath: /app/config/ssh
           name: ssh-known-hosts
         - mountPath: /app/config/tls
@@ -522,12 +545,13 @@ spec:
           name: tmp
         - mountPath:  /var/run/secrets/kubernetes.io/serviceaccount
           name: argocd-server-secret
-        {{- if ne .Values.global.time_zone "UTC" }}
-        - name: timezone-config
-          mountPath: /etc/localtime
-        {{- end }}
       serviceAccountName: argocd-server
       volumes:
+      {{- if ne .Values.timezone "UTC" }}
+      - name: timezone-config
+        hostPath: 
+          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.timezone }}
+      {{- end }}
       - emptyDir: {}
         name: plugins-home
       - emptyDir: {}
@@ -554,8 +578,3 @@ spec:
       - name: argocd-server-secret
         secret:
           secretName: argocd-server-token
-      {{- if ne .Values.global.time_zone "UTC" }}
-      - name: timezone-config
-        hostPath: 
-          path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
-      {{- end}}

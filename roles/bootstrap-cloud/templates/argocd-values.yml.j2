@@ -22,14 +22,19 @@ image:
 
 dex:
   replicas: 1
+  logLevel: "info"
 repoServer:
   replicas: 1
+  logLevel: "info"
 redis:
   replicas: 1
+  logLevel: "notice"
 argocdServer:
   replicas: 1
+  logLevel: "info"
 controller:
   replicas: 1
+  logLevel: "info"
 
 ingress:
   hosts:

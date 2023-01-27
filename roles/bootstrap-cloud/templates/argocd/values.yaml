@@ -5,10 +5,9 @@
 replicas: 1
 
 global:
-  registry:
-    is_offline: false
-    private_registry:
-  time_zone: Asia/Seoul
+    registry:
+      is_offline: false
+      private_registry: test-registry.com
 
 image:
   redis:
@@ -17,20 +16,20 @@ image:
   argocdServer:
     repository: quay.io/argoproj/argocd
     tag: v2.2.5
-#  dex:
-#    repository: ghcr.io/dexidp/dex
-#    tag: v2.30.2
 
-#dex:
-#  replicas: 1
+
 repoServer:
   replicas: 1
+  logLevel: "info" # debug, info, warn, error
 redis:
   replicas: 1
+  logLevel: "notice" # warning, notice, verbose, debug
 argocdServer:
   replicas: 1
+  logLevel: "info" # debug, info, warn, error
 controller:
   replicas: 1
+  logLevel: "info" # debug, info, warn, error
 
 ingress:
   hosts:
@@ -39,6 +38,7 @@ ingress:
   tls:
     enabled: true
     secretName:
-  enableTraefik: false
+  enableTraefik: true
 
+timezone: "UTC"
 
