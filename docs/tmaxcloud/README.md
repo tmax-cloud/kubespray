@@ -287,16 +287,7 @@
     # - { role: offline-pretask, when: is_this_offline }
     ```
 
-5. crio insecure registry를 아래와 같이 수정한다.
-  * roles/container-engine/cri-o/defaults/main.yml
-    ```bash
-    crio_registries: []
-
-    # Configure insecure registries.
-    crio_insecure_registries: []
-    ```
-
-6. kubespray install playbook을 실행한다. (cluster.yml)
+5. kubespray install playbook을 실행한다. (cluster.yml)
   * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root cluster.yml
     * -t 옵션을 주어 cluster.yml에서 tag가 지정된 모듈만 따로 진행 할 수 있다. 
       * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root cluster.yml -t apps
