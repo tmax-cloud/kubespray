@@ -53,7 +53,7 @@ kubeadm_version: "{{ kube_version }}"
 etcd_version: v3.5.6
 crun_version: 0.19
 kata_containers_version: 1.12.1
-runc_version: v1.1.1
+runc_version: v1.1.4
 
 # mcr and nvcr image repo define
 mcr_image_repo: "mcr.microsoft.com"
