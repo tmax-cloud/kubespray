@@ -2,36 +2,35 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
-    app.kubernetes.io/name: ingress-nginx-system
-    app.kubernetes.io/instance: ingress-nginx-system
-  name: ingress-nginx-system
-  namespace: ingress-nginx-system
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/version: 1.5.1
+  name: ingress-nginx
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ingress-nginx-system
+  name: ingress-nginx
 subjects:
-  - kind: ServiceAccount
-    name: ingress-nginx-system
-    namespace: ingress-nginx-system
+- kind: ServiceAccount
+  name: ingress-nginx
+  namespace: ingress-nginx
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: ingress-nginx-system-admission
-  annotations:
-    helm.sh/hook: pre-install,pre-upgrade,post-install,post-upgrade
-    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
   labels:
-    app.kubernetes.io/name: ingress-nginx-system
-    app.kubernetes.io/instance: ingress-nginx-system
     app.kubernetes.io/component: admission-webhook
-  namespace: ingress-nginx-system
+    app.kubernetes.io/instance: ingress-nginx
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/version: 1.5.1
+  name: ingress-nginx-admission
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: ingress-nginx-system-admission
+  name: ingress-nginx-admission
 subjects:
-  - kind: ServiceAccount
-    name: ingress-nginx-system-admission
-    namespace: ingress-nginx-system
+- kind: ServiceAccount
+  name: ingress-nginx-admission
+  namespace: ingress-nginx
