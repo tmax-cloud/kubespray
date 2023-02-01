@@ -399,6 +399,9 @@ nginx:
     requests:
       memory: 256Mi
       cpu: 100m
+    limits:
+      memory: 512Mi
+      cpu: 500m
   nodeSelector: {}
   tolerations: []
   affinity: {}
@@ -728,10 +731,10 @@ database:
     affinity: {}
 	  initContainer:
       migrator: {}
-      resources:
-       requests:
-         memory: 128Mi
-         cpu: 100m
+      # resources:
+      #   requests:
+      #     memory: 128Mi
+      #     cpu: 100m
       permissions: {}
       # resources:	
       #   requests:	
@@ -803,10 +806,13 @@ redis:
 
 exporter:
     replicas: 1
-  # resources:
-  #  requests:
-  #    memory: 256Mi
-  #    cpu: 100m
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+        cpu: 500m
     podAnnotations: {}
     serviceAccountName: ""
     image:
