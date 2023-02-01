@@ -5,4 +5,4 @@ KUBECONFIG=/etc/kubernetes/admin.conf \
 {% else %}
 KUBECONFIG=/etc/cni/net.d/calico-kubeconfig \
 {% endif %}
-{{ bin_dir }}/calicoctl "$@"
+{{ bin_dir }}/calicoctl --allow-version-mismatch "$@"
