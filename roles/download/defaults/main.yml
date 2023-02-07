@@ -53,7 +53,7 @@ kubeadm_version: "{{ kube_version }}"
 etcd_version: v3.5.6
 crun_version: 0.19
 kata_containers_version: 1.12.1
-runc_version: v1.1.4
+runc_version: v1.0.2
 
 # mcr and nvcr image repo define
 mcr_image_repo: "mcr.microsoft.com"
@@ -1237,7 +1237,7 @@ kafka_cluster_operator_image_repo: "{{ quay_image_repo }}/strimzi/operator"
 hyperauth_kafka_image_repo: "{{ quay_image_repo }}/strimzi/kafka"
 
 ## nfs_external_provisioner image
-nfs_external_provisioner_image_repo: "{{ gcr_image_repo }}/k8s-staging-sig-storage/nfs-subdir-external-provisioner"
+nfs_external_provisioner_image_repo: "{{ docker_image_repo }}/tmaxcloudck/nfs-subdir-external-provisioner"
 nfs_external_provisioner_image_tag: "v4.0.2"
 
 # aws_efs_csi image
