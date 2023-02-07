@@ -78,17 +78,29 @@ ingress_nginx_tls: ingress-tls
 #argocd
 argocd_namespace: "argocd"
 argocd_image_repo: "{{ quay_image_repo }}/argoproj/argocd"
-argocd_image_tag: "v2.2.5"
+argocd_image_tag: "v2.5.7"
 dex_image_repo: "{{ ghcr_image_repo }}/dexidp/dex"
-dex_image_tag: "v2.30.2"
+dex_image_tag: "v2.35.3"
 redis_image_repo: "{{ docker_image_repo }}/library/redis"
-redis_image_tag: "6.2.6-alpine"
+redis_image_tag: "7.0.7-alpine"
 argocd_ingress_nginx_ip: ""
 argocd_ingress_nginx_port: ""
 fnvhash_download_url: "https://files.pythonhosted.org/packages/2f/01/14ef74ea03ac12e8a80d43bbad5356ae809b125cd2072766e459bcc7d388/fnvhash-0.1.0.tar.gz"
 argocd_enabled: true
 argocd_subdomain: "argocd"
 argocd_release_name: "argocd"
+
+#argorollout
+argorollout_namespace: "argo-rollouts"
+argorollout_image_repo: "{{ quay_image_repo }}/argoproj/argo-rollouts"
+argorollout_image_tag: "v1.4.0"
+argorollout_dashboard_image_repo: "{{ quay_image_repo }}/argoproj/kubectl-argo-rollouts"
+argorollout_dashboard_image_tag: "v1.4.0"
+argorollout_ingress_nginx_ip: ""
+argorollout_ingress_nginx_port: ""
+argorollout_enabled: true
+argorollout_subdomain: "argorollout"
+argorollout_release_name: "argorollout"
 
 download_defaults:
   container: false

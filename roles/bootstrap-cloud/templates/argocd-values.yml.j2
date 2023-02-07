@@ -8,6 +8,7 @@ global:
     registry:
       is_offline: false
       private_registry:
+    time_zone: Asia/Seoul
 
 image:
   redis:
@@ -20,18 +21,29 @@ image:
     repository: {{ dex_image_repo }}
     tag: {{ dex_image_tag }}
 
-dex:
-  replicas: 1
-repoServer:
-  replicas: 1
 redis:
   replicas: 1
+  loglevel: "notice" # warning, notice, verbose, debug
 argocdServer:
   replicas: 1
+  loglevel: "info" # debug, info, warn, error
+dex:
+  replicas: 1
+  loglevel: "info" # debug, info, warn, error
+repoServer:
+  replicas: 1
+  loglevel: "info" # debug, info, warn, error
+notification:
+  replicaes: 1
+  loglevel: "info" # defug, info, warn, error
 controller:
   replicas: 1
+  loglevel: "info" # debug, info, warn, error
+appsetController:
+  replicas: 1
+  loglevel: "info" # debug, info, warn, error
 
-ingress:
+argoIngress:
   hosts:
     domain: {{ custom_domain_name }}
     subdomain: {{ argocd_subdomain }}
@@ -39,5 +51,3 @@ ingress:
     enabled: true
     secretName:
   enableTraefik: false
-
-

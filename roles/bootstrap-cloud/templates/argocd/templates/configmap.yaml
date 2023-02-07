@@ -25,6 +25,11 @@ metadata:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: argocd-notifications-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
   labels:
     app.kubernetes.io/name: argocd-rbac-cm
     app.kubernetes.io/part-of: argocd
@@ -50,7 +55,6 @@ metadata:
   name: argocd-ssh-known-hosts-cm
 ---
 apiVersion: v1
-data: null
 kind: ConfigMap
 metadata:
   labels:
