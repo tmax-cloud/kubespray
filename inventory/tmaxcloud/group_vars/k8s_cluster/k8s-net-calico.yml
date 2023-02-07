@@ -13,6 +13,7 @@
 
 # add default ippool name
 # calico_pool_name: "default-ipv4-ippool"
+calico_ipv4pool_ipip : "Off"
 
 # add default ippool blockSize (defaults kube_network_node_prefix)
 # calico_pool_blocksize: 24
