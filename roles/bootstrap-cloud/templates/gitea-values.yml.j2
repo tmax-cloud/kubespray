@@ -413,7 +413,7 @@ memcached:
 ## @param postgresql.global.postgresql.servicePort PostgreSQL port (overrides service.port)
 ## @param postgresql.persistence.size PVC Storage Request for PostgreSQL volume
 postgresql:
-  enabled: true
+  enabled: false
   global:
     postgresql:
       postgresqlDatabase: gitea
@@ -455,7 +455,7 @@ mysql:
 ## @param mariadb.primary.service.port Port to connect to MariaDB service
 ## @param mariadb.primary.persistence.size Persistence size for MariaDB
 mariadb:
-  enabled: false
+  enabled: true
   auth:
     database: gitea
     username: gitea
