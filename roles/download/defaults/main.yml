@@ -61,6 +61,7 @@ nvcr_image_repo: "nvcr.io"
 
 # gcr and kubernetes image repo define
 gcr_image_repo: "gcr.io"
+#kube_image_repo: "k8s.gcr.io"
 kube_image_repo: "registry.k8s.io"
 us_gcr_image_repo: "us.gcr.io"
 
@@ -87,9 +88,12 @@ aws_image_repo: "public.ecr.aws"
 calico_version: "v3.24.1"
 calico_ctl_version: "{{ calico_version }}"
 calico_cni_version: "{{ calico_version }}"
+calico_flexvol_version: "{{ calico_version }}"
 calico_policy_version: "{{ calico_version }}"
 calico_typha_version: "{{ calico_version }}"
+calico_apiserver_version: "{{ calico_version }}"
 typha_enabled: false
+calico_apiserver_enabled: false
 
 flannel_version: "v0.13.0"
 cni_version: "v0.9.1"
@@ -131,9 +135,7 @@ kubectl_download_url: "https://storage.googleapis.com/kubernetes-release/release
 kubeadm_download_url: "https://storage.googleapis.com/kubernetes-release/release/{{ kubeadm_version }}/bin/linux/{{ image_arch }}/kubeadm"
 etcd_download_url: "https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ image_arch }}.tar.gz"
 cni_download_url: "https://github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ image_arch }}-{{ cni_version }}.tgz"
-calicoctl_download_url: "https://github.com/projectcalico/calicoctl/releases/download/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
-calico_crds_download_url: "https://github.com/projectcalico/calico/archive/{{ calico_version }}.tar.gz"
-#crictl_download_url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
+calicoctl_download_url: "https://github.com/projectcalico/calico/releases/download/{{ calico_ctl_version }}/calicoctl-linux-{{ image_arch }}"
 calico_crds_download_url: "https://github.com/projectcalico/calico/archive/{{ calico_version }}.tar.gz"
 crictl_download_url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-{{ ansible_system | lower }}-{{ image_arch }}.tar.gz"
 helm_download_url: "https://get.helm.sh/helm-{{ helm_version }}-linux-{{ image_arch }}.tar.gz"
@@ -762,27 +764,39 @@ cni_binary_checksums:
   arm: 909e800d01cc61ffa26f2629e4a202a58d727e6ccaabd0310ef18d2b1e00943c
   arm64: ef17764ffd6cdcb16d76401bac1db6acc050c9b088f1be5efa0e094ea3b01df0
   amd64: 962100bbc4baeaaa5748cdbfce941f756b1531c2eadb290129401498bfac21e7
+
 calicoctl_binary_checksums:
   arm:
     v3.24.5: 0
-    v3.18.3: 0
-    v3.17.4: 0
-    v3.16.10: 0
+    v3.24.1: 0
+    v3.23.3: 0
+    v3.22.4: 0
+    v3.21.6: 0
   amd64:
     v3.24.5: 01e6c8a2371050f9edd0ade9dcde89da054e84d8e96bd4ba8cf82806c8d3e8e7
-    v3.18.3: 03c31b84c99f03e2c5118985da502bd7c492461e8180e7cb00fb8a98fdd9aff3
-    v3.17.4: dbd6e9d548577a8d940f353ac28100b6dc7471ccf099e6194fce733a153dfe45
-    v3.16.10: 4078311aaf8c7efd642a82b1c3a8b7b9ef9a7eb0d94fc03f4dce88789e40e35b
+    v3.24.1: 10a36ebc7a4cf355b28e061f5a5f4b261daff4773a51ac73ca1071e7551a934a
+    v3.23.3: d9c04ab15bad9d8037192abd2aa4733a01b0b64a461c7b788118a0d6747c1737
+    v3.22.4: cc412783992abeba6dc01d7bc67bdb2e3a0cf2f27fc3334bdfc02d326c3c9e15
+    v3.21.6: 20335301841ba1dd0795e834ecce0d8e6b89f0b01d781dcc95339419462b3b67
   arm64:
     v3.24.5: 2d56b768ed346129b0249261db27d97458cfb35f98bd028a0c817a23180ab2d2
-    v3.18.3: 24e9f847a4b8677322c087e9ee878aa85700909a02629001d2fe48b37f48c65c
-    v3.17.4: 84595b2d154f65e64c1b7ce5cdb678400d4c1e1023dc1910b59b9aa2878d5b5b
-    v3.16.10: 1ccd3c2ab79eabbf6975edb92eab4ca516141e6fa4e76f1f7ed037dc53910b7e
+    v3.24.1: b7b1a023ddb81ec32f385f4b90f9a3f415d7fce6242e1ae8ebe5c77b2015209c
+    v3.23.3: 741b222f9bb10b7b5e268e5362796061c8862d4f785bb6b9c4f623ea143f4682
+    v3.22.4: e84ba529091818282012fd460e7509995156e50854781c031c81e4f6c715a39a
+    v3.21.6: 8f4ca86e21364eb23fb4676a0a1ed9e751c8a044360b22eae9ee6af7e81c3d59
+  ppc64le:
+    v3.24.5: 4c40d1703a31eb1d1786287fbf295d614eb9594a4748e505a03a2fbb6eda85b4
+    v3.24.1: f2b24bb1cb33795ceba2988ea89e78f25e8fb6283ea22a59a676e37a68a5771e
+    v3.23.3: f83efcd8d3d7c96dfe8e596dc9739eb5d9616626a6afba29b0af97e5c222575a
+    v3.22.4: f8672ac27ab72c1b05b0f9ae5694881ef8e061bfbcf551f964e7f0a37090a243
+    v3.21.6: f7aad0409de2838ba691708943a2aeeef6fb9c02a0475293106e179dc48a4632
+
+
 calico_crds_archive_checksums:
   v3.24.5: 10320b45ebcf4335703d692adacc96cdd3a27de62b4599238604bd7b0bedccc3
-  v3.18.3: 6db4634d174167c85f4dfa5ce8607a8d8590625ddc3fd34a4ef5d8c7a94724de
-  v3.17.4: 92b9d37dcebe382a8e43d4384cfcceb5c9bc22459a2f8cdd89ab7c41b09a7532
-  v3.16.10: a4627285afe5761a2681452bfcc858ec998ba2dae3060283b81b5ae3f7ea386b
+  v3.24.1: 62c30e126c1595adc851f3df0a69926cc6bf97a7d0d38293f23d2232c6411a31
+  v3.23.3: d25f5c9a3adeba63219f3c8425a8475ebfbca485376a78193ec1e4c74e7a6115
+  v3.22.4: e72e7b8b26256950c1ce0042ac85fa83700154dae9723c8d007de88343f6a7e5
 
 krew_archive_checksums:
   v0.4.1: a26deea175f70264260d59a4e061778a892f8a8e301ac261660dd7d24c551c99
@@ -860,13 +874,17 @@ etcd_image_tag: "{{ etcd_version }}{%- if image_arch != 'amd64' -%}-{{ image_arc
 flannel_image_repo: "{{ quay_image_repo }}/coreos/flannel"
 flannel_image_tag: "{{ flannel_version }}-{{ image_arch }}"
 calico_node_image_repo: "{{ quay_image_repo }}/calico/node"
-calico_node_image_tag: "{{ calico_version }}{%- if image_arch != 'amd64' -%}-{{ image_arch }}{%- endif -%}"
+calico_node_image_tag: "{{ calico_version }}"
 calico_cni_image_repo: "{{ quay_image_repo }}/calico/cni"
-calico_cni_image_tag: "{{ calico_cni_version }}{%- if image_arch != 'amd64' -%}-{{ image_arch }}{%- endif -%}"
+calico_cni_image_tag: "{{ calico_cni_version }}"
+calico_flexvol_image_repo: "{{ quay_image_repo }}/calico/pod2daemon-flexvol"
+calico_flexvol_image_tag: "{{ calico_flexvol_version }}"
 calico_policy_image_repo: "{{ quay_image_repo }}/calico/kube-controllers"
-calico_policy_image_tag: "{{ calico_policy_version }}{%- if image_arch != 'amd64' -%}-{{ image_arch }}{%- endif -%}"
+calico_policy_image_tag: "{{ calico_policy_version }}"
 calico_typha_image_repo: "{{ quay_image_repo }}/calico/typha"
-calico_typha_image_tag: "{{ calico_typha_version }}{%- if image_arch != 'amd64' -%}-{{ image_arch }}{%- endif -%}"
+calico_typha_image_tag: "{{ calico_typha_version }}"
+calico_apiserver_image_repo: "{{ quay_image_repo }}/calico/apiserver"
+calico_apiserver_image_tag: "{{ calico_apiserver_version }}"
 pod_infra_image_repo: "{{ kube_image_repo }}/pause"
 pod_infra_image_tag: "{{ pod_infra_version }}"
 install_socat_image_repo: "{{ docker_image_repo }}/xueshanf/install-socat"
@@ -914,11 +932,14 @@ haproxy_image_tag: 2.3
 
 # Coredns version should be supported by corefile-migration (or at least work with)
 # bundle with kubeadm; if not 'basic' upgrade can sometimes fail
-coredns_image_is_namespaced: "{{ (kube_major_version | regex_replace('^v', '') | float) >= 1.21 }}"
+
 
 coredns_version: "v1.9.3"
+coredns_image_is_namespaced: "{{ (coredns_version is version('v1.7.1','>=')) }}"
+
 coredns_image_repo: "{{ kube_image_repo }}{{'/coredns/coredns' if (coredns_image_is_namespaced | bool) else '/coredns' }}"
 coredns_image_tag: "{{ coredns_version if (coredns_image_is_namespaced | bool) else (coredns_version | regex_replace('^v', '')) }}"
+
 
 excoredns_image_repo: "{{ quay_image_repo }}/oriedge/k8s_gateway"
 excoredns_image_tag: "v0.1.8"
@@ -1510,6 +1531,8 @@ downloads:
     dest: "{{ local_release_dir }}/calicoctl"
     sha256: "{{ calicoctl_binary_checksum }}"
     url: "{{ calicoctl_download_url }}"
+    mirrors:
+    - "{{ calicoctl_download_url }}"
     unarchive: false
     owner: "root"
     mode: "0755"
@@ -1534,6 +1557,15 @@ downloads:
     groups:
     - k8s_cluster
 
+  calico_flexvol:
+    enabled: "{{ kube_network_plugin == 'calico' or kube_network_plugin == 'canal' }}"
+    container: true
+    repo: "{{ calico_flexvol_image_repo }}"
+    tag: "{{ calico_flexvol_image_tag }}"
+    sha256: "{{ calico_flexvol_digest_checksum|default(None) }}"
+    groups:
+    - k8s_cluster
+
   calico_policy:
     enabled: "{{ enable_network_policy and kube_network_plugin in ['calico', 'canal'] }}"
     container: true
@@ -1552,6 +1584,15 @@ downloads:
     groups:
     - k8s_cluster
 
+  calico_apiserver:
+    enabled: "{{ calico_apiserver_enabled }}"
+    container: true
+    repo: "{{ calico_apiserver_image_repo }}"
+    tag: "{{ calico_apiserver_image_tag }}"
+    sha256: "{{ calico_apiserver_digest_checksum|default(None) }}"
+    groups:
+    - k8s_cluster
+
   calico_crds:
     file: true
     enabled: "{{ kube_network_plugin == 'calico' and calico_datastore == 'kdd' }}"
@@ -1561,9 +1602,9 @@ downloads:
     url: "{{ calico_crds_download_url }}"
     unarchive: true
     unarchive_extra_opts:
-    - "--strip=6"
+    - "{{ '--strip=6' if (calico_version is version('v3.22.3','<')) else '--strip=3' }}"
     - "--wildcards"
-    - "*/_includes/charts/calico/crds/kdd/"
+    - "{{ '*/_includes/charts/calico/crds/kdd/' if (calico_version is version('v3.22.3','<')) else '*/libcalico-go/config/crd/' }}"
     owner: "root"
     mode: "0755"
     groups:
@@ -1657,7 +1698,7 @@ downloads:
     tag: "{{ coredns_image_tag }}"
     sha256: "{{ coredns_digest_checksum|default(None) }}"
     groups:
-    - kube_control_plane
+    - k8s_cluster
 
   nodelocaldns:
     enabled: "{{ enable_nodelocaldns }}"
