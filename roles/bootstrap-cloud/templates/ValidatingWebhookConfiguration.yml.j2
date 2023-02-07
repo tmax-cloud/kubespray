@@ -3,18 +3,19 @@ kind: ValidatingWebhookConfiguration
 metadata:
   labels:
     app.kubernetes.io/component: admission-webhook
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx-system
+    app.kubernetes.io/name: ingress-nginx-system
+    app.kubernetes.io/part-of: ingress-nginx-system
     app.kubernetes.io/version: 1.5.1
-  name: ingress-nginx-admission
+  name: ingress-nginx-system-admission
+  namespace: ingress-nginx-system
 webhooks:
 - admissionReviewVersions:
   - v1
   clientConfig:
     service:
-      name: ingress-nginx-controller-admission
-      namespace: ingress-nginx
+      name: ingress-nginx-system-controller-admission
+      namespace: ingress-nginx-system
       path: /networking/v1/ingresses
   failurePolicy: Fail
   matchPolicy: Equivalent

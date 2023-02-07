@@ -3,12 +3,12 @@ kind: Service
 metadata:
   labels:
     app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx-system
+    app.kubernetes.io/name: ingress-nginx-system
+    app.kubernetes.io/part-of: ingress-nginx-system
     app.kubernetes.io/version: 1.5.1
-  name: ingress-nginx-controller
-  namespace: ingress-nginx
+  name: ingress-nginx-system-controller
+  namespace: ingress-nginx-system
 spec:
   externalTrafficPolicy: Local
   ipFamilies:
@@ -26,7 +26,7 @@ spec:
     port: 443
     protocol: TCP
     targetPort: https
-    nodePort: {{ ingress_nginx_http_port }}
+    nodePort: {{ ingress_nginx_https_port }}
   - name: kafka-1
     port: 9001
     protocol: TCP
@@ -38,8 +38,8 @@ spec:
     protocol: TCP
   selector:
     app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx-system
+    app.kubernetes.io/name: ingress-nginx-system
   type: {{ ingress_nginx_service_type }}
 ---
 apiVersion: v1
@@ -47,12 +47,12 @@ kind: Service
 metadata:
   labels:
     app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/name: ingress-nginx
-    app.kubernetes.io/part-of: ingress-nginx
+    app.kubernetes.io/instance: ingress-nginx-system
+    app.kubernetes.io/name: ingress-nginx-system
+    app.kubernetes.io/part-of: ingress-nginx-system
     app.kubernetes.io/version: 1.5.1
-  name: ingress-nginx-controller-admission
-  namespace: ingress-nginx
+  name: ingress-nginx-system-controller-admission
+  namespace: ingress-nginx-system
 spec:
   ports:
   - appProtocol: https
@@ -61,6 +61,5 @@ spec:
     targetPort: webhook
   selector:
     app.kubernetes.io/component: controller
-    app.kubernetes.io/instance: ingress-nginx
-    app.kubernetes.io/name: ingress-nginx
-  type: ClusterIP
+    app.kubernetes.io/instance: ingress-nginx-system
+    app.kubernetes.io/name: ingress-nginx-system
