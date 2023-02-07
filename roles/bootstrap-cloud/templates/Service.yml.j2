@@ -54,9 +54,9 @@ metadata:
   name: ingress-nginx-system-controller-admission
   namespace: ingress-nginx-system
 spec:
+  type: ClusterIP
   ports:
-  - appProtocol: https
-    name: https-webhook
+  - name: https-webhook
     port: 443
     targetPort: webhook
   selector:
