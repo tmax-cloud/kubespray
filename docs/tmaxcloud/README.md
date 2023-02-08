@@ -1,30 +1,30 @@
 ## 구성 요소 및 버전
 * 모든 node에 필요
-  * nss-3.53.1-17.el8_3
-  * conntrack-1.4.4-10.el8
-  * socat-1.7.3.3-2.el8
-  * cri-o-1.19
+  * nss
+  * conntrack-tools
+  * socat
+  * cri-o-1.25.2
   * sshpass
-  * nfs-utils-1:2.3.3-41.el8_4.2.x86_64
-  * java-1.8.0-openjdk-devel.x86_64
+  * nfs-utils
+  * java-1.8.0-openjdk
   * unzip
   * tar
 
 * kubespray install 실행하는 node에만 필요
-  * python3-pip-python 3.6
-  * python3-cryptography-3.2.1-4.el8 (BaseOS)
-  * python3-jinja2- 2.10.1-2.el8_0 (AppStream)
-  * python3-netaddr-0.7.19-8.el8 (AppStream)
-  * python3-jmespath-0.9.0-11.el8 (AppStream)
-  * python3-ruamel-yaml-0.15.41-2.el8 (epel)
-  * python3-pbr-5.1.2-3.el8 (epel-release)
-  * ansible-2.9.23-1.el8 (epel)
+  * python3-pip 
+  * python3-cryptography 
+  * python3-jinja2 
+  * python3-netaddr 
+  * python3-jmespath 
+  * python3-ruamel-yaml 
+  * python3-pbr
+  * ansible
 
 * private registry node에만 필요
   * podman
 
 * webserver repo node에만 필요
-  * httpd(apache-2.4.37)
+  * httpd(apache)
 
 ## 폐쇄망 구축 가이드
 0. webserver repo를 구축할 호스트에 files-repo 구축한다.
@@ -32,7 +32,7 @@
   * files-repo에는 pre-required packages들은 반드시 포함되어있어야 한다.
   
   * 아래의 ftp에서 files-repo를 다운로드 한다.
-    * ftp : 192.168.1.150:/home/ck-ftp/k8s/install/offline/files-repo
+    * ftp : 192.168.1.150:/home/ck-ftp/k8s/install/offline/files-repo-k8s-v1.25
   
   * 다운받은 files-repo로 web server repo를 구축할 node에 local repo를 구축한다.
     ```bash
@@ -52,7 +52,7 @@
       ```bash
       [files-repo]
       name=files-repo
-      baseurl=file:///home/centos/files-repo
+      baseurl=file:///home/tmax/files-repo
       enabled=0
       ```       
   * httpd를 다운로드 후, httpd.conf 내용을 수정한다.
@@ -70,7 +70,7 @@
     </Directory>
 
     DocumentRoot "{files-repo-path}"
-    ex) DocumentRoot "/home/centos/files-repo"
+    ex) DocumentRoot "/home/tmax/files-repo"
 
     <Directory "{files-repo-path}">
        AllowOverride None
@@ -81,10 +81,10 @@
   * files-repo 권한 설정을 한다.
     ```bash
     $ chcon -R -t httpd_user_content_t {files-repo-path} 
-    ex) chcon -R -t httpd_user_content_t /home/centos/files_repo
+    ex) chcon -R -t httpd_user_content_t /home/tmax/files_repo
     
     $ chmod 711 {files-repo-path}
-    ex) chmod 711 /home/centos/files_repo    
+    ex) chmod 711 /home/tmax/files_repo    
     ```   
   * httpd를 재시작 한다.
     ```bash
@@ -109,21 +109,26 @@
     ```bash
     yum install podman
     
-    [registires.insecure]
-    registries = ['<내부망IP>:<PORT>']
-    ex) registries = ['10.0.10.50:5000']
+    [[registry]]
+    location = ['<내부망IP>:<PORT>']
+    insecure = true
+    
+    ex) 
+    [[registry]]
+    location = "10.0.10.10:5000"
+    insecure = true
     ```
   * 아래의 ftp에서 supercloud-images.tar와 registry.tar를 다운로드 한다.
-    * ftp : 192.168.1.150:/home/ck-ftp/k8s/install/offline/supercloud-images
+    * ftp : 192.168.1.150:/home/ck-ftp/k8s/install/offline/supercloud-images-k8s-v1.25
   * registry.tar를 load 한다.
     ```bash
     $ podman load -i registry.tar
     ```    
   * 다운로드 한 tar 압축을 풀고 해당 host path로 image registry를 띄운다.
     ```bash
-    $ tar -xvf supercloud-images.tar
+    $ tar -xvf supercloud-images-k8s-v1.25.tar
     $ podman run -it -d -p{image registry ip:port}:5000 --privileged -v {image tar 푼 경로}:/var/lib/registry registry
-    EX) podman run -it -d -p10.0.10.50:5000:5000 --privileged -v /root/supercloud-registry:/var/lib/registry registry
+    EX) podman run -it -d -p10.0.10.50:5000:5000 --privileged -v /root/private-image-registry:/var/lib/registry registry
     ```
 * 비고 :
     * 위 내용은 1개의 node에서만 구축 진행한다.
@@ -193,9 +198,11 @@
       * https://github.com/tmax-cloud/install-k8s#step-3-1-kubernetes-cluster-%EB%8B%A4%EC%A4%91%ED%99%94-%EA%B5%AC%EC%84%B1%EC%9D%84-%EC%9C%84%ED%95%9C-keepalived-%EC%84%A4%EC%B9%98-master 
     
 5. kubespray에서 사용할 사용자 변수들을 설정한다.
-  * https://github.com/tmax-cloud/kubespray/tree/tmax-master/docs/tmaxcloud 에 있는 md를 참고하여 설정한다.
+  * https://github.com/tmax-cloud/kubespray/tree/tmax-master/docs/tmaxcloud 에 있는 md 가이드를 참고하여 설정한다.
     * 필수 설정 파일
-      * all.yml, k8s_cluster.yml, k8s-net-calico.yml, addon.yml, offline.md (offline시에만)
+      * all.yml, k8s_cluster.yml, k8s-net-calico.yml, addon.yml, offline.yml
+      * 각 파일 변수 설정은 아래 가이드 링크를 참조하여 설정한다.
+        * https://github.com/tmax-cloud/kubespray/blob/hc-infra-installer/docs/tmaxcloud/VARS.md
 
 6. kubespray install playbook을 실행한다. (cluster.yml)
   * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root cluster.yml
@@ -223,7 +230,7 @@
     $ sudo yum install -y git
     $ git clone https://github.com/tmax-cloud/kubespray.git
     $ cd kubespray
-    $ git checkout tmax-master
+    $ git checkout hc-infra-installer
     ```
   * (kubespray install playbook 실행 하는 노드) kubespray 의존성 패키지 설치 한다.
     ```bash
@@ -270,24 +277,14 @@
       * https://github.com/tmax-cloud/install-k8s#step-3-1-kubernetes-cluster-%EB%8B%A4%EC%A4%91%ED%99%94-%EA%B5%AC%EC%84%B1%EC%9D%84-%EC%9C%84%ED%95%9C-keepalived-%EC%84%A4%EC%B9%98-master 
 
 3. kubespray에서 사용할 사용자 변수들을 설정한다.
-  * https://github.com/tmax-cloud/kubespray/tree/tmax-master/docs/tmaxcloud 에 있는 md를 참고하여 설정한다.
+  * https://github.com/tmax-cloud/kubespray/tree/tmax-master/docs/tmaxcloud 에 있는 md 가이드를 참고하여 설정한다.
     * 필수 설정 파일
-      * all.yml, k8s_cluster.yml, k8s-net-calico.yml, addon.yml, offline.md
-      * offline.md 설정시 is_this_offline : false 옵션을 제외한 모든 변수는 주석처리 한다.
+      * all.yml, k8s_cluster.yml, k8s-net-calico.yml, addon.yml, offline.yml
+      * 각 파일 변수 설정은 아래 가이드 링크를 참조하여 설정한다.
+        * https://github.com/tmax-cloud/kubespray/blob/hc-infra-installer/docs/tmaxcloud/VARS.md
+      * offline.md 가이드를 참조하여 online 설정시 is_this_offline : false 옵션을 제외한 모든 변수는 주석처리 한다.
 
-4. cluster.yml에 offline-pretask 부분을 주석한다.
-  * cluster.yml
-    ```bash
-    #- hosts: k8s_cluster
-    # any_errors_fatal: "{{ any_errors_fatal | default(true) }}"
-    # gather_facts: false
-    # environment: "{{ proxy_disable_env }}"
-    # roles:
-    # - { role: kubespray-defaults }
-    # - { role: offline-pretask, when: is_this_offline }
-    ```
-
-5. kubespray install playbook을 실행한다. (cluster.yml)
+4. kubespray install playbook을 실행한다. (cluster.yml)
   * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root cluster.yml
     * -t 옵션을 주어 cluster.yml에서 tag가 지정된 모듈만 따로 진행 할 수 있다. 
       * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root cluster.yml -t apps
@@ -298,4 +295,4 @@
 0. kubespray uninstall playbook을 실행한다. (reset.yml)
   * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root reset.yml
 * 비고 :
-  * master에 image registry를 구축했다면 reset시에 함께 삭제 되므로, 이후 클러스터 재설치시에는 podman 재설치와 image registry를 재설치 해야 한다.
+  * master에 image registry를 구축했다면 reset시에 함께 삭제 되므로, 이후 클러스터 재설치시에는 image registry를 재구성 해야 한다.
