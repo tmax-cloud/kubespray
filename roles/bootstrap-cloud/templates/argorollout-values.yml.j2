@@ -1,0 +1,36 @@
+# Default values for argocd.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicas: 1
+
+global:
+    registry:
+      is_offline: false
+      private_registry:
+    time_zone: Asia/Seoul
+
+image:
+  rollout:
+    repository: {{ argorollout_image_repo }}
+    tag: {{ argorollout_image_tag }}
+  rolloutDashboard:
+    repository: {{ argorollout_dashboard_image_repo }}
+    tag: {{ argorollout_dashboard_image_tag }}
+
+rollout:
+  replicas: 1
+  loglevel: "info" # debug, info, warn, error
+rolloutDashboard:
+  replicas: 1
+  loglevel: "info" # debug, info, warn, error
+
+
+argorolloutIngress:
+  hosts:
+    domain: {{ custom_domain_name }}
+    subdomain: {{ argorollout_subdomain }}
+  tls:
+    enabled: true
+    secretName:
+  enableTraefik: false
