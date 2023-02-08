@@ -36,7 +36,7 @@ git config --global user.email "admin@example.com"
 git config --global http.sslVerify false
 
 #create argocd-installer repo and push argocd-installer
-create_token_body=$(curl \
+create_token_body=$(curl --insecure \
 -X 'POST' \
 -H 'accept: application/json' \
 -u $gitea_user:$gitea_password \
@@ -46,7 +46,7 @@ https://${gitea_host}/api/v1/users/${gitea_user}/tokens -i)
 
 access_token=$(echo $create_token_body | grep -o '"sha1":"[^"]*' | grep -o '[^"]*$')
 
-curl \
+curl --insecure \
 -X POST \
 -H 'Content-Type: application/json' \
 -H 'Accept: application/json' \
