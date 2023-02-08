@@ -54,14 +54,14 @@ gitlab_subdomain: "gitlab"
 gitea_subdomain: "gitea"
 gitea_release_name: "gitea"
 gitea_namespace: "gitea-system"
-GITEA_USER: "gitea_admin"
-GITEA_PASSWORD: "r8sA8CPHD9'!'bt6d"
+GITEA_USER: "root"
+GITEA_PASSWORD: "password"
 GITEA_APP_NAME: gitea
 gitea_private_refistry: "test-registry.com"
 gitea_is_offline: false
-gitea_image_repository: "gitea/gitea"
+gitea_image_repository: "{{ docker_image_repo }}gitea/gitea"
 gitea_image_registry: ""
-gitea_image_tag: ""
+gitea_image_tag: "1.18.0"
 gitea_ingress_class: "nginx-system"
 
 #nginx-controller
