@@ -667,6 +667,7 @@ spec:
         - argocd-server
         - --loglevel # debug, info, warn, error
         - {{ .Values.argocdServer.loglevel }}
+        - --insecure
         env:
         - name: ARGOCD_SERVER_INSECURE
           valueFrom:
