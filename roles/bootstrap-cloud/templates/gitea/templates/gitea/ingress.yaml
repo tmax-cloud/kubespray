@@ -21,3 +21,6 @@ spec:
             name: gitea-http
             port:
               number: 3000
+  tls:
+  - hosts:
+    - {{ .Values.ingress.hosts.subdomain }}.{{ .Values.ingress.hosts.domain }}

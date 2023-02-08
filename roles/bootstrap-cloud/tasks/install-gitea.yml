@@ -71,6 +71,15 @@
   args:
     chdir: "{{ kube_config_dir }}/addons/gitea"
   ignore_errors: true
+  
+- name: Gitea | Wait up for running gitea
+  uri:
+    url: "https://{{ gitea_subdomain }}.{{ custom_domain_name }}/api/v1/version"
+    validate_certs: no
+  register: version_result
+  until: version_result.status == 200
+  retries: 60
+  delay: 10
 
 - name: Gitea | push argoCD to gitea
   ansible.builtin.shell: |
