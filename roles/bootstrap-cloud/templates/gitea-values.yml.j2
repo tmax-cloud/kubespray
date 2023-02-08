@@ -155,8 +155,8 @@ resources:
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   limits:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 1
+    memory: 2Gi
   requests:
     cpu: 100m
     memory: 128Mi
@@ -263,8 +263,8 @@ gitea:
   admin:
     #existingSecret: gitea-admin-secret
     existingSecret:
-    username: gitea_admin
-    password: r8sA8CPHD9!bt6d
+    username: root
+    password: password
     email: "gitea@local.domain"
 
   ## @param gitea.metrics.enabled Enable Gitea metrics
@@ -294,6 +294,7 @@ gitea:
 
   # Either specify inline `key` and `secret` or refer to them via `existingSecret`
   ## @param gitea.oauth OAuth configuration
+  oauth: []
     # - name: 'OAuth 1'
     #   provider:
     #   key:
@@ -313,6 +314,10 @@ gitea:
       DOMAIN: {{ gitea_subdomain }}.{{ custom_domain_name }}
       ROOT_URL: https://{{ gitea_subdomain }}.{{ custom_domain_name }}
       SSH_DOMAIN: {{ gitea_subdomain }}.{{ custom_domain_name }}
+    webhook:
+      ALLOWED_HOST_LIST: '*'
+    log:
+      LEVEL: Info # "Trace", "Debug", "Info", "Warn", "Error", "Critical" or "None"
   #  APP_NAME: "Gitea: Git with a cup of tea"
   #  RUN_MODE: dev
   #
