@@ -2,9 +2,9 @@
 ## inventory/tmaxcloud/group_vars/all/all.yml
 apiserver lb domain name, address, port 설정(필수), upstream dns 설정(필요시에만)
 ```yml
-apiserver_loadbalancer_domain_name: {{ controlplainEndpoint_ip }}
+apiserver_loadbalancer_domain_name: {{ controlplainEndpoint_ip(vip) }}
 loadbalancer_apiserver:
-  address: {{ controlplainEndpoint_ip }}
+  address: {{ controlplainEndpoint_ip(vip) }}
   port: 6443
 
 upstream_dns_servers:
@@ -80,17 +80,13 @@ kubelet_download_url: "{{ files_repo }}/kubelet-{{ kubeadm_version }}-{{ image_a
 ```
 
 ## inventory/tmaxcloud/group_vars/k8s_cluster/k8s-cluster.yml
-k8s_cluster 관련 설정(필수)
+k8s_cluster 관련 설정(필수), metallb, oidc, audit 설정시(필요시에만)
 ```yml
 kube_version: {{ k8s version }}
 kube_network_plugin: {{ cni }}
 kube_service_addresses: {{ service_pod_network_subnet/cidr }}
 kube_pods_subnet: {{ pod_network_subnet/cidr }}
 container_manager: {{ container runtime }}
-
-[MetalLB 설치시]
-kube_proxy_strict_arp: true
-
 ```
 ### 예시
 예를 들어 아래와 같이 변수들의 값을 설정한다.
@@ -103,6 +99,24 @@ container_manager: crio
 
 [MetalLB 설치시]
 kube_proxy_strict_arp: true
+
+[OIDC 설정시]
+kube_oidc_auth: true
+kube_oidc_url: https://hyperauth.{{ custom_domain_name }}/auth/realms/tmax
+kube_oidc_client_id: hypercloud5
+kube_oidc_username_claim: preferred_username
+kube_oidc_username_prefix: '-'
+kube_oidc_groups_claim: group
+
+[aduit 설정시]
+# audit log for kubernetes
+kubernetes_audit: true
+audit_policy_file: "{{ kube_config_dir }}/pki/audit-policy.yaml"
+
+# audit webhook for kubernetes
+kubernetes_audit_webhook: true
+audit_webhook_config_file: "{{ kube_config_dir }}/pki/audit-webhook-config"
+audit_webhook_mode: batch
 ```
 
 ## inventory/tmaxcloud/group_vars/k8s_cluster/addons.yml
