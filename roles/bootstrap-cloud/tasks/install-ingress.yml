@@ -68,3 +68,12 @@
 - debug:
     msg: "{{ ingress_nginx_system_controller_IPAddress.stdout_lines }}"
   
+- name: NGINX Ingress Controller | Wait until controller container is ready
+  ansible.builtin.shell: |
+    {{ bin_dir }}/kubectl describe pod | grep 'Ready' | awk '{print $2}' | tail -n 1
+  register: controller_status
+  retries: 400
+  delay: 5
+  until: controller_status.stdout == "True"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
