@@ -43,6 +43,7 @@
     $ popd
     
     $ dnf config-manager --add-repo file://${LOCAL_REPO_PATH}
+    $ dnf module enable container-tools python36 httpd javapackages-runtime
     ```
     * createrepo_c 명령어가 없는 경우, createrepo 명령어를 사용한다.
     * 추가적인 repo 구축 가이드는 아래 url을 참조한다.
