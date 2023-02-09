@@ -81,6 +81,15 @@
   retries: 60
   delay: 10
 
+- name: Gitea | Wait up for running gitea
+  uri:
+    url: "https://{{ gitea_subdomain }}.{{ custom_domain_name }}/api/v1/version"
+    validate_certs: no
+  register: version_result
+  until: version_result.status == 200
+  retries: 60
+  delay: 10
+  
 - name: Gitea | push argoCD to gitea
   ansible.builtin.shell: |
     sudo chmod +755 ./gitea_push_argoCD.sh
