@@ -7,7 +7,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-application-controller
 spec:
-  replicas: 1
+  replicas: {{ .Values.controller.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-application-controller
@@ -36,10 +36,10 @@ spec:
       - command:
         - argocd-application-controller
         - --loglevel # debug, info, warn, error
-        - "info"
+        - {{ .Values.controller.loglevel }}
         env:
         - name: ARGOCD_CONTROLLER_REPLICAS
-          value: "1"
+          value: {{ .Values.controller.replicas }}
         - name: ARGOCD_RECONCILIATION_TIMEOUT
           valueFrom:
             configMapKeyRef:
@@ -160,7 +160,11 @@ spec:
               key: application.namespaces
               name: argocd-cmd-params-cm
               optional: true
-        image: quay.io/argoproj/argocd:v2.5.7
+        {{- if .Values.global.registry.is_offline }}
+        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        {{- else }}
+        image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        {{- end }}
         imagePullPolicy: Always
         name: argocd-application-controller
         ports:
@@ -185,6 +189,10 @@ spec:
           name: argocd-repo-server-tls
         - mountPath: /home/argocd
           name: argocd-home
+        { { - if ne .Values.global.time_zone "UTC" } }
+        - name: timezone-config
+          mountPath: /etc/localtime
+        { { - end } }
         workingDir: /home/argocd
       serviceAccountName: argocd-application-controller
       volumes:
@@ -201,3 +209,8 @@ spec:
             path: ca.crt
           optional: true
           secretName: argocd-repo-server-tls
+      { { - if ne .Values.global.time_zone "UTC" } }
+      - name: timezone-config
+        hostPath:
+          path: { { printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone } }
+      { { - end } }
