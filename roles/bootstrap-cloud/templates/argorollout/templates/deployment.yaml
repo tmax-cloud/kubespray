@@ -21,7 +21,7 @@ spec:
       containers:
       - imagePullPolicy: Always
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.rollout.repository }}:{{ .Values.image.rollout.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.rollout.repository }}:{{ .Values.image.rollout.tag }}
         {{- else }}
         image: {{ .Values.image.rollout.repository }}:{{ .Values.image.rollout.tag }}
         {{- end }}
@@ -40,6 +40,13 @@ spec:
           successThreshold: 1
           timeoutSeconds: 10
         name: argo-rollouts
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 500Mi
         command:
         - rollouts-controller
         - --loglevel # debug, info, warn, error
@@ -89,7 +96,7 @@ spec:
       containers:
       - name: argo-rollouts-dashboard
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.rolloutDashboard.repository }}:{{ .Values.image.rolloutDashboard.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.rolloutDashboard.repository }}:{{ .Values.image.rolloutDashboard.tag }}
         {{- else }}
         image: {{ .Values.image.rolloutDashboard.repository }}:{{ .Values.image.rolloutDashboard.tag }}
         {{- end }}
