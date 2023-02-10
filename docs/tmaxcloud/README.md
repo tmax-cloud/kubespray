@@ -37,15 +37,12 @@
   * 다운받은 files-repo로 web server repo를 구축할 node에 local repo를 구축한다.
     ```bash
     $ pushd {files-repo-path}
-    $ createrepo_c ./
     $ modifyrepo_c modules.yaml ./repodata
     $ export LOCAL_REPO_PATH={files-repo-path}
     $ popd
     
     $ dnf config-manager --add-repo file://${LOCAL_REPO_PATH}
-    $ dnf module enable container-tools python36 httpd javapackages-runtime
     ```
-    * createrepo_c 명령어가 없는 경우, createrepo 명령어를 사용한다.
     * 추가적인 repo 구축 가이드는 아래 url을 참조한다.
       * https://github.com/tmax-cloud/install-pkg-repo/tree/5.0
     * dnf 명령어가 없는 경우, files-repo.repo를 생성한다.
@@ -58,6 +55,7 @@
       ```       
   * httpd를 다운로드 후, httpd.conf 내용을 수정한다.
     ```bash
+    $ dnf module enable container-tools python36 httpd javapackages-runtime
     $ yum install httpd -y
     $ vi /etc/httpd/conf/httpd.conf
     
@@ -101,10 +99,12 @@
     gpgcheck=0
     ```  
 * 비고 :
-    * 위 내용은 1개의 node에서만 구축 진행한다.
+    * 위 내용은 1개의 node에서만 구축 진행한다. 
     * aws같은 다른 provider에 sub cluster 구축시에는 on-premise node에 구축 가능하다.
       * 접근 환경에 따라 AWS 보안그룹 수정 및 transit gateway 설정이 추가로 필요할 수도 있다. 
-    
+    * Error: OCI runtime error: container_linux.go:370: starting container process caused: unknown capability "CAP_BPF"
+      * runc 버전을 확인 후, runc 재설치를 한다.  
+
 1. 아래 가이드를 참고 하여 image registry를 구축한다.
   * podman을 설치 후 /etc/containers/registries.conf에 insecure registry 등록한다.
     ```bash
@@ -297,3 +297,5 @@
   * ex) ansible-playbook -i inventory/tmaxcloud/inventory.ini --become --become-user=root reset.yml
 * 비고 :
   * master에 image registry를 구축했다면 reset시에 함께 삭제 되므로, 이후 클러스터 재설치시에는 image registry를 재구성 해야 한다.
+    * image registry를 다시 구축 할때, error loading cached network config: network "podman" not found in CNI cache 에러 발생시 podman-bridge 파일을 다시 생성한다.
+    * 해결 : /etc/cni/net.d/87-podman-bridge.conflist 파일을 추가한다.
