@@ -51,7 +51,7 @@
       [files-repo]
       name=files-repo
       baseurl=file:///home/tmax/files-repo
-      enabled=0
+      enabled=1
       ```       
   * httpd를 다운로드 후, httpd.conf 내용을 수정한다.
     ```bash
