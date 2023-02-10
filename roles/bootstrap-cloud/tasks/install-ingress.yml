@@ -70,7 +70,7 @@
   
 - name: NGINX Ingress Controller | Wait until controller container is ready
   ansible.builtin.shell: |
-    {{ bin_dir }}/kubectl describe pod | grep 'Ready' | awk '{print $2}' | tail -n 1
+    {{ bin_dir }}/kubectl describe pod -n {{ ingress_nginx_namespace }} | grep 'Ready' | awk '{print $2}' | tail -n 1
   register: controller_status
   retries: 400
   delay: 5

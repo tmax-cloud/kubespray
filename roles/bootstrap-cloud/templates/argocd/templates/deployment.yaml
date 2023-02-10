@@ -22,17 +22,23 @@ spec:
         - argocd-applicationset-controller
         - --loglevel # debug, info, warn, error
         - {{ .Values.appsetController.loglevel }}
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 500Mi
         env:
         - name: NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- else }}
         image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- end }}
-        imagePullPolicy: Always
         imagePullPolicy: Always
         name: argocd-applicationset-controller
         ports:
@@ -81,9 +87,9 @@ spec:
         name: tmp
       {{- if ne .Values.global.time_zone "UTC" }}
       - name: timezone-config
-        hostPath: 
+        hostPath:
           path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
-      {{- end }}        
+      {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -118,6 +124,13 @@ spec:
         - rundex
         - --loglevel # debug, info, warn, error
         - {{ .Values.dex.loglevel }}
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 500Mi
         env:
         - name: ARGOCD_DEX_SERVER_DISABLE_TLS
           valueFrom:
@@ -126,10 +139,10 @@ spec:
               name: argocd-cmd-params-cm
               optional: true
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.dex.repository }}:{{ .Values.image.dex.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.dex.repository }}:{{ .Values.image.dex.tag }}
         {{- else }}
         image: {{ .Values.image.dex.repository }}:{{ .Values.image.dex.tag }}
-        {{- end }}        
+        {{- end }}
         imagePullPolicy: Always
         name: dex
         ports:
@@ -155,7 +168,7 @@ spec:
         {{- if ne .Values.global.time_zone "UTC" }}
         - name: timezone-config
           mountPath: /etc/localtime
-        {{- end }}          
+        {{- end }}
       initContainers:
       - command:
         - cp
@@ -163,10 +176,10 @@ spec:
         - /usr/local/bin/argocd
         - /shared/argocd-dex
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- else }}
         image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
-        {{- end }}        
+        {{- end }}
         imagePullPolicy: Always
         name: copyutil
         securityContext:
@@ -202,16 +215,16 @@ spec:
           secretName: argocd-dex-server-tls
       {{- if ne .Values.global.time_zone "UTC" }}
       - name: timezone-config
-        hostPath: 
+        hostPath:
           path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
-      {{- end}}          
+      {{- end}}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: argocd-notifications-controller
 spec:
-  replicas: {{ .Values.notification.replicas }}        
+  replicas: {{ .Values.notification.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-notifications-controller
@@ -228,14 +241,21 @@ spec:
         - --loglevel # debug, info, warn, error
         - {{ .Values.notification.loglevel }}
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- else }}
         image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
-        {{- end }}          
+        {{- end }}
         imagePullPolicy: Always
         livenessProbe:
           tcpSocket:
             port: 9001
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 500Mi
         name: argocd-notifications-controller
         securityContext:
           allowPrivilegeEscalation: false
@@ -251,7 +271,7 @@ spec:
         {{- if ne .Values.global.time_zone "UTC" }}
         - name: timezone-config
           mountPath: /etc/localtime
-        {{- end }}          
+        {{- end }}
         workingDir: /app
       securityContext:
         runAsNonRoot: true
@@ -275,9 +295,9 @@ spec:
           secretName: argocd-repo-server-tls
       {{- if ne .Values.global.time_zone "UTC" }}
       - name: timezone-config
-        hostPath: 
+        hostPath:
           path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
-      {{- end}}          
+      {{- end}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -288,7 +308,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-redis
 spec:
-  replicas: {{ .Values.redis.replicas }}        
+  replicas: {{ .Values.redis.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-redis
@@ -321,16 +341,23 @@ spec:
         - --loglevel # warning, notice, verbose, debug
         - {{ .Values.redis.loglevel }}
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
         {{- else }}
         image: {{ .Values.image.redis.repository }}:{{ .Values.image.redis.tag }}
-        {{- end }}          
+        {{- end }}
         imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 500Mi
         {{- if ne .Values.global.time_zone "UTC" }}
         volumeMounts:
         - name: timezone-config
           mountPath: /etc/localtime
-        {{- end }}        
+        {{- end }}
         name: redis
         ports:
         - containerPort: 6379
@@ -348,9 +375,9 @@ spec:
       {{- if ne .Values.global.time_zone "UTC" }}
       volumes:
       - name: timezone-config
-        hostPath: 
+        hostPath:
           path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
-      {{- end }}      
+      {{- end }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -361,7 +388,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-repo-server
 spec:
-  replicas: {{ .Values.repoServer.replicas }}        
+  replicas: {{ .Values.repoServer.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-repo-server
@@ -393,6 +420,13 @@ spec:
         - entrypoint.sh argocd-repo-server --redis argocd-redis:6379
         - --loglevel # debug, info, warn, error
         - {{ .Values.repoServer.loglevel }}
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 500Mi
         env:
         - name: ARGOCD_RECONCILIATION_TIMEOUT
           valueFrom:
@@ -515,10 +549,10 @@ spec:
         - name: HELM_DATA_HOME
           value: /helm-working-dir
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- else }}
         image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
-        {{- end }}          
+        {{- end }}
         imagePullPolicy: Always
         livenessProbe:
           failureThreshold: 3
@@ -566,7 +600,7 @@ spec:
         {{- if ne .Values.global.time_zone "UTC" }}
         - name: timezone-config
           mountPath: /etc/localtime
-        {{- end }}          
+        {{- end }}
       initContainers:
       - command:
         - cp
@@ -574,10 +608,10 @@ spec:
         - /usr/local/bin/argocd
         - /var/run/argocd/argocd-cmp-server
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- else }}
         image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
-        {{- end }}          
+        {{- end }}
         name: copyutil
         securityContext:
           allowPrivilegeEscalation: false
@@ -625,9 +659,9 @@ spec:
         name: plugins
       {{- if ne .Values.global.time_zone "UTC" }}
       - name: timezone-config
-        hostPath: 
+        hostPath:
           path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
-      {{- end}}        
+      {{- end}}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -638,7 +672,7 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-server
 spec:
-  replicas: {{ .Values.argocdServer.replicas }}        
+  replicas: {{ .Values.argocdServer.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-server
@@ -668,6 +702,13 @@ spec:
         - --loglevel # debug, info, warn, error
         - {{ .Values.argocdServer.loglevel }}
         - --insecure
+        resources:
+          limits:
+            cpu: 1
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 500Mi
         env:
         - name: ARGOCD_SERVER_INSECURE
           valueFrom:
@@ -856,10 +897,10 @@ spec:
               name: argocd-cmd-params-cm
               optional: true
         {{- if .Values.global.registry.is_offline }}
-        image: {{ .Values.global.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
+        image: {{ .Values.global.registry.private_registry }}/{{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
         {{- else }}
         image: {{ .Values.image.argocdServer.repository }}:{{ .Values.image.argocdServer.tag }}
-        {{- end }}              
+        {{- end }}
         imagePullPolicy: Always
         livenessProbe:
           httpGet:
@@ -902,7 +943,7 @@ spec:
         {{- if ne .Values.global.time_zone "UTC" }}
         - name: timezone-config
           mountPath: /etc/localtime
-        {{- end }}          
+        {{- end }}
       serviceAccountName: argocd-server
       volumes:
       - emptyDir: {}
@@ -937,7 +978,7 @@ spec:
           secretName: argocd-dex-server-tls
       {{- if ne .Values.global.time_zone "UTC" }}
       - name: timezone-config
-        hostPath: 
+        hostPath:
           path: {{ printf "%s%s" "/usr/share/zoneinfo/" .Values.global.time_zone }}
-      {{- end}}          
-      
+      {{- end}}
+
