@@ -76,7 +76,6 @@
        Require all granted
     </Directory>
     ```
-  * httpd를 다운로드 후, 아래 해당되는 변수를 찾아서 httpd.conf 내용을 수정한다.
   * files-repo 권한 설정을 한다.
     ```bash
     $ chcon -R -t httpd_user_content_t {files-repo-path} 
