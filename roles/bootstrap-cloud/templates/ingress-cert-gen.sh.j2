@@ -4,7 +4,7 @@ mkdir -p certs
 HOST=""
 KEY_FILE="certs/ca.key"
 CERT_FILE="certs/ca.crt"
-export HOST_IP=$({{ bin_dir }}/kubectl get svc -n {{ ingress_nginx_namespace }} {{ ingress_nginx_namespace }}-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+export HOST_IP=$({{ bin_dir }}/kubectl get svc -n {{ ingress_nginx_namespace }} {{ ingress_nginx_namespace }}-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
 
 
 if [[ {{ custom_domain_name }} == "" ]] ; then

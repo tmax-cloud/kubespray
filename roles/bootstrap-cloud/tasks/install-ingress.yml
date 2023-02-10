@@ -53,13 +53,6 @@
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
 
-- name: NGINX Ingress Controller | Wait host ip
-  shell: "while [ \"$({{ bin_dir }}/kubectl get svc -n {{ ingress_nginx_namespace }} {{ ingress_nginx_namespace }}-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}' | wc -w)\" == \"0\" ]; do echo 'ingress-nginx-system IP Address Allocation not yet'; sleep 3; done; echo 'IP Address Allocation complete'; sleep 3"
-  register: ingress_nginx_system_controller_IPAddress
-  when: inventory_hostname == groups['kube_control_plane'][0]
-- debug:
-    msg: "{{ ingress_nginx_system_controller_IPAddress.stdout_lines }}"
-
 - name: NGINX Ingress Controller | Apply secret
   ansible.builtin.shell: |
     sudo chmod +755 ./ingress-cert-gen.sh
@@ -67,4 +60,20 @@
   args:
     chdir: "{{ kube_config_dir }}/addons/ingress_nginx"
   ignore_errors: true
-  
+
+- name: NGINX Ingress Controller | Wait host ip
+  shell: "while [ \"$({{ bin_dir }}/kubectl get svc -n {{ ingress_nginx_namespace }} {{ ingress_nginx_namespace }}-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' | wc -w)\" == \"0\" ]; do echo 'ingress-nginx-system IP Address Allocation not yet'; sleep 3; done; echo 'IP Address Allocation complete'; sleep 3"
+  register: ingress_nginx_system_controller_IPAddress
+  when: inventory_hostname == groups['kube_control_plane'][0]
+- debug:
+    msg: "{{ ingress_nginx_system_controller_IPAddress.stdout_lines }}"
+
+- name: NGINX Ingress Controller | Wait until controller container is ready
+  ansible.builtin.shell: |
+    {{ bin_dir }}/kubectl describe pod -n {{ ingress_nginx_namespace }} | grep 'Ready' | awk '{print $2}' | tail -n 1
+  register: controller_status
+  retries: 400
+  delay: 5
+  until: controller_status.stdout == "True"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]

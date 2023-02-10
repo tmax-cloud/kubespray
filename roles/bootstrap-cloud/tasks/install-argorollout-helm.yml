@@ -1,0 +1,47 @@
+---
+- name: ArgoRollout | Create addon dir
+  file:
+    path: "{{ kube_config_dir }}/addons/argorollout"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: ArgoRollout | Create values.yml
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ kube_config_dir }}/addons/argorollout/{{ item }}"
+  with_items: ["argorollout-values.yml"]
+
+- name: ArgoRollout | Copy ArgoRollout chart
+  copy:
+    src: "{{ playbook_dir }}/roles/bootstrap-cloud/templates/argorollout"
+    dest: "{{ kube_config_dir }}/addons/argorollout/"
+  when:
+    - inventory_hostname == groups['kube_control_plane'][0]
+
+- name: ArgoRollout | Check if it was installed
+  shell: |
+    /usr/local/bin/helm status {{ argorollout_release_name }} -n {{ argorollout_namespace }} -o json
+  register: already_installed_result
+  failed_when:
+    - "already_installed_result.rc != 0"
+    - "'not found' not in already_installed_result.stderr"
+
+- name: ArgoRollout | Upgrade failed release
+  shell: |
+      /usr/local/bin/helm upgrade {{ argorollout_release_name }} {{ kube_config_dir }}/addons/argorollout/argorollout \
+        --create-namespace -n {{ argorollout_namespace }} \
+        -f {{ kube_config_dir }}/addons/argorollout/argorollout-values.yml
+  when:
+    - "already_installed_result.rc == 0"
+    - "'not found' not in already_installed_result.stderr"
+    - "'failed' in already_installed_result.stdout | from_json | json_query('info.status')"
+
+- name: ArgoRollout | Release ArgoRollout from helm
+  shell: |
+    /usr/local/bin/helm install {{ argorollout_release_name }} {{ kube_config_dir }}/addons/argorollout/argorollout \
+      --create-namespace -n {{ argorollout_namespace }} -f {{ kube_config_dir }}/addons/argorollout/argorollout-values.yml
+  when:
+    - "already_installed_result.rc != 0"
+    - "'not found' in already_installed_result.stderr"
