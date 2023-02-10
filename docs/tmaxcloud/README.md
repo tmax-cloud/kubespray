@@ -100,9 +100,7 @@
 * 비고 :
     * 위 내용은 1개의 node에서만 구축 진행한다. 
     * aws같은 다른 provider에 sub cluster 구축시에는 on-premise node에 구축 가능하다.
-      * 접근 환경에 따라 AWS 보안그룹 수정 및 transit gateway 설정이 추가로 필요할 수도 있다. 
-    * Error: OCI runtime error: container_linux.go:370: starting container process caused: unknown capability "CAP_BPF"
-      * runc 버전을 확인 후, runc 재설치를 한다.  
+      * 접근 환경에 따라 AWS 보안그룹 수정 및 transit gateway 설정이 추가로 필요할 수도 있다.  
 
 1. 아래 가이드를 참고 하여 image registry를 구축한다.
   * podman을 설치 후 /etc/containers/registries.conf에 insecure registry 등록한다.
@@ -133,6 +131,8 @@
 * 비고 :
     * 위 내용은 1개의 node에서만 구축 진행한다.
     * aws같은 다른 provider에 sub cluster 구축시에는 on-premise node에 구축 가능하다.
+    * Error: OCI runtime error: container_linux.go:370: starting container process caused: unknown capability "CAP_BPF" 에러 발생시
+      * runc 버전을 확인 후, 기존 runc를 제거 후 podman을 다시 설치한다. 
     
 2. 아래 가이드를 참고 하여 kubespray 설치를 위한 환경설정을 한다.
   * (kubespray install playbook 실행 하는 노드) sshpass 설치 및 ssh key 배포 한다.
