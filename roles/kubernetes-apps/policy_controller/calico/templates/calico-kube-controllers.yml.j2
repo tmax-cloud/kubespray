@@ -20,14 +20,21 @@ spec:
         k8s-app: calico-kube-controllers
     spec:
       nodeSelector:
-        kubernetes.io/os: linux
+        {{ calico_policy_controller_deployment_nodeselector }}
+{% if calico_datastore == "etcd" %}
       hostNetwork: true
+{% endif %}
       serviceAccountName: calico-kube-controllers
       tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
         - key: node-role.kubernetes.io/control-plane
           effect: NoSchedule
+{% if policy_controller_extra_tolerations is defined %}
+        {{ policy_controller_extra_tolerations | list | to_nice_yaml(indent=2) | indent(8) }}
+{% endif %}
       priorityClassName: system-cluster-critical
       containers:
         - name: calico-kube-controllers
@@ -40,11 +47,20 @@ spec:
             requests:
               cpu: {{ calico_policy_controller_cpu_requests }}
               memory: {{ calico_policy_controller_memory_requests }}
+          livenessProbe:
+            exec:
+              command:
+              - /usr/bin/check-status
+              - -l
+            periodSeconds: 10
+            initialDelaySeconds: 10
+            failureThreshold: 6
           readinessProbe:
             exec:
               command:
               - /usr/bin/check-status
               - -r
+            periodSeconds: 10
           env:
 {% if calico_datastore == "kdd" %}
             - name: ENABLED_CONTROLLERS
@@ -60,25 +76,12 @@ spec:
               value: "{{ calico_cert_dir }}/cert.crt"
             - name: ETCD_KEY_FILE
               value: "{{ calico_cert_dir }}/key.pem"
-{% endif %}
           volumeMounts:
-{% if timezone_extra_volumes %}
-          - name: {{ timezone_extra_volumes.name }}
-            mountPath: {{ timezone_extra_volumes.mountPath }}
-{% endif %}
-{% if calico_datastore != "kdd" %}
           - mountPath: {{ calico_cert_dir }}
             name: etcd-certs
             readOnly: true
-{% endif %}
       volumes:
-{% if calico_datastore != "kdd" %}
       - hostPath:
           path: {{ calico_cert_dir }}
         name: etcd-certs
-{% endif %}
-{% if timezone_extra_volumes %}
-      - name: {{ timezone_extra_volumes.name }}
-        hostPath:
-          path: {{ timezone_extra_volumes.hostPath }}
 {% endif %}
