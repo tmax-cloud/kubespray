@@ -77,6 +77,10 @@ spec:
             - name: ETCD_KEY_FILE
               value: "{{ calico_cert_dir }}/key.pem"
           volumeMounts:
+{% if timezone_extra_volumes %}
+          - name: {{ timezone_extra_volumes.name }}
+            mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
           - mountPath: {{ calico_cert_dir }}
             name: etcd-certs
             readOnly: true
@@ -84,4 +88,9 @@ spec:
       - hostPath:
           path: {{ calico_cert_dir }}
         name: etcd-certs
+{% endif %}
+{% if timezone_extra_volumes %}
+      - name: {{ timezone_extra_volumes.name }}
+        hostPath:
+          path: {{ timezone_extra_volumes.hostPath }}
 {% endif %}
