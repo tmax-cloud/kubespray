@@ -47,7 +47,7 @@ gitlab_token: token-string-here123
 gitlab_kubectl_repo: "{{ docker_image_repo }}/bitnami/kubectl"
 gitlab_kubectl_tag: "1.20.10"
 gitlab_image_repo: "{{ docker_image_repo }}/gitlab/gitlab-ce"
-gitlab_image_tag: "13.6.4-ce.0"
+gitlab_image_tag: "15.3.2-ce.0"
 gitlab_subdomain: "gitlab"
 
 #gitea
