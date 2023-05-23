@@ -478,7 +478,7 @@ jobservice:
     - file
     # - database
     # - stdout
-	# The jobLogger sweeper duration (ignored if `jobLogger` is `stdout`)
+  # The jobLogger sweeper duration (ignored if `jobLogger` is `stdout`)
   loggerSweeperDuration: 14 #days
   resources:
     requests:
@@ -715,7 +715,7 @@ database:
       tag: {{ hyperregistry_version }}
     # The initial superuser password for internal database
     password: "changeit"
-	  # The size limit for Shared memory, pgSQL use it for shared_buffer
+    # The size limit for Shared memory, pgSQL use it for shared_buffer
     # More details see:
     # https://github.com/tmaxcloudck/harbor/issues/15034
     shmSizeLimit: 512Mi
@@ -729,7 +729,7 @@ database:
     nodeSelector: {}
     tolerations: []
     affinity: {}
-	  initContainer:
+    initContainer:
       migrator: {}
       # resources:
       #   requests:
