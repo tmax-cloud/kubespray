@@ -168,9 +168,9 @@ dns_mode: coredns
 # Set manual server if using a custom cluster DNS server
 # manual_dns_server: 10.x.x.x
 # Enable nodelocal dns cache
-enable_nodelocaldns: true
-nodelocaldns_ip: 169.254.25.10
-nodelocaldns_health_port: 9254
+enable_nodelocaldns: false
+#nodelocaldns_ip: 169.254.25.10
+#nodelocaldns_health_port: 9254
 # nodelocaldns_external_zones:
 # - zones:
 #   - example.com
@@ -198,7 +198,7 @@ custom_domain_ip: 10.12.10.12
 api_server_dns_cfwhn: true
 
 # Enable external coredns - k8s_gateway
-enable_excoredns: true
+enable_excoredns: false
 excoredns_zone: "hypercloud.tmax.com"
 excoredns_server: "{{ kube_service_addresses|ipaddr('net')|ipaddr(53)|ipaddr('address') }}"
 
