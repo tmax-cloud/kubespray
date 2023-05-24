@@ -14,10 +14,6 @@
 - name: Bootstrap HyperCloud | Trust HyperRegistry CA
   import_tasks: trust-hr-ca.yml
 
-- name: Bootstrap HyperCloud | Replicate Images from private
-  import_tasks: upload-images.yml
-  when: inventory_hostname == groups['kube_control_plane'][0]
-
 - name: Bootstrap HyperCloud | Install Gitlab
   import_tasks: install-gitlab.yml
   when: inventory_hostname == groups['kube_control_plane'][0]
@@ -29,6 +25,10 @@
 - name: Bootstrap HyperCloud | Install ArgoCD
   import_tasks: install-argocd-helm.yml
   when: inventory_hostname == groups['kube_control_plane'][0]
+
+# - name: Bootstrap HyperCloud | Replicate Images from private
+#   import_tasks: upload-images.yml
+#   when: inventory_hostname == groups['kube_control_plane'][0]
 
 #- name: Bootstrap HyperCloud | Upgrade HyperRegistry
 #  import_tasks: upgrade-hr.yml
