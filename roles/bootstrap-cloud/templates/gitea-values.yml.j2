@@ -9,7 +9,7 @@
 global:
   registry:
     is_offline: {{ gitea_is_offline }}
-    private_registry: {{ gitea_private_refistry }}
+    private_registry: {{ gitea_private_registry }}
 
 ## @param replicaCount number of replicas for the statefulset
 replicaCount: 1
@@ -405,6 +405,10 @@ gitea:
 ## @param memcached.enabled Memcached is loaded as a dependency from [Bitnami](https://github.com/bitnami/charts/tree/master/bitnami/memcached) if enabled in the values. Complete Configuration can be taken from their website.
 ## @param memcached.service.port Port for Memcached
 memcached:
+  global:
+    registry:
+      is_offline: {{ gitea_is_offline }}
+      private_registry: {{ gitea_private_registry }}
   enabled: true
   service:
     port: 11211
@@ -460,6 +464,10 @@ mysql:
 ## @param mariadb.primary.service.port Port to connect to MariaDB service
 ## @param mariadb.primary.persistence.size Persistence size for MariaDB
 mariadb:
+  global:
+    registry:
+      is_offline: {{ gitea_is_offline }}
+      private_registry: {{ gitea_private_registry }}
   enabled: true
   auth:
     database: gitea
