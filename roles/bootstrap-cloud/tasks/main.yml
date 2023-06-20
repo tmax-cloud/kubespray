@@ -18,9 +18,9 @@
   import_tasks: upload-images.yml
   when: inventory_hostname == groups['kube_control_plane'][0]
 
-- name: Bootstrap HyperCloud | Install Gitlab
-  import_tasks: install-gitlab.yml
-  when: inventory_hostname == groups['kube_control_plane'][0]
+# - name: Bootstrap HyperCloud | Install Gitlab
+#   import_tasks: install-gitlab.yml
+#   when: inventory_hostname == groups['kube_control_plane'][0]
 
 - name: Bootstrap HyperCloud | Install Gitea
   import_tasks: install-gitea.yml
