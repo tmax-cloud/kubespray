@@ -6,10 +6,6 @@
 ## @param global.imageRegistry global image registry override
 ## @param global.imagePullSecrets global image pull secrets override; can be extended by `imagePullSecrets`
 ## @param global.storageClass global storage class override
-global:
-  registry:
-    is_offline: {{ gitea_is_offline }}
-    private_registry: {{ gitea_private_registry }}
 
 ## @param replicaCount number of replicas for the statefulset
 replicaCount: 1
@@ -405,10 +401,8 @@ gitea:
 ## @param memcached.enabled Memcached is loaded as a dependency from [Bitnami](https://github.com/bitnami/charts/tree/master/bitnami/memcached) if enabled in the values. Complete Configuration can be taken from their website.
 ## @param memcached.service.port Port for Memcached
 memcached:
-  global:
-    registry:
-      is_offline: {{ gitea_is_offline }}
-      private_registry: {{ gitea_private_registry }}
+  image:
+    registry: {{ docker_image_repo }}
   enabled: true
   service:
     port: 11211
@@ -464,10 +458,8 @@ mysql:
 ## @param mariadb.primary.service.port Port to connect to MariaDB service
 ## @param mariadb.primary.persistence.size Persistence size for MariaDB
 mariadb:
-  global:
-    registry:
-      is_offline: {{ gitea_is_offline }}
-      private_registry: {{ gitea_private_registry }}
+  image:
+    registry: {{ docker_image_repo }}
   enabled: true
   auth:
     database: gitea

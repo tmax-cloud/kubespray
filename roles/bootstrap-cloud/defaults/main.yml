@@ -57,8 +57,6 @@ gitea_namespace: "gitea-system"
 GITEA_USER: "root"
 GITEA_PASSWORD: "password"
 GITEA_APP_NAME: gitea
-gitea_private_registry: "test-registry.com"
-gitea_is_offline: false
 gitea_image_repository: "{{ docker_image_repo }}/gitea/gitea"
 gitea_image_registry: ""
 gitea_image_tag: "1.18.0"
