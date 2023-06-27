@@ -8,7 +8,7 @@ function (
 	grafana_operator_image_repo="docker.io/tmaxcloudck/grafana-operator",
 	grafana_operator_version="v0.0.10",
 	grafana_image_repo="docker.io/grafana/grafana",
-	grafana_image_version="8.2.2",
+	grafana_image_version="9.3.2",
 	grafana_init_image_repo="quay.io/grafana-operator/grafana_plugins_init",
 	grafana_init_image_version="0.0.5",
 	keycloak_addr="",
@@ -230,6 +230,12 @@ local admin_info = if is_master_cluster == "true" then "" else "admin_user = " +
 		),
 		"deployment": {
 		  "replicas": 1
+		},
+		"dataStorage": {
+		  "accessModes": [
+		    "ReadWriteOnce"
+		    ],
+		  "size": grafana_pvc_size
 		},
 		"ingress": {
 		  "enabled": true,
