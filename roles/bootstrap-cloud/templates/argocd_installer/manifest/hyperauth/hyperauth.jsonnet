@@ -8,7 +8,8 @@ function (
   hypercloud_domain_host="tmaxcloud.org",
   storage_class="default",
   timezone_setting="UTC",
-  self_signed="false"
+  self_signed="false",
+  log_level="INFO"
 )
 
 local svcType = if hyperauth_svc_type == "Ingress" then "ClusterIP" else hyperauth_svc_type;
@@ -195,13 +196,17 @@ local hyperauth_external_dns = hyperauth_subdomain + "." + hypercloud_domain_hos
           "containers": [
             {
               "name": "hyperauth",
-              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/hyperauth:b1.1.2.1"]),
+              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/hyperauth:b1.1.2.5"]),
               "args": [
                 "-c standalone-ha.xml",
                 "-Dkeycloak.profile.feature.upload_scripts=enabled",
                 "-Dkeycloak.profile.feature.docker=enabled -b 0.0.0.0"
               ],
               "env": [
+                {
+                  "name": "LOG_LEVEL",
+                  "value": log_level
+                },
                 {
                   "name": "KEYCLOAK_IMPORT",
                   "value": "/tmp/realm-import/tmax-realm.json"
