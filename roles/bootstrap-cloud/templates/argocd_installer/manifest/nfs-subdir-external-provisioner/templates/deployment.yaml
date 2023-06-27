@@ -45,6 +45,9 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - "--v={{ .Values.logLevel }}"
+            - "--logtostderr={{ .Values.logtostderr }}"
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           volumeMounts:

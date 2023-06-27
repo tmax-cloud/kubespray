@@ -1,11 +1,13 @@
 function (
   is_offline="false",
   private_registry="registry.tmaxcloud.org",
-  timezone="UTC"
+  timezone="UTC",
+  log_level="info"
 
 )
 
 local gcr_registry = if is_offline == "false" then "" else private_registry + "/";
+local mcr_registry = if is_offline == "false" then "" else private_registry + "/";
 
 [
   {
@@ -18,10 +20,10 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
         "app.kubernetes.io/name": "controller",
         "app.kubernetes.io/component": "controller",
         "app.kubernetes.io/instance": "default",
-        "app.kubernetes.io/version": "v0.26.0",
+        "app.kubernetes.io/version": "v0.43.0",
         "app.kubernetes.io/part-of": "tekton-pipelines",
-        "pipeline.tekton.dev/release": "v0.26.0",
-        "version": "v0.26.0"
+        "pipeline.tekton.dev/release": "v0.43.0",
+        "version": "v0.43.0"
       }
     },
     "spec": {
@@ -36,18 +38,15 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
       },
       "template": {
         "metadata": {
-          "annotations": {
-            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
-          },
           "labels": {
             "app.kubernetes.io/name": "controller",
             "app.kubernetes.io/component": "controller",
             "app.kubernetes.io/instance": "default",
-            "app.kubernetes.io/version": "v0.26.0",
+            "app.kubernetes.io/version": "v0.43.0",
             "app.kubernetes.io/part-of": "tekton-pipelines",
-            "pipeline.tekton.dev/release": "v0.26.0",
+            "pipeline.tekton.dev/release": "v0.43.0",
             "app": "tekton-pipelines-controller",
-            "version": "v0.26.0"
+            "version": "v0.43.0"
           }
         },
         "spec": {
@@ -74,26 +73,40 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
           "containers": [
             {
               "name": "tekton-pipelines-controller",
-              "image": std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/controller:v0.26.0"]),
+              "image": std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/controller:v0.43.0"]),
+              "resources": {
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "100Mi"
+                },
+                "limits": {
+                  "cpu": "500m",
+                  "memory": "500Mi"
+                }
+              },
               "args": [
-                "-version",
-                "v0.26.0",
                 "-kubeconfig-writer-image",
-                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/kubeconfigwriter:v0.26.0"]),
+                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/kubeconfigwriter:v0.43.0"]),
                 "-git-image",
-                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.26.0"]),
+                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.43.0"]),
                 "-entrypoint-image",
-                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/entrypoint:v0.26.0"]),
+                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/entrypoint:v0.43.0"]),
                 "-nop-image",
-                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/nop:v0.26.0"]),
+                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/nop:v0.43.0"]),
+                "-sidecarlogresults-image",
+                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/sidecarlogresults:v0.43.0"]),
                 "-imagedigest-exporter-image",
-                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/imagedigestexporter:v0.26.0"]),
+                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/imagedigestexporter:v0.43.0"]),
                 "-pr-image",
-                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/pullrequest-init:v0.26.0"]),
+                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/pullrequest-init:v0.43.0"]),
+                "-workingdirinit-image",
+                std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/workingdirinit:v0.43.0"]),
                 "-gsutil-image",
                 std.join("", [gcr_registry,"gcr.io/google.com/cloudsdktool/cloud-sdk:302.0.0-slim"]),
                 "-shell-image",
-                std.join("", [gcr_registry,"gcr.io/distroless/base:debug"])
+                std.join("", [gcr_registry,"gcr.io/distroless/base:debug"]),
+                "-shell-image-win",
+                std.join("", [mcr_registry,"mcr.microsoft.com/powershell:nanoserver"])
               ],
               "volumeMounts": [
                 {
@@ -160,6 +173,10 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
                   "value": "config-leader-election"
                 },
                 {
+                  "name": "CONFIG_TRUSTED_RESOURCES_NAME",
+                  "value": "config-trusted-resources"
+                },
+                {
                   "name": "SSL_CERT_FILE",
                   "value": "/etc/config-registry-cert/cert"
                 },
@@ -176,13 +193,25 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
                 "allowPrivilegeEscalation": false,
                 "capabilities": {
                   "drop": [
-                    "all"
+                    "ALL"
                   ]
                 },
                 "runAsUser": 65532,
-                "runAsGroup": 65532
+                "runAsGroup": 65532,
+                "runAsNonRoot": true,
+                "seccompProfile": {
+                  "type": "RuntimeDefault"
+                }
               },
               "ports": [
+                {
+                  "name": "metrics",
+                  "containerPort": 9090
+                },
+                {
+                  "name": "profiling",
+                  "containerPort": 8008
+                },
                 {
                   "name": "probes",
                   "containerPort": 8080
@@ -245,14 +274,13 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
         "app.kubernetes.io/name": "webhook",
         "app.kubernetes.io/component": "webhook",
         "app.kubernetes.io/instance": "default",
-        "app.kubernetes.io/version": "v0.26.0",
+        "app.kubernetes.io/version": "v0.43.0",
         "app.kubernetes.io/part-of": "tekton-pipelines",
-        "pipeline.tekton.dev/release": "v0.26.0",
-        "version": "v0.26.0"
+        "pipeline.tekton.dev/release": "v0.43.0",
+        "version": "v0.43.0"
       }
     },
     "spec": {
-      "replicas": 1,
       "selector": {
         "matchLabels": {
           "app.kubernetes.io/name": "webhook",
@@ -263,18 +291,15 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
       },
       "template": {
         "metadata": {
-          "annotations": {
-            "cluster-autoscaler.kubernetes.io/safe-to-evict": "false"
-          },
           "labels": {
             "app.kubernetes.io/name": "webhook",
             "app.kubernetes.io/component": "webhook",
             "app.kubernetes.io/instance": "default",
-            "app.kubernetes.io/version": "v0.26.0",
+            "app.kubernetes.io/version": "v0.43.0",
             "app.kubernetes.io/part-of": "tekton-pipelines",
-            "pipeline.tekton.dev/release": "v0.26.0",
+            "pipeline.tekton.dev/release": "v0.43.0",
             "app": "tekton-pipelines-webhook",
-            "version": "v0.26.0"
+            "version": "v0.43.0"
           }
         },
         "spec": {
@@ -319,7 +344,7 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
           "containers": [
             {
               "name": "webhook",
-              "image": std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/webhook:v0.26.0"]),
+              "image": std.join("", [gcr_registry,"gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/webhook:v0.43.0"]),
               "resources": {
                 "requests": {
                   "cpu": "100m",
@@ -352,6 +377,14 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
                   "value": "config-leader-election"
                 },
                 {
+                  "name": "CONFIG_FEATURE_FLAGS_NAME",
+                  "value": "feature-flags"
+                },
+                {
+                  "name": "WEBHOOK_PORT",
+                  "value": "8443"
+                },
+                {
                   "name": "WEBHOOK_SERVICE_NAME",
                   "value": "tekton-pipelines-webhook"
                 },
@@ -368,11 +401,15 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
                 "allowPrivilegeEscalation": false,
                 "capabilities": {
                   "drop": [
-                    "all"
+                    "ALL"
                   ]
                 },
                 "runAsUser": 65532,
-                "runAsGroup": 65532
+                "runAsGroup": 65532,
+                "runAsNonRoot": true,
+                "seccompProfile": {
+                  "type": "RuntimeDefault"
+                }
               },
               "ports": [
                 {
@@ -433,5 +470,22 @@ local gcr_registry = if is_offline == "false" then "" else private_registry + "/
         } else {},
       }
     }
-  }
+  },
+  {
+    apiVersion: 'v1',
+    kind: 'ConfigMap',
+    metadata: {
+      name: 'config-logging',
+      namespace: 'tekton-pipelines',
+      labels: {
+        'app.kubernetes.io/instance': 'default',
+        'app.kubernetes.io/part-of': 'tekton-pipelines',
+      },
+    },
+    data: {
+      'zap-logger-config': std.join("", ['{\n  "level": ', log_level, ',\n  "development": false,\n  "sampling": {\n    "initial": 100,\n    "thereafter": 100\n  },\n  "outputPaths": ["stdout"],\n  "errorOutputPaths": ["stderr"],\n  "encoding": "json",\n  "encoderConfig": {\n    "timeKey": "ts",\n    "levelKey": "level",\n    "nameKey": "logger",\n    "callerKey": "caller",\n    "messageKey": "msg",\n    "stacktraceKey": "stacktrace",\n    "lineEnding": "",\n    "levelEncoder": "",\n    "timeEncoder": "iso8601",\n    "durationEncoder": "",\n    "callerEncoder": ""\n  }\n}\n']),
+      'loglevel.controller': log_level,
+      'loglevel.webhook': log_level,
+    },
+  },
 ]
