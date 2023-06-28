@@ -1,9 +1,8 @@
 function (
   is_offline = "false",
   private_registry="registry.tmaxcloud.org",
-  template_operator_version = "0.2.6",
-  cluster_tsb_version = "0.1.3",
-  tsb_version = "0.1.3",
+  template_operator_version = "0.2.8",
+  log_level="info",
   time_zone="UTC"
 )
 
@@ -49,7 +48,8 @@ local target_registry = if is_offline == "false" then "" else private_registry +
               "/manager"
             ],
             "args": [
-              "--enable-leader-election"
+              "--enable-leader-election",
+              std.join("", ["--zap-log-level=", log_level])
             ],
             "volumeMounts": [
             ] + (
@@ -62,122 +62,20 @@ local target_registry = if is_offline == "false" then "" else private_registry +
               ),
             "image": std.join("", [target_registry, "docker.io/tmaxcloudck/template-operator:", template_operator_version]),
             "imagePullPolicy": "Always",
-            "name": "manager"
+            "name": "manager",
+            "resources": {
+                "limits": {
+                    "cpu": "500m",
+                    "memory": "400Mi"
+                },
+                "requests": {
+                    "cpu": "200m",
+                    "memory": "200Mi"
+                }
+            }
           }
         ],
         "terminationGracePeriodSeconds": 10
-        }
-      }
-    }
-  },
-  {
-    "apiVersion": "apps/v1",
-    "kind": "Deployment",
-    "metadata": {
-      "labels": {
-        "app": "cluster-template-service-broker"
-      },
-      "name": "cluster-template-service-broker",
-      "namespace": "cluster-tsb-ns"
-    },
-    "spec": {
-      "replicas": 1,
-      "selector": {
-        "matchLabels": {
-          "app": "cluster-template-service-broker"
-        }
-      },
-      "template": {
-        "metadata": {
-          "labels": {
-            "app": "cluster-template-service-broker"
-          }
-        },
-        "spec": {
-          "serviceAccountName": "cluster-tsb-sa",
-          "volumes": [
-          ] + (
-              if time_zone != "UTC" then [
-                {
-                  "name": "timezone-config",
-                  "hostPath": {
-                    "path": std.join("", ["/usr/share/zoneinfo/", time_zone])
-                  }
-                }
-              ] else []
-            ),
-          "containers": [
-            {
-              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/cluster-tsb:", cluster_tsb_version]),
-              "name": "cluster-tsb",
-              "imagePullPolicy": "Always",
-              "volumeMounts": [
-              ] + (
-                  if time_zone != "UTC" then [
-                    {
-                      "name": "timezone-config",
-                      "mountPath": "/etc/localtime"
-                    }
-                  ] else []
-              )
-            }
-          ]
-        }
-      }
-    }
-  },
-  {
-  "apiVersion": "apps/v1",
-  "kind": "Deployment",
-  "metadata": {
-    "labels": {
-      "app": "template-service-broker"
-    },
-    "name": "template-service-broker",
-    "namespace": "tsb-ns"
-  },
-  "spec": {
-    "replicas": 1,
-    "selector": {
-      "matchLabels": {
-        "app": "template-service-broker"
-      }
-    },
-    "template": {
-      "metadata": {
-        "labels": {
-          "app": "template-service-broker"
-        }
-      },
-      "spec": {
-        "serviceAccountName": "tsb-sa",
-        "volumes": [
-          ] + (
-              if time_zone != "UTC" then [
-                {
-                  "name": "timezone-config",
-                  "hostPath": {
-                    "path": std.join("", ["/usr/share/zoneinfo/", time_zone])
-                  }
-                }
-              ] else []
-            ),
-        "containers": [
-          {
-            "image": std.join("", [target_registry, "docker.io/tmaxcloudck/tsb:", tsb_version]),
-            "name": "tsb",
-            "imagePullPolicy": "Always",
-            "volumeMounts": [
-              ] + (
-                  if time_zone != "UTC" then [
-                    {
-                      "name": "timezone-config",
-                      "mountPath": "/etc/localtime"
-                    }
-                  ] else []
-              )
-          }
-        ]
         }
       }
     }
