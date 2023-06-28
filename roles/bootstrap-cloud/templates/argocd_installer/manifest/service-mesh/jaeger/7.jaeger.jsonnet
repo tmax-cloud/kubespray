@@ -1,16 +1,21 @@
 function(
   is_offline="false",
   private_registry="registry.tmaxcloud.org",
-  JAEGER_VERSION="1.27",
+  JAEGER_VERSION="1.35",
   cluster_name="master",
   tmax_client_secret="tmax_client_secret",
   HYPERAUTH_DOMAIN="hyperauth.domain",
-  GATEKEER_VERSION="10.0.0",
+  GATEKEEPER_VERSION="v1.0.2",
   CUSTOM_DOMAIN_NAME="custom-domain",
   CUSTOM_CLUSTER_ISSUER="tmaxcloud-issuer",
   jaeger_client_id="jaeger",
   jaeger_subdomain="jaeger",
-  storage_type="opensearch",
+  storage_type="grpc-plugin",
+  PLUGIN_VERSION="v2.0.2",
+  jaeger_collector_log_level="info",
+  jaeger_agent_log_level="info",
+  jaeger_query_log_level="info",
+  gatekeeper_log_level="info",
   time_zone="UTC"
 )
 
@@ -129,7 +134,7 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
     "apiVersion": "v1",
     "kind": "ConfigMap",
     "metadata": {
-      "name": "jaeger-configuration",
+      "name": "jaeger-sampling-configuration",
       "namespace": "istio-system",
       "labels": {
         "app": "jaeger",
@@ -137,43 +142,22 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
       }
     },
     "data": {
-      "span-storage-type": "opensearch",
-      "collector": std.join("\n", 
-        [
-          "es:",
-          "  server-urls: https://opensearch.kube-logging.svc:9200",
-          "  tls:",
-          "    enabled: true",
-          "    ca: /ca/cert/ca.crt",
-          "    cert: /ca/cert/tls.crt",
-          "    key: /ca/cert/tls.key",
-          "  username: admin",
-          "  password: admin",
-          "collector:",
-          "  zipkin:",
-          "    host-port: 9411"
-        ]
-      ),
-      "query": std.join("\n",
-        [
-          "es:",
-          "  server-urls: https://opensearch.kube-logging.svc:9200",
-          "  tls:",
-          "    enabled: true",
-          "    ca: /ca/cert/ca.crt",
-          "    cert: /ca/cert/tls.crt",
-          "    key: /ca/cert/tls.key",
-          "  username: admin",
-          "  password: admin"
-        ]
-      ),
-      "agent": std.join("\n",
-        [
-          "reporter:",
-          "  grpc:",
-          "    host-port: \"jaeger-collector:14250\""
-        ]
-      )
+      "sampling": '{"default_strategy":{"param":1,"type":"probabilistic"}}'
+    }
+  },
+  {
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata": {
+      "name": "jaeger-ui-configuration",
+      "namespace": "istio-system",
+      "labels": {
+        "app": "jaeger",
+        "app.kubernetes.io/name": "jaeger"
+      }
+    },
+    "data": {
+      "ui": '{"dependencies":{"menuEnabled":false}}'
     }
   },
   {
@@ -216,8 +200,22 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
             {
               "image": std.join("", [target_registry, "docker.io/jaegertracing/jaeger-collector:", JAEGER_VERSION]),
               "name": "jaeger-collector",
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "2Gi"
+                },
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "256Mi"
+                }
+              },
               "args": [
-                "--config-file=/conf/collector.yaml"
+                "--grpc-storage-plugin.binary=/plugin/jaeger-objectstorage",
+                "--grpc-storage-plugin.configuration-file=/plugin/loki.yaml",
+                "--sampling.strategies-file=/etc/jaeger/sampling/sampling.json",
+                "--collector.zipkin.host-port=9411",
+                std.join("", ["--log-level=", jaeger_collector_log_level])
               ],
               "ports": [
                 {
@@ -241,8 +239,13 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
               },
               "volumeMounts": [
                 {
-                  "name": "jaeger-configuration-volume",
-                  "mountPath": "/conf"
+                  "name": "jaeger-sampling-configuration-volume",
+                  "mountPath": "/etc/jaeger/sampling",
+                  "readOnly": true
+                },
+                {
+                  "name": "plugin-volume",
+                  "mountPath": "/plugin"
                 },
                 {
                   "name": "jaeger-certs",
@@ -259,12 +262,26 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
               "env": [
                 {
                   "name": "SPAN_STORAGE_TYPE",
-                  "valueFrom": {
-                    "configMapKeyRef": {
-                      "name": "jaeger-configuration",
-                      "key": "span-storage-type"
-                    }
-                  }
+                  "value": "grpc-plugin"
+                }
+              ]
+            }
+          ],
+          "initContainers": [
+            {
+              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/jaeger-loki-plugin:", PLUGIN_VERSION]),
+              "name": "install-plugin",
+              "imagePullPolicy": "IfNotPresent",
+              "resources": {},
+              "volumeMounts": [
+                {
+                  "name": "jaeger-sampling-configuration-volume",
+                  "mountPath": "/etc/jaeger/sampling",
+                  "readOnly": true
+                },
+                {
+                  "name": "plugin-volume",
+                  "mountPath": "/plugin"
                 }
               ]
             }
@@ -280,15 +297,20 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
             },
             {
               "configMap": {
-                "name": "jaeger-configuration",
+                "name": "jaeger-sampling-configuration",
+                "defaultMode": 420,
                 "items": [
                   {
-                    "key": "collector",
-                    "path": "collector.yaml"
+                    "key": "sampling",
+                    "path": "sampling.json"
                   }
                 ]
               },
-              "name": "jaeger-configuration-volume"
+              "name": "jaeger-sampling-configuration-volume"
+            },
+            {
+              "emptyDir": {},
+              "name": "plugin-volume"
             }
           ] + (
             if time_zone != "UTC" then [
@@ -413,7 +435,7 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
           "containers": [
             {
               "name": "gatekeeper",
-              "image": std.join("", [target_registry, "quay.io/keycloak/keycloak-gatekeeper:", GATEKEER_VERSION]),
+              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/gatekeeper:", GATEKEEPER_VERSION]),
               "imagePullPolicy": "Always",
               "args": [
                 std.join("", ["--client-id=", jaeger_client_id]),
@@ -436,7 +458,7 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
                 "--forbidden-page=/html/access-forbidden.html",
                 std.join("", ["--resources=uri=/*|roles=", jaeger_client_id, ":jaeger-manager"]),
                 "--enable-encrypted-token",
-                "--verbose"
+                std.join("", ["--log-level=", gatekeeper_log_level])
               ],
               "ports": [
                 {
@@ -444,6 +466,16 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
                   "name": "gatekeeper"
                 }
               ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "2Gi"
+                },
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "256Mi"
+                }
+              },
               "volumeMounts": [
                 {
                   "name": "gatekeeper-files",
@@ -464,17 +496,15 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
             },
             {
               "args": [
-                "--config-file=/conf/query.yaml"
+                "--grpc-storage-plugin.binary=/plugin/jaeger-objectstorage",
+                "--grpc-storage-plugin.configuration-file=/plugin/loki.yaml",
+                "--query.ui-config=/etc/config/ui.json",
+                std.join("", ["--log-level=", jaeger_query_log_level])
               ],
               "env": [
                 {
                   "name": "SPAN_STORAGE_TYPE",
-                  "valueFrom": {
-                    "configMapKeyRef": {
-                      "key": "span-storage-type",
-                      "name": "jaeger-configuration"
-                    }
-                  }
+                  "value": "grpc-plugin"
                 },
                 {
                   "name": "BASE_QUERY_PATH",
@@ -484,9 +514,23 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
               "image": std.join("", [target_registry, "docker.io/jaegertracing/jaeger-query:", JAEGER_VERSION]),
               "imagePullPolicy": "IfNotPresent",
               "name": "jaeger-query",
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "2Gi"
+                },
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "256Mi"
+                }
+              },
               "ports": [
                 {
                   "containerPort": 16686,
+                  "protocol": "TCP"
+                },
+                {
+                  "containerPort": 16685,
                   "protocol": "TCP"
                 }
               ],
@@ -502,13 +546,17 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
                 "successThreshold": 1,
                 "timeoutSeconds": 4
               },
-              "resources": {},
               "terminationMessagePath": "/dev/termination-log",
               "terminationMessagePolicy": "File",
               "volumeMounts": [
                 {
-                  "mountPath": "/conf",
-                  "name": "jaeger-configuration-volume"
+                  "mountPath": "/etc/config",
+                  "name": "jaeger-ui-configuration-volume",
+                  "readOnly": true
+                },
+                {
+                  "name": "plugin-volume",
+                  "mountPath": "/plugin"
                 },
                 {
                   "name": "secret",
@@ -522,6 +570,25 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
                   }
                 ] else []
               )
+            }
+          ],
+          "initContainers": [
+            {
+              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/jaeger-loki-plugin:", PLUGIN_VERSION]),
+              "name": "install-plugin",
+              "imagePullPolicy": "IfNotPresent",
+              "resources": {},
+              "volumeMounts": [
+                {
+                  "name": "jaeger-ui-configuration-volume",
+                  "mountPath": "/etc/config",
+                  "readOnly": true
+                },
+                {
+                  "name": "plugin-volume",
+                  "mountPath": "/plugin"
+                }
+              ]
             }
           ],
           "dnsPolicy": "ClusterFirst",
@@ -547,13 +614,17 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
                 "defaultMode": 420,
                 "items": [
                   {
-                    "key": "query",
-                    "path": "query.yaml"
+                    "key": "ui",
+                    "path": "ui.json"
                   }
                 ],
-                "name": "jaeger-configuration"
+                "name": "jaeger-ui-configuration"
               },
-              "name": "jaeger-configuration-volume"
+              "name": "jaeger-ui-configuration-volume"
+            },
+            {
+              "emptyDir": {},
+              "name": "plugin-volume"
             }
           ] + (
             if time_zone != "UTC" then [
@@ -591,6 +662,12 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
           "port": 443,
           "protocol": "TCP",
           "targetPort": 3000
+        },
+        {
+          "name": "grpc-query",
+          "port": 16685,
+          "protocol": "TCP",
+          "targetPort": 16685
         }
       ],
       "selector": {
@@ -662,13 +739,20 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
               "image": std.join("", [target_registry, "docker.io/jaegertracing/jaeger-agent:", JAEGER_VERSION]),
               "name": "jaeger-agent",
               "args": [
-                "--config-file=/conf/agent.yaml"
+                "--reporter.grpc.host-port=dns:///jaeger-collector.istio-system.svc:14250",
+                std.join("", ["--log-level=", jaeger_agent_log_level])
               ],
-              "volumeMounts": [
-                {
-                  "name": "jaeger-configuration-volume",
-                  "mountPath": "/conf"
+              "resources": {
+                "limits": {
+                  "cpu": "100m",
+                  "memory": "128Mi"
                 },
+                "requests": {
+                  "cpu": "50m",
+                  "memory": "64Mi"
+                }
+              },
+              "volumeMounts": [
                 {
                   "name": "jaeger-certs",
                   "mountPath": "/ca/cert",
@@ -719,18 +803,6 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
                   "defaultMode": 420,
                   "secretName": "jaeger-secret"
                 }
-            },
-            {
-              "configMap": {
-                "name": "jaeger-configuration",
-                "items": [
-                  {
-                    "key": "agent",
-                    "path": "agent.yaml"
-                  }
-                ]
-              },
-              "name": "jaeger-configuration-volume"
             }
           ] + (
             if time_zone != "UTC" then [

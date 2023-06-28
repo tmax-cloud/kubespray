@@ -505,7 +505,7 @@ kind: CustomResourceDefinition
 metadata:
   name: clustertasks.tekton.dev
   labels:
-    app.kubernetes.io/instance: default
+    app.kubernetes.io/instance: tekton-pipeline
     app.kubernetes.io/part-of: tekton-pipelines
     pipeline.tekton.dev/release: "v0.26.0"
     version: "v0.26.0"
@@ -585,7 +585,7 @@ kind: CustomResourceDefinition
 metadata:
   name: conditions.tekton.dev
   labels:
-    app.kubernetes.io/instance: default
+    app.kubernetes.io/instance: tekton-pipeline
     app.kubernetes.io/part-of: tekton-pipelines
     pipeline.tekton.dev/release: "v0.26.0"
     version: "v0.26.0"
@@ -638,7 +638,7 @@ kind: CustomResourceDefinition
 metadata:
   name: pipelines.tekton.dev
   labels:
-    app.kubernetes.io/instance: default
+    app.kubernetes.io/instance: tekton-pipeline
     app.kubernetes.io/part-of: tekton-pipelines
     pipeline.tekton.dev/release: "v0.26.0"
     version: "v0.26.0"
@@ -718,7 +718,7 @@ kind: CustomResourceDefinition
 metadata:
   name: pipelineruns.tekton.dev
   labels:
-    app.kubernetes.io/instance: default
+    app.kubernetes.io/instance: tekton-pipeline
     app.kubernetes.io/part-of: tekton-pipelines
     pipeline.tekton.dev/release: "v0.26.0"
     version: "v0.26.0"
@@ -827,7 +827,7 @@ kind: CustomResourceDefinition
 metadata:
   name: pipelineresources.tekton.dev
   labels:
-    app.kubernetes.io/instance: default
+    app.kubernetes.io/instance: tekton-pipeline
     app.kubernetes.io/part-of: tekton-pipelines
     pipeline.tekton.dev/release: "v0.26.0"
     version: "v0.26.0"
@@ -880,7 +880,7 @@ kind: CustomResourceDefinition
 metadata:
   name: runs.tekton.dev
   labels:
-    app.kubernetes.io/instance: default
+    app.kubernetes.io/instance: tekton-pipeline
     app.kubernetes.io/part-of: tekton-pipelines
     pipeline.tekton.dev/release: "v0.26.0"
     version: "v0.26.0"
@@ -947,7 +947,7 @@ kind: CustomResourceDefinition
 metadata:
   name: tasks.tekton.dev
   labels:
-    app.kubernetes.io/instance: default
+    app.kubernetes.io/instance: tekton-pipeline
     app.kubernetes.io/part-of: tekton-pipelines
     pipeline.tekton.dev/release: "v0.26.0"
     version: "v0.26.0"
@@ -1027,7 +1027,7 @@ kind: CustomResourceDefinition
 metadata:
   name: taskruns.tekton.dev
   labels:
-    app.kubernetes.io/instance: default
+    app.kubernetes.io/instance: tekton-pipeline
     app.kubernetes.io/part-of: tekton-pipelines
     pipeline.tekton.dev/release: "v0.26.0"
     version: "v0.26.0"
@@ -1454,7 +1454,7 @@ data:
   # See more in the workspace documentation about Affinity Assistant
   # https://github.com/tektoncd/pipeline/blob/main/docs/workspaces.md#affinity-assistant-and-specifying-workspace-order-in-a-pipeline
   # or https://github.com/tektoncd/pipeline/pull/2630 for more info.
-  disable-affinity-assistant: "false"
+  disable-affinity-assistant: "true"
   # Setting this flag to "false" will allow Tekton to override your
   # Task container's $HOME environment variable.
   #
@@ -1503,7 +1503,7 @@ data:
   # within pipelines.
   # This is an experimental feature and thus should still be considered
   # an alpha feature.
-  enable-custom-tasks: "false"
+  enable-custom-tasks: "true"
   # Setting this flag will determine which gated features are enabled.
   # Acceptable values are "stable" or "alpha".
   enable-api-fields: "stable"
