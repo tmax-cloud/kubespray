@@ -1,49 +1,14 @@
 ---
-- name: Install required packages
-  become: true
-  yum:
-    name: "{{ item }}"
-    state: "present"
-  with_items:
-    - "skopeo"
-  when: ansible_os_family == "RedHat"
+- name: HyperRegistry | Copy item
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ kube_config_dir }}/addons/hyperregistry/{{ item }}"
+  with_items: ["hr-upload-images.sh"]
 
-- name: Install required packages
-  apt:
-     name: "{{ item }}"
-     state: "present"
-  with_items:
-    - "skopeo"
-  when: ansible_os_family == "Debian"
-
-- name: HyperRegistry | Login harbor
-  become: true
-  shell: |
-    echo admin | skopeo login "{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}" \
-      -u admin --password-stdin \
-      --cert-dir /etc/pki/ca-trust/source/anchors
-  when: '''ID="centos"'' in os_release.stdout_lines or ''ID="ubuntu"'' in os_release.stdout_lines or ''ID="amzn"'' in os_release.stdout_lines'
-
-- name: HyperRegistry | Login harbor
-  become: true
-  shell: |
-    echo admin | skopeo login "{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}" \
-      -u admin --password-stdin \
-      --cert-dir /usr/share/pki/ca-trust-source/anchors/
-  when: '''ID="pl"'' in os_release.stdout_lines or ''ID="rhel"'' in os_release.stdout_lines'
-
-- name: HyperRegistry | Copy images
-  become: true
-  shell: |
-    skopeo copy --src-tls-verify=false --dest-cert-dir=/etc/pki/ca-trust/source/anchors \
-      "docker://{{ registry_host }}/{{ item }}" "docker://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/library/{{ item }}"
-  loop: "{{ lookup('file', 'files/images.txt').splitlines() }}"
-  when: '''ID="centos"'' in os_release.stdout_lines or ''ID="ubuntu"'' in os_release.stdout_lines or ''ID="amzn"'' in os_release.stdout_lines'
-
-- name: HyperRegistry | Copy images
-  become: true
-  shell: |
-    skopeo copy --src-tls-verify=false --dest-cert-dir=/usr/share/pki/ca-trust-source/anchors \
-      "docker://{{ registry_host }}/{{ item }}" "docker://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/library/{{ item }}"
-  loop: "{{ lookup('file', 'files/images.txt').splitlines() }}"
-  when: '''ID="pl"'' in os_release.stdout_lines or ''ID="rhel"'' in os_release.stdout_lines'
+- name: HyperRegistry | Set init password to admin
+  ansible.builtin.shell: |
+    sudo chmod +755 ./hr-upload-images.sh
+    sudo ./hr-upload-images.sh
+  args:
+    chdir: "{{ kube_config_dir }}/addons/hyperregistry"
+  ignore_errors: true
