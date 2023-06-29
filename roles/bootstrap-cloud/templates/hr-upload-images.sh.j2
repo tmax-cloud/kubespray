@@ -1,0 +1,78 @@
+#!/bin/bash
+
+REGISTRY_ID=$(curl -k -X 'GET' \
+  'https://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/api/v2.0/registries' \
+  -u 'admin:admin' \
+  -H 'accept: application/json' | jq -r .[].id)
+#echo $REGISTRY_ID
+if [ -z "$REGISTRY_ID" ]; then 
+    echo "There are no registered registries. Register the private docker registry."
+    curl -k -X 'POST' \
+        'https://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/api/v2.0/registries' \
+        -H 'accept: application/json' \
+        -H 'Content-Type: application/json' \
+        -u 'admin:admin' \
+        -d '{
+        "name": "hc private registry",
+        "url": "http://{{ registry_host }}",
+        "insecure": true,
+        "type": "docker-registry",
+        "description": "[kubespray task] upload hypercloud images to private registry"
+    }'
+    REGISTRY_ID=$(curl -k -X 'GET' \
+        'https://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/api/v2.0/registries' \
+        -u 'admin:admin' \
+        -H 'accept: application/json' | jq -r .[].id)
+fi 
+#echo $REGISTRY_ID
+
+POLICY_ID=$(curl -k -X 'GET' \
+  'https://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/api/v2.0/replication/policies?page=1&page_size=10' \
+  -u 'admin:admin' \
+  -H 'accept: application/json' | jq -r .[].id)
+#echo $POLICY_ID
+if [ -z "$POLICY_ID" ]; then 
+    echo "There are no replication policies. Register the replication policies."
+    curl -k -X 'POST' \
+    'https://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/api/v2.0/replication/policies' \
+    -H 'accept: application/json' \
+    -H 'Content-Type: application/json' \
+    -u 'admin:admin' \
+    -d '{
+    "name": "Replication Rule for copy hypercloud images",
+    "description": "[kubespray task] upload hypercloud images to private registry",
+    "src_registry": {
+        "id": '$REGISTRY_ID'
+    },
+    "dest_namespace": "library",
+    "dest_namespace_replace_count": 0,
+    "filters": [
+        {
+        "type": "name",
+        "value": ""
+        }
+    ],
+    "speed": 0,
+    "copy_by_chunk": true,
+    "trigger": {
+        "type": "manual"
+    },
+    "enabled": true,
+    "replicate_deletion": true,
+    "override": true
+    }'
+    POLICY_ID=$(curl -k -X 'GET' \
+    'https://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/api/v2.0/replication/policies?page=1&page_size=10' \
+    -u 'admin:admin' \
+    -H 'accept: application/json' | jq -r .[].id)
+fi 
+#echo $POLICY_ID
+
+curl -k -X 'POST' \
+  'https://{{ hyperregistry_core_subdomain }}.{{ custom_domain_name }}/api/v2.0/replication/executions' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -u 'admin:admin' \
+  -d '{
+  "policy_id": '$POLICY_ID'
+}'
