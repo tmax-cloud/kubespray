@@ -1992,6 +1992,25 @@ downloads:
     groups:
     - kube_control_plane
 
+  metallb_speaker:
+    enabled: "{{ metallb_speaker_enabled }}"
+    container: true
+    repo: "{{ metallb_speaker_image_repo }}"
+    tag: "{{ metallb_version }}"
+    sha256: "{{ metallb_speaker_digest_checksum | default(None) }}"
+    groups:
+    - kube_control_plane
+
+  metallb_controller:
+    enabled: "{{ metallb_enabled }}"
+    container: true
+    repo: "{{ metallb_controller_image_repo }}"
+    tag: "{{ metallb_version }}"
+    sha256: "{{ metallb_controller_digest_checksum | default(None) }}"
+    groups:
+    - kube_control_plane
+
+
   fnvhash:
     enabled: "{{ argocd_enabled }}"
     file: true
