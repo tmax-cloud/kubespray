@@ -24,7 +24,7 @@ loadbalancer_apiserver:
   port: 6443
 
 upstream_dns_servers:
-  - 192.168.1.150
+  - /etc/resolv.conf
 ```
 
 ## inventory/tmaxcloud/group_vars/all/offline.yml
