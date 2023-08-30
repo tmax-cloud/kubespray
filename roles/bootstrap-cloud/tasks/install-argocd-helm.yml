@@ -66,3 +66,11 @@
 #  args:
 #    chdir: "{{ kube_config_dir }}/addons/argocd"
 #  ignore_errors: true
+
+#- name: ArgoCD | Apply Secret for self-signed Gitea
+#  ansible.builtin.shell: |
+#    sudo chmod +755 ./argocd-apply-gitea-repo-secret.sh
+#    sudo ./argocd-apply-gitea-repo-secret.sh
+#  args:
+#    chdir: "{{ kube_config_dir }}/addons/argocd"
+#  ignore_errors: true
