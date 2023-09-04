@@ -11,7 +11,7 @@
   template:
     src: "{{ item }}.j2"
     dest: "{{ kube_config_dir }}/addons/argocd/{{ item }}"
-  with_items: ["argocd-values.yml"]
+  with_items: ["argocd-values.yml", "argocd-apply-gitea-repo-secret.sh", "argocd-repo-secret.yml", "argocd-gen-secret-name.py"]
 
 - name: ArgoCD | Copy ArgoCD chart
   copy:
@@ -59,10 +59,20 @@
   ansible.builtin.shell: |
     sudo pip3 install --no-index -f . {{ local_release_dir }}/fnvhash-0.1.0.tar.gz
 
+# DEPRECATED, gitlab
 #- name: ArgoCD | Apply Secret for self-signed Gitlab
 #  ansible.builtin.shell: |
 #    sudo chmod +755 ./argocd-apply-gitlab-repo-secret.sh
 #    sudo ./argocd-apply-gitlab-repo-secret.sh
+#  args:
+#    chdir: "{{ kube_config_dir }}/addons/argocd"
+#  ignore_errors: true
+
+# if you use selfsigned ca in gitea with ingress nginx, release comment.
+#- name: ArgoCD | Apply Secret for self-signed Gitea
+#  ansible.builtin.shell: |
+#    sudo chmod +755 ./argocd-apply-gitea-repo-secret.sh
+#    sudo ./argocd-apply-gitea-repo-secret.sh
 #  args:
 #    chdir: "{{ kube_config_dir }}/addons/argocd"
 #  ignore_errors: true
