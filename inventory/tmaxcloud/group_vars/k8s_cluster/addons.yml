@@ -161,8 +161,10 @@ cert_manager_enabled: false
 # MetalLB deployment
 metallb_enabled: false
 metallb_speaker_enabled: '{{ metallb_enabled }}'
-metallb_version: v0.13.5
+metallb_version: v0.13.10
 metallb_protocol: "layer2"
+metallb_interfaces:
+  - ens2f3
 metallb_config:
   address_pools:
 #    pool1:
