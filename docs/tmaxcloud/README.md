@@ -46,6 +46,8 @@
     * 추가적인 repo 구축 가이드는 아래 url을 참조한다.
       * https://github.com/tmax-cloud/install-pkg-repo/tree/5.0
     * dnf 명령어가 없는 경우, files-repo.repo를 생성한다.
+
+      **해당 .repo의 파일명은 반드시 files-repo로 지정하도록 한다.**
       * vi /etc/yum.repos.d/files-repo.repo
       ```bash
       [files-repo]
