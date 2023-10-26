@@ -1,0 +1,48 @@
+---
+- name: iptables playbook
+  #hosts: localhost
+  become: True
+  tasks:
+    - name: check iptables version  # corresponds to the step 2-1 of IMS# 295179
+      shell: "iptables -V | cut -d ' ' -f2 | cut -c 2-"
+      register: iptablesVersion
+
+    - name: debug for iptables version info  # giving the outcome variable to the debug module
+      debug: var=iptablesVersion
+
+    - name: install iptables-1.8.5           
+      dnf:                                   # dnf: package installation module.. Why not yum??
+        name : iptables-1.8.5-3.el8          # name of the package that is required to installed
+        state: installed                     # available values: 'present', 'latest' (demand install) or 'removed' (demand absent). What is 'installed' and 'removed'?
+      register: dnfResult
+      when: iptablesVersion.stdout >= "1.8.0" and iptablesVersion.stdout < "1.8.5"
+      ignore_errors: true
+
+    - name: debug for dnfResult
+      debug: var=dnfResult
+
+    - name: remove iptables-ebtables and install iptables-nft  # Why the script is used??
+      block:
+        - name: create script file for dnf    # Create a script with the following content in the given directory
+          copy:
+            dest: /tmp/dnfscript
+            content: |
+              remove iptables-ebtables
+              install iptables-nft
+
+        - name: run dnf shell with script     # run the script
+          shell: "dnf shell /tmp/dnfscript -y"
+
+        - name: delete dnf script file        # delete the script
+          file:
+            path: /tmp/dnfscript
+            state: absent
+      when: '"failed" in dnfResult and dnfResult.failed'
+      
+    - name: change alternatives for iptables legacy
+      shell: |
+        update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+        update-alternatives --set iptables /usr/sbin/iptables-legacy
+        # update-alternatives --set arptables /usr/sbin/arptables-legacy  
+        # update-alternatives --set ebtables /usr/sbin/ebtables-legacy
+# Why the last two scripts were not used??
