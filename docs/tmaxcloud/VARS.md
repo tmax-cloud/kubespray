@@ -149,11 +149,19 @@ aws_efs_filesystem_id: {{ efs_filesystem_id }}
 [MetalLB 설치시]
 # MetalLB deployment
 metallb_enabled: true
-metallb_speaker_enabled: true
-metallb_ip_range:
-    - {{ metallb_ip_range }}
-metallb_version: {{ metallb_version }}
-metallb_protocol: {{ metallb_protocol }}
+metallb_speaker_enabled: '{{ metallb_enabled }}'
+metallb_version: v0.13.10
+metallb_protocol: "layer2"
+metallb_config:
+  address_pools:
+    primary:
+      auto_assign: true
+      ip_range:
+        - 10.96.0.0/16
+  layer2:
+    - primary
+metallb_limits_cpu: "100m"
+metallb_limits_mem: "100Mi"
 
 ```
 ### 예시
