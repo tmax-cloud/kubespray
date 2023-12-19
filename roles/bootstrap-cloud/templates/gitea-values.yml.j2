@@ -9,7 +9,7 @@
 global:
   registry:
     is_offline: {{ gitea_is_offline }}
-    private_registry: {{ gitea_private_refistry }}
+    private_registry: {{ gitea_private_registry }}
 
 ## @param replicaCount number of replicas for the statefulset
 replicaCount: 1
@@ -209,7 +209,7 @@ persistence:
     - ReadWriteOnce
   labels: {}
   annotations: {}
-  storageClass: {{ STORAGE_CLASS }}
+  storageClass: {{ gitea_storage_class }}
   subPath:
 
 ## @param extraVolumes Additional volumes to mount to the Gitea statefulset
@@ -471,6 +471,7 @@ mariadb:
       port: 3306
     persistence:
       size: 30Gi
+      storageClass : {{ gitea_mariadb_storage_class }}
 
 # By default, removed or moved settings that still remain in a user defined values.yaml will cause Helm to fail running the install/update.
 # Set it to false to skip this basic validation check.

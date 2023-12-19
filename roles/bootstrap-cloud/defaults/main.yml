@@ -64,6 +64,8 @@ gitea_image_repository: "{{ docker_image_repo }}/gitea/gitea"
 gitea_image_registry: ""
 gitea_image_tag: "1.18.0"
 gitea_ingress_class: "nginx-system"
+gitea_storage_class: "efs-sc-1000"
+gitea_mariadb_storage_class: "efs-sc-1001"
 
 #nginx-controller
 ingress_nginx_namespace: ingress-nginx-system
