@@ -7,6 +7,8 @@
   with_items:
     - { name: storageclass-0, file: aws-efs-storageclass-0.yml }
     - { name: storageclass-999, file: aws-efs-storageclass-999.yml }
+    - { name: storageclass-1000, file: aws-efs-storageclass-1000.yml }
+    - { name: storageclass-1001, file: aws-efs-storageclass-1001.yml }
   register: storageclass_manifests
   when: inventory_hostname == groups['kube_control_plane'][0]
 
