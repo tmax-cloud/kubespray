@@ -52,9 +52,9 @@
     kubeadm_token: "{{ temp_token.stdout }}"
   when: kubeadm_token is not defined
 
-- name: Set kubeadm api version to v1beta2
+- name: Set kubeadm api version to v1beta3
   set_fact:
-    kubeadmConfig_api_version: v1beta2
+    kubeadmConfig_api_version: v1beta3
 
 - name: Create kubeadm client config
   template:

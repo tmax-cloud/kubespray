@@ -70,9 +70,9 @@
     kubeadm_config_api_fqdn: "{{ apiserver_loadbalancer_domain_name|default('lb-apiserver.kubernetes.local') }}"
   when: loadbalancer_apiserver is defined
 
-- name: Set kubeadm api version to v1beta2
+- name: Set kubeadm api version to v1beta3
   set_fact:
-    kubeadmConfig_api_version: v1beta2
+    kubeadmConfig_api_version: v1beta3
 
 - name: kubeadm | Create kubeadm config
   template:
