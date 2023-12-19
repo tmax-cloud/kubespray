@@ -12,6 +12,8 @@ default_storageclass_name: nfs
 # If you are using nfs the value of 'sc_name_0' and 'sc_name_999' should be 'nfs'
 sc_name_0: efs-sc-0
 sc_name_999: efs-sc-999
+#sc_name_1000: efs-sc-1000
+#sc_name_1001: efs-sc-1001
 
 # nfs-external-provisioner
 nfs_external_provisioner_enabled: true
@@ -160,21 +162,21 @@ cert_manager_enabled: false
 
 # MetalLB deployment
 metallb_enabled: false
-metallb_speaker_enabled: '{{ metallb_enabled }}'
+metallb_speaker_enabled: "{{ metallb_enabled }}"
 metallb_version: v0.13.10
 metallb_protocol: "layer2"
 metallb_interfaces:
   - ens2f3
 metallb_config:
   address_pools:
-#    pool1:
-#      auto_assign: true
-#      ip_range:
-#        - 10.6.0.0/16
-#    pool2:
-#      auto_assign: true
-#      ip_range:
-#        - 10.10.0.0/16
+    #    pool1:
+    #      auto_assign: true
+    #      ip_range:
+    #        - 10.6.0.0/16
+    #    pool2:
+    #      auto_assign: true
+    #      ip_range:
+    #        - 10.10.0.0/16
     primary:
       auto_assign: true
       ip_range:
@@ -231,9 +233,6 @@ metallb_config:
 # metallb_memberlist_port: '7946'
 metallb_limits_cpu: "100m"
 metallb_limits_mem: "100Mi"
-
-
-
 
 # The plugin manager for kubectl
 krew_enabled: false

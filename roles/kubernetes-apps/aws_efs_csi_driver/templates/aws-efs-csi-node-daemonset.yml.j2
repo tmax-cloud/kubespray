@@ -21,7 +21,7 @@ spec:
         app.kubernetes.io/instance: kustomize
     spec:
       nodeSelector:
-        beta.kubernetes.io/os: linux
+        kubernetes.io/os: linux
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -31,12 +31,16 @@ spec:
                 operator: NotIn
                 values:
                 - fargate
-      hostNetwork: true
       dnsPolicy: ClusterFirst
       serviceAccountName: efs-csi-node-sa
       priorityClassName: system-node-critical
       tolerations:
         - operator: Exists
+      securityContext:
+        fsGroup: 0
+        runAsGroup: 0
+        runAsNonRoot: false
+        runAsUser: 0
       containers:
         - name: efs-plugin
           securityContext:
@@ -47,6 +51,9 @@ spec:
             - --endpoint=$(CSI_ENDPOINT)
             - --logtostderr
             - --v=2
+            - --vol-metrics-opt-in=false
+            - --vol-metrics-refresh-period=240
+            - --vol-metrics-fs-rate-limit=5
           env:
             - name: CSI_ENDPOINT
               value: unix:/csi/csi.sock
@@ -99,6 +106,9 @@ spec:
               mountPath: /csi
             - name: registration-dir
               mountPath: /registration
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
 {% if timezone_extra_volumes %}
             - name: {{ timezone_extra_volumes.name }}
               mountPath: {{ timezone_extra_volumes.mountPath }}
@@ -113,6 +123,9 @@ spec:
           volumeMounts:
             - name: plugin-dir
               mountPath: /csi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
 {% if timezone_extra_volumes %}
             - name: {{ timezone_extra_volumes.name }}
               mountPath: {{ timezone_extra_volumes.mountPath }}

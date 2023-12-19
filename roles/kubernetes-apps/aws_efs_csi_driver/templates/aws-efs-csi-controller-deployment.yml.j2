@@ -21,11 +21,15 @@ spec:
         app.kubernetes.io/name: aws-efs-csi-driver
         app.kubernetes.io/instance: kustomize
     spec:
-      hostNetwork: true
       nodeSelector:
         kubernetes.io/os: linux
       serviceAccountName: efs-csi-controller-sa
       priorityClassName: system-cluster-critical
+      securityContext:
+        fsGroup: 0
+        runAsGroup: 0
+        runAsNonRoot: false
+        runAsUser: 0     
       tolerations:
         - key: node-role.kubernetes.io/master
           effect: NoSchedule
@@ -59,6 +63,10 @@ spec:
           env:
             - name: CSI_ENDPOINT
               value: unix:///var/lib/csi/sockets/pluginproxy/csi.sock
+            - name: CSI_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName             
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/csi/sockets/pluginproxy/
@@ -93,6 +101,9 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/csi/sockets/pluginproxy/
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
 {% if timezone_extra_volumes %}
             - name: {{ timezone_extra_volumes.name }}
               mountPath: {{ timezone_extra_volumes.mountPath }}
@@ -106,6 +117,9 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /csi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true          
 {% if timezone_extra_volumes %}
             - name: {{ timezone_extra_volumes.name }}
               mountPath: {{ timezone_extra_volumes.mountPath }}
