@@ -1391,6 +1391,7 @@ rules:
   - ""
   resources:
   - pods
+  - configmaps
   verbs:
   - list
 - apiGroups:
@@ -1470,7 +1471,7 @@ rules:
   resources:
   - services
   - namespaces
-  - configmaps
+  - nodes
   verbs:
   - get
   - list
@@ -1562,6 +1563,7 @@ rules:
   - endpoints
   - nodes
   - namespaces
+  - configmaps
   verbs:
   - get
   - list
