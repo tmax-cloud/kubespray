@@ -12,8 +12,8 @@ default_storageclass_name: nfs
 # If you are using nfs the value of 'sc_name_0' and 'sc_name_999' should be 'nfs'
 sc_name_0: efs-sc-0
 sc_name_999: efs-sc-999
-#sc_name_1000: efs-sc-1000
-#sc_name_1001: efs-sc-1001
+sc_name_1000: efs-sc-1000
+sc_name_1001: efs-sc-1001
 
 # nfs-external-provisioner
 nfs_external_provisioner_enabled: true

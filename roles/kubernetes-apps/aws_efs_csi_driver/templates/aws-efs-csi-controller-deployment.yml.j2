@@ -101,13 +101,13 @@ spec:
           volumeMounts:
             - name: socket-dir
               mountPath: /var/lib/csi/sockets/pluginproxy/
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
 {% if timezone_extra_volumes %}
             - name: {{ timezone_extra_volumes.name }}
               mountPath: {{ timezone_extra_volumes.mountPath }}
 {% endif %}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
         - name: liveness-probe
           image: {{ aws_efs_csi_livenessprobe_image_repo }}:{{ aws_efs_csi_livenessprobe_image_tag }}
           imagePullPolicy: IfNotPresent
@@ -116,14 +116,14 @@ spec:
             - --health-port=9909
           volumeMounts:
             - name: socket-dir
-              mountPath: /csi
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true          
+              mountPath: /csi       
 {% if timezone_extra_volumes %}
             - name: {{ timezone_extra_volumes.name }}
               mountPath: {{ timezone_extra_volumes.mountPath }}
 {% endif %}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true   
       volumes:
         - name: socket-dir
           emptyDir: {}
