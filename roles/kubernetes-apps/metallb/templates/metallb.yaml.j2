@@ -1396,6 +1396,14 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
   - secrets
   verbs:
   - get
@@ -1475,6 +1483,12 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - list
 - apiGroups:
   - ""
   resources:
@@ -1562,6 +1576,7 @@ rules:
   - endpoints
   - nodes
   - namespaces
+  - configmaps
   verbs:
   - get
   - list
