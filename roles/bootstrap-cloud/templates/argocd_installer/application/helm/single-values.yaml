@@ -12,11 +12,15 @@ global:
   clusterName: cluster-name
   clusterNamespace: cluster-namespace
   domain: testdomain.com
+  # 사용가능한 단위: "h", "m", "s", "ms", "us", "ns"
+  # ex) 3일 3시간 10분 : 75h10m
+  # 기본값은 1년(8760h)
+  certDuration: 8760h
 
 modules:
   ###calico
   calico:
-    enabled: true
+    enabled: false
     # 사용 가능 한 값 : Debug, Info, Warning, Error, Fatal
     logLevel: info
     logSeverityFile: info
@@ -25,7 +29,7 @@ modules:
 
   ###gitlab
   gitlab:
-    enabled: true
+    enabled: false
     subdomain: gitlab
     pvc:
       storage: 30Gi
@@ -34,11 +38,10 @@ modules:
       storageClassName: "default"
     oidc:
       enabled: false
-    logLevel: INFO
 
   ###gitea
   gitea:
-    enabled: false
+    enabled: true
     oauth_enabled: false
     subdomain: gitea
     # "Trace", "Debug", "Info", "Warn", "Error", "Critical" or "None"
@@ -52,11 +55,16 @@ modules:
       storageClass: ""
     # "TRACE", "DEBUG", "INFO", "WARN", "ERROR" or "OFF"
     logLevel: INFO
+    subdomain: nexus
 
 
   ### sonarqube
   sonarqube:
     enabled: false
+    oidc_enabled: false
+    persistence:
+      enabled: true
+      storageClass: ""
     # TRACE, DEBUG, INFO
     logLevel: INFO
     subdomain: sonarqube
@@ -64,14 +72,14 @@ modules:
   ### cert-manager
   certManager:
     enabled: true
-    autoSync: true
+    autoSync: false
     # ErrorLevel=0 WarnLevel=1 InfoLevel=2 ExtendedInfoLevel=3 DebugLevel=4 TraceLevel=5
     logLevel: 2
 
   ### gateway-bootstrap
   gatewayBootstrap:
     enabled: true
-    autoSync: true
+    autoSync: false
     # load balancer를 사용할 수 있는 경우(ex. aws lb, metallb)
     # LoadBalancer로 값을 변경
     service:
@@ -127,8 +135,8 @@ modules:
 
     oauth2Proxy:
       enabled: false
-      version: v7.3.1
-
+      version: v7.3.2
+      
   ### istio version: 1.15.4 for kubeflow
   istio:
     enabled: true
@@ -275,6 +283,19 @@ modules:
   ### prometheus
   prometheus:
     enabled: true
+    operatorLogLevel: info
+    # 사용 가능한 값 : error, warn, info, debug
+    alertmanagerLogLevel: info
+    # 사용 가능한 값 : error, warn, info, debug
+    nodeExporterLogLevel: info
+    # 사용 가능한 값 : error, warn, info, debug
+    kubeStateMetricLogLevel: 0
+    # 사용 가능한 값 : 0~10
+    adapterLogLevel: 0
+    # 사용 가능한 값 : 0~10
+    prometheusLogLevel: info
+    # 사용 가능한 값 : error, warn, info, debug
+
     versions:
       prometheus: v2.41.0
       cmReload: v0.0.1
@@ -293,9 +314,13 @@ modules:
     subdomain: grafana
     pvcSize: 10Gi
     operator: 
-      version: v0.0.10
+      logLevel: info
+      # 사용 가능한 값 : error, warn, info, debug
+      version: v0.0.11
       imageRepo: docker.io/tmaxcloudck/grafana-operator
     grafana:
+      logLevel: info
+      # 사용 가능한 값 : error, warn, info, debug
       version: "9.3.2"
       imageRepo: docker.io/grafana/grafana
 
@@ -370,6 +395,7 @@ modules:
     #   version: 0.1.6
     templateOperator:
       version: 0.2.8
+    # debug, info, warn, error, dpanic, panic, fatal 7단계, default 로 error 사용
     logLevel: info
 
   ### catalog controller (deprecated since k8s 1.25v)
@@ -479,17 +505,20 @@ modules:
   tektonPipeline:
     enabled: true
     #namespace: tekton-pipelines
+    # debug, info, warn, error / default: info
     logLevel: info
 
   ### tekton trigger
   tektonTrigger:
     enabled: true
+    # debug, info, warn, error / default: info
     logLevel: info
 
   ### cicd operator
   cicd:
     enabled: true
     subdomain: cicd-webhook
+    # debug, info, error / default: info
     logLevel: info
 
   ### redis-operator
