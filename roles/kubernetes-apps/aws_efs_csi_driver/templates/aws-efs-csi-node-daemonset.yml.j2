@@ -106,12 +106,12 @@ spec:
               mountPath: /csi
             - name: registration-dir
               mountPath: /registration
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
 {% if timezone_extra_volumes %}
             - name: {{ timezone_extra_volumes.name }}
               mountPath: {{ timezone_extra_volumes.mountPath }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
 {% endif %}
         - name: liveness-probe
           image: {{ aws_efs_csi_livenessprobe_image_repo }}:{{ aws_efs_csi_livenessprobe_image_tag }}
@@ -123,13 +123,13 @@ spec:
           volumeMounts:
             - name: plugin-dir
               mountPath: /csi
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
 {% if timezone_extra_volumes %}
             - name: {{ timezone_extra_volumes.name }}
               mountPath: {{ timezone_extra_volumes.mountPath }}
 {% endif %}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
       volumes:
         - name: kubelet-dir
           hostPath:
