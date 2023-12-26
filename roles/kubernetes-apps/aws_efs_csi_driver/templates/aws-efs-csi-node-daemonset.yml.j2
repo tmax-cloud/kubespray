@@ -109,10 +109,10 @@ spec:
 {% if timezone_extra_volumes %}
             - name: {{ timezone_extra_volumes.name }}
               mountPath: {{ timezone_extra_volumes.mountPath }}
+{% endif %}
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
-{% endif %}
         - name: liveness-probe
           image: {{ aws_efs_csi_livenessprobe_image_repo }}:{{ aws_efs_csi_livenessprobe_image_tag }}
           imagePullPolicy: IfNotPresent
