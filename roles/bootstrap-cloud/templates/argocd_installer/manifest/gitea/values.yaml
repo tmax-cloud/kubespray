@@ -210,7 +210,7 @@ persistence:
     - ReadWriteOnce
   labels: {}
   annotations: {}
-  storageClass:
+  storageClass: "efs-sc-1000"
   subPath:
 
 ## @param extraVolumes Additional volumes to mount to the Gitea statefulset
@@ -491,6 +491,7 @@ mariadb:
       port: 3306
     persistence:
       size: 30Gi
+      storageClass: efs-sc-1001
 
 # By default, removed or moved settings that still remain in a user defined values.yaml will cause Helm to fail running the install/update.
 # Set it to false to skip this basic validation check.
