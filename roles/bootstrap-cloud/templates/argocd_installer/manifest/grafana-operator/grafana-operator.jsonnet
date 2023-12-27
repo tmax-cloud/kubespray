@@ -6,7 +6,7 @@ function (
 	kube_rbac_proxy_image_repo="gcr.io/kubebuilder/kube-rbac-proxy",
 	kube_rbac_proxy_version="v0.8.0",
 	grafana_operator_image_repo="docker.io/tmaxcloudck/grafana-operator",
-	grafana_operator_version="v0.0.10",
+	grafana_operator_version="v0.0.11",
 	grafana_image_repo="docker.io/grafana/grafana",
 	grafana_image_version="9.3.2",
 	grafana_init_image_repo="quay.io/grafana-operator/grafana_plugins_init",
@@ -18,7 +18,9 @@ function (
 	is_master_cluster="true",
 	grafana_subdomain="grafana",
   	timezone="UTC",
-	grafana_pvc_size = "10Gi"
+	grafana_pvc_size = "10Gi",
+	grafana_operator_log_level = "info",
+	grafana_log_level = "info"
 )
 
 local target_registry = if is_offline == "false" then "" else private_registry + "/";
@@ -86,7 +88,8 @@ local admin_info = if is_master_cluster == "true" then "" else "admin_user = " +
 				"args": [
 				  "--health-probe-bind-address=:8081",
 				  "--metrics-bind-address=127.0.0.1:8080",
-				  "--scan-all"
+				  "--scan-all",
+				  std.join("",["--zap-log-level=",grafana_operator_log_level])
 				],
 				"command": [
 				  "/manager"
@@ -267,7 +270,7 @@ local admin_info = if is_master_cluster == "true" then "" else "admin_user = " +
 		  },
 		  "log": {
 			"mode": "console",
-			"level": "warn"
+			"level": std.join("",[grafana_log_level])
 		  },
 		  "log.frontend": {
 			"enabled": true
