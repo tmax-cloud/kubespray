@@ -14,6 +14,10 @@ global:
   clusterName: in-cluster
   clusterNamespace: default
   domain: testdomain.com
+  # 사용가능한 단위: "h", "m", "s", "ms", "us", "ns"
+  # ex) 3일 3시간 10분 : 75h10m
+  # 기본값은 1년(8760h)
+  certDuration: 8760h
 
 modules:
   ### calico
@@ -37,8 +41,6 @@ modules:
       storageClassName: "nfs"
     oidc:
       enabled: false
-    logLevel: INFO
-    # "Trace", "Debug", "Info", "Warn", "Error", "Critical" or "None"
 
   ### gitea
   gitea:
@@ -51,6 +53,10 @@ modules:
   ### sonarqube
   sonarqube:
     enabled: false
+    oidc_enabled: false
+    persistence:
+      enabled: true
+      storageClass: ""
     # TRACE, DEBUG, INFO
     logLevel: INFO
     subdomain: sonarqube
@@ -63,18 +69,19 @@ modules:
       storageClass: ""
     # "TRACE", "DEBUG", "INFO", "WARN", "ERROR" or "OFF"
     logLevel: INFO
+    subdomain: nexus
 
   ### cert-manager
   certManager:
     enabled: true
-    autoSync: true
+    autoSync: false
     # ErrorLevel=0 WarnLevel=1 InfoLevel=2 ExtendedInfoLevel=3 DebugLevel=4 TraceLevel=5
     logLevel: 2
 
   ### gateway-bootstrap
   gatewayBootstrap:
     enabled: true
-    autoSync: true
+    autoSync: false
     # load balancer를 사용할 수 있는 경우(ex. aws lb, metallb)
     # LoadBalancer로 값을 변경
     service:
@@ -98,10 +105,10 @@ modules:
 
     console:
       enabled: true
-      version: 5.2.25.0
+      version: 5.2.67.0
       subdomain: console
       mcMode: true
-      chatbotEmbed: true
+      chatbotEmbed: false
       customProductName: hypercloud
       k8sPublicEndpoint: https://kubernetes.default.svc
       svcType: LoadBalancer
@@ -121,7 +128,7 @@ modules:
         logType: "common"
 
     jwtDecodeAuth:
-      enabled: true
+      enabled: false
       version: 5.0.0.5
       logInfo:
         # trace | debug | info | warn | crit // 주로 "debug"를 사용
@@ -131,7 +138,7 @@ modules:
 
     oauth2Proxy:
       enabled: true
-      version: v7.3.1
+      version: v7.3.2
 
   ### istio version: 1.15.4 for kubeflow
   istio:
@@ -177,27 +184,7 @@ modules:
     gatekeeperLogLevel: info
     gatekeeperVersion: v1.0.2
     # 사용 가능 한 값 : debug, info, error
-    logLevel: info    
-
-  ### efk
-  efk:
-    enabled: false
-    es:
-      version: 7.2.1
-      limitMemory: 8Gi
-      requestMemory: 5Gi
-      jvmHeap: "-Xms4g -Xmx4g"
-      volumeSize: 50Gi
-    busyBox:
-      version: 1.32.0
-    kibana:
-      version: 7.2.0
-      svcType: ClusterIP
-      subdomain: kibana
-    gatekeeper:
-      version: 10.0.0
-    fluentd:
-      version: v1.4.2-debian-elasticsearch-1.1
+    logLevel: info
 
   ### argocd
   argocd:
@@ -244,7 +231,7 @@ modules:
 
   ### opensearch
   opensearch:
-    enabled: true
+    enabled: false
     logLevel: info
     # opensearch-dashboards에서 지원하는 loglevel에 대한 config 설정을 기준으로 함.
     # 사용 가능한 값 : error, info, debug
@@ -281,6 +268,19 @@ modules:
   ### prometheus
   prometheus:
     enabled: true
+    operatorLogLevel: info
+    # 사용 가능한 값 : error, warn, info, debug
+    alertmanagerLogLevel: info
+    # 사용 가능한 값 : error, warn, info, debug
+    nodeExporterLogLevel: info
+    # 사용 가능한 값 : error, warn, info, debug
+    kubeStateMetricLogLevel: 0
+    # 사용 가능한 값 : 0~10
+    adapterLogLevel: 0
+    # 사용 가능한 값 : 0~10
+    prometheusLogLevel: info
+    # 사용 가능한 값 : error, warn, info, debug
+
     versions:
       prometheus: v2.41.0
       cmReload: v0.0.1
@@ -299,9 +299,13 @@ modules:
     subdomain: grafana
     pvcSize: 10Gi
     operator: 
-      version: v0.0.10
+      logLevel: info
+      # 사용 가능한 값 : error, warn, info, debug
+      version: v0.0.11
       imageRepo: docker.io/tmaxcloudck/grafana-operator
     grafana:
+      logLevel: info
+      # 사용 가능한 값 : error, warn, info, debug
       version: "9.3.2"
       imageRepo: docker.io/grafana/grafana
 
@@ -376,6 +380,7 @@ modules:
     #   version: 0.1.6
     templateOperator:
       version: 0.2.8
+    # debug, info, warn, error, dpanic, panic, fatal 7단계, default 로 error 사용
     logLevel: info
 
   ### catalog controller (deprecated since k8s 1.25v)
@@ -486,17 +491,20 @@ modules:
   tektonPipeline:
     enabled: true
     #namespace: tekton-pipelines
+    # debug, info, warn, error / default: info
     logLevel: info
 
   ### tekton trigger
   tektonTrigger:
     enabled: true
+    # debug, info, warn, error / default: info
     logLevel: info
 
   ### cicd operator
   cicd:
     enabled: true
     subdomain: cicd-webhook
+    # debug, info, error / default: info
     logLevel: info
 
   ### redis-operator
