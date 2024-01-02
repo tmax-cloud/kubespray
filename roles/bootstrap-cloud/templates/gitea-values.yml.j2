@@ -6,10 +6,7 @@
 ## @param global.imageRegistry global image registry override
 ## @param global.imagePullSecrets global image pull secrets override; can be extended by `imagePullSecrets`
 ## @param global.storageClass global storage class override
-global:
-  registry:
-    is_offline: {{ gitea_is_offline }}
-    private_registry: {{ gitea_private_registry }}
+fullnameOverride: gitea
 
 ## @param replicaCount number of replicas for the statefulset
 replicaCount: 1
@@ -294,18 +291,13 @@ gitea:
 
   # Either specify inline `key` and `secret` or refer to them via `existingSecret`
   ## @param gitea.oauth OAuth configuration
-  oauth: []
-    # - name: 'OAuth 1'
-    #   provider:
-    #   key:
-    #   secret:
-    #   existingSecret:
-    #   autoDiscoverUrl:
-    #   useCustomUrls:
-    #   customAuthUrl:
-    #   customTokenUrl:
-    #   customProfileUrl:
-    #   customEmailUrl:
+  oauth_enabled: false
+  oauth:
+    - name: 'giteaOAuth'
+      provider: 'openidConnect'
+      key: 'gitea'
+      secret: 'tmax_client_secret'
+      autoDiscoverUrl: 'https://hyperauth.testdomain.com/auth/realms/tmax/.well-known/openid-configuration'
 
   ## @param gitea.config  Configuration for the Gitea server,ref: [config-cheat-sheet](https://docs.gitea.io/en-us/config-cheat-sheet/)
   config:
@@ -318,6 +310,10 @@ gitea:
       ALLOWED_HOST_LIST: '*'
     log:
       LEVEL: Info # "Trace", "Debug", "Info", "Warn", "Error", "Critical" or "None"
+    database:
+      HOST: gitea-mariadb.gitea-system.svc.cluster.local:3306
+    cache:
+      HOST: gitea-memcached.gitea-system.svc.cluster.local:11211
   #  APP_NAME: "Gitea: Git with a cup of tea"
   #  RUN_MODE: dev
   #
@@ -405,6 +401,8 @@ gitea:
 ## @param memcached.enabled Memcached is loaded as a dependency from [Bitnami](https://github.com/bitnami/charts/tree/master/bitnami/memcached) if enabled in the values. Complete Configuration can be taken from their website.
 ## @param memcached.service.port Port for Memcached
 memcached:
+  image:
+    registry: {{ gitea_memcached_image_registry }}
   enabled: true
   service:
     port: 11211
@@ -460,6 +458,8 @@ mysql:
 ## @param mariadb.primary.service.port Port to connect to MariaDB service
 ## @param mariadb.primary.persistence.size Persistence size for MariaDB
 mariadb:
+  image:
+    registry: {{ gitea_mariadb_image_registry }}
   enabled: true
   auth:
     database: gitea
