@@ -402,7 +402,7 @@ gitea:
 ## @param memcached.service.port Port for Memcached
 memcached:
   image:
-    registry: {{ gitea_memcached_image_registry }}
+    registry: {{ docker_image_repo }}
   enabled: true
   service:
     port: 11211
@@ -459,7 +459,7 @@ mysql:
 ## @param mariadb.primary.persistence.size Persistence size for MariaDB
 mariadb:
   image:
-    registry: {{ gitea_mariadb_image_registry }}
+    registry: {{ docker_image_repo }}
   enabled: true
   auth:
     database: gitea
