@@ -81,6 +81,9 @@ mysql_image_repo: "mysql"
 # aws image repo define
 aws_image_repo: "public.ecr.aws"
 
+# k8s registry image repo
+registry_kube_image_repo: "registry.k8s.io"
+
 # TODO(mattymo): Move calico versions to roles/network_plugins/calico/defaults
 # after migration to container download
 calico_version: "v3.17.4"
