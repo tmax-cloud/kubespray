@@ -59,18 +59,18 @@
   when:
     - inventory_hostname == groups['kube_control_plane'][0]
 
-- name: Gitea | Check gitea installed
-  ansible.builtin.shell: |
-    while true; do
-      sleep 5s
-      status=$({{ bin_dir }}/kubectl -n gitea-system get pod -o jsonpath='{.items[0].status.containerStatuses[0].ready}')
-      if [[ "$status" == "true" ]]; then
-        break
-      fi
-    done
-  args:
-    chdir: "{{ kube_config_dir }}/addons/gitea"
-  ignore_errors: true
+# - name: Gitea | Check gitea installed
+#   ansible.builtin.shell: |
+#     while true; do
+#       sleep 5s
+#       status=$({{ bin_dir }}/kubectl -n gitea-system get pod -o jsonpath='{.items[0].status.containerStatuses[0].ready}')
+#       if [[ "$status" == "true" ]]; then
+#         break
+#       fi
+#     done
+#   args:
+#     chdir: "{{ kube_config_dir }}/addons/gitea"
+#   ignore_errors: true
 
 - name: Gitea | Wait up for running gitea
   uri:
