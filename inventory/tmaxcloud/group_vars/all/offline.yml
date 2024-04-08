@@ -12,13 +12,8 @@ files_repo: "http://192.168.9.237"
 # ubuntu_repo: "http://myinternalubunturepo"
 
 ## Container Registry overrides
-# offline
 kube_image_repo: "{{ registry_host }}/k8s.gcr.io"
 registry_kube_image_repo: "{{ registry_host }}/registry.k8s.io"
-# online
-#kube_image_repo: "k8s.gcr.io" 
-#registry_kube_image_repo: "registry.k8s.io"
-
 #etcd_image_repo: "{{ registry_host }}/k8s.gcr.io"
 gcr_image_repo: "{{ registry_host }}/gcr.io"
 docker_image_repo: "{{ registry_host }}/docker.io"
