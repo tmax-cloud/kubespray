@@ -12,7 +12,6 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 
 spec:
-  ingressClassName: tmax-cloud
   {{- if .Values.tls.enabled }}
   tls:
   - hosts:
