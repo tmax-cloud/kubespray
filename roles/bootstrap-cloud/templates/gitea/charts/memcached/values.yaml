@@ -15,7 +15,7 @@ global:
   registry:
     is_offline: false
     private_registry: test-registry.com
-    
+
 image:
   registry: docker.io
   repository: bitnami/memcached
@@ -38,11 +38,11 @@ image:
 
 ## String to partially override common.names.fullname template (will maintain the release name)
 ##
-# nameOverride:
+# nameOverride: 
 
 ## String to fully override common.names.fullname template
 ##
-# fullnameOverride:
+fullnameOverride: gitea-memcached
 
 ## Add labels to all the deployed resources
 ##
@@ -127,9 +127,9 @@ resources:
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  limits: {}
-  #  memory: 256Mi
-  #  cpu: 250m
+  limits:
+    memory: 1Gi
+    cpu: 1
   requests:
     memory: 256Mi
     cpu: 250m

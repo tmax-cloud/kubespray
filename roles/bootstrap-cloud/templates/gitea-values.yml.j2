@@ -6,6 +6,8 @@
 ## @param global.imageRegistry global image registry override
 ## @param global.imagePullSecrets global image pull secrets override; can be extended by `imagePullSecrets`
 ## @param global.storageClass global storage class override
+fullnameOverride: gitea
+namespace: {{ gitea_namespace }}
 
 ## @param replicaCount number of replicas for the statefulset
 replicaCount: 1
@@ -126,7 +128,7 @@ ingress:
   enabled: true
   # className: nginx
   className:
-  class: {{ gitea_ingress_class }}
+  class: {{ ingress_nginx_class_name }}
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
@@ -205,7 +207,7 @@ persistence:
     - ReadWriteOnce
   labels: {}
   annotations: {}
-  storageClass: {{ STORAGE_CLASS }}
+  storageClass: {{ gitea_storage_class }}
   subPath:
 
 ## @param extraVolumes Additional volumes to mount to the Gitea statefulset
@@ -290,18 +292,13 @@ gitea:
 
   # Either specify inline `key` and `secret` or refer to them via `existingSecret`
   ## @param gitea.oauth OAuth configuration
-  oauth: []
-    # - name: 'OAuth 1'
-    #   provider:
-    #   key:
-    #   secret:
-    #   existingSecret:
-    #   autoDiscoverUrl:
-    #   useCustomUrls:
-    #   customAuthUrl:
-    #   customTokenUrl:
-    #   customProfileUrl:
-    #   customEmailUrl:
+  oauth_enabled: false
+  oauth:
+    - name: 'giteaOAuth'
+      provider: 'openidConnect'
+      key: 'gitea'
+      secret: 'tmax_client_secret'
+      autoDiscoverUrl: 'https://hyperauth.testdomain.com/auth/realms/tmax/.well-known/openid-configuration'
 
   ## @param gitea.config  Configuration for the Gitea server,ref: [config-cheat-sheet](https://docs.gitea.io/en-us/config-cheat-sheet/)
   config:
@@ -314,6 +311,10 @@ gitea:
       ALLOWED_HOST_LIST: '*'
     log:
       LEVEL: Info # "Trace", "Debug", "Info", "Warn", "Error", "Critical" or "None"
+    database:
+      HOST: gitea-mariadb.gitea-system.svc.cluster.local:3306
+    cache:
+      HOST: gitea-memcached.gitea-system.svc.cluster.local:11211
   #  APP_NAME: "Gitea: Git with a cup of tea"
   #  RUN_MODE: dev
   #
@@ -471,6 +472,7 @@ mariadb:
       port: 3306
     persistence:
       size: 30Gi
+      storageClass : {{ gitea_mariadb_storage_class }}
 
 # By default, removed or moved settings that still remain in a user defined values.yaml will cause Helm to fail running the install/update.
 # Set it to false to skip this basic validation check.

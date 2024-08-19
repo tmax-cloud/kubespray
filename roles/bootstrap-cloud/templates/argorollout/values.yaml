@@ -30,3 +30,4 @@ argorolloutIngress:
     enabled: true
     secretName:
   enableTraefik: false
+  className: nginx-system

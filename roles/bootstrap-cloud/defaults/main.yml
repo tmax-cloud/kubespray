@@ -1,8 +1,9 @@
 hyperregistry_namespace: hyperregistry
 hyperregistry_admin_password: admin
-hyperregistry_ingress_nginx_class: nginx-system
+# hyperregistry_ingress_nginx_class: nginx-system
 hyperregistry_ingress_nginx_ip: ""
-hyperregistry_storage_class: ""
+hyperregistry_storage_class: "" # efs-sc-0
+hyperregistry_database_storage_class: "" # efs-sc-999
 hyperregistry_registry_disk_size: 50G
 hyperregistry_chartmuseum_disk_size: 10G
 hyperregistry_jobservice_disk_size: 5G
@@ -20,6 +21,7 @@ hyperregistry_notary_replicas: 1
 hyperregistry_release_name: hyperregistry
 hyperregistry_core_subdomain: hyperregistry
 hyperregistry_notary_subdomain: hyperregistry-notary
+hyperregistry_portal_fix_version: 2.7.4.fix
 
 registry_host: 192.168.9.67:5000
 
@@ -30,7 +32,7 @@ STORAGE: 30Gi
 RESOURCE_CPU: 1
 RESOURCE_MEM: 8Gi
 NAMESPACE: gitlab-system
-INGRESS_CLASS: nginx-system
+# INGRESS_CLASS: nginx-system
 SSH_PORT: 2221
 INGRESS_HOST: ""
 EXTERNAL_URL: ""
@@ -42,7 +44,7 @@ KEYCLOAK_SECRET: ""
 KEYCLOAK_CERT_FILE: ""
 GITLAB_PASSWORD: password        # root사용자 비밀번호
 REPO_NAME: argocd-installer      # gitlab에 등록될 repository 이름
-STORAGE_CLASS: "" # ex) nfs, csi-cephfs-sc
+STORAGE_CLASS: "" # ex) nfs, csi-cephfs-sc, efs-sc-0
 gitlab_token: token-string-here123
 gitlab_kubectl_repo: "{{ docker_image_repo }}/bitnami/kubectl"
 gitlab_kubectl_tag: "1.20.10"
@@ -54,13 +56,17 @@ gitlab_subdomain: "gitlab"
 gitea_subdomain: "gitea"
 gitea_release_name: "gitea"
 gitea_namespace: "gitea-system"
+gitea_private_registry: "{{ docker_image_repo }}"
+gitea_is_offline: true
 GITEA_USER: "root"
 GITEA_PASSWORD: "password"
 GITEA_APP_NAME: gitea
 gitea_image_repository: "{{ docker_image_repo }}/gitea/gitea"
 gitea_image_registry: ""
 gitea_image_tag: "1.18.0"
-gitea_ingress_class: "nginx-system"
+# gitea_ingress_class: "nginx-system"
+gitea_storage_class: "" # efs-sc-1000
+gitea_mariadb_storage_class: "" # efs-sc-1001
 
 #nginx-controller
 ingress_nginx_namespace: ingress-nginx-system
@@ -72,6 +78,7 @@ ingress_nginx_http_port: 30080
 ingress_nginx_https_port: 30443
 ingress_nginx_service_type: LoadBalancer
 ingress_nginx_tls: ingress-tls
+ingress_nginx_class_name: nginx-system # 통합 사용 
 
 #argocd
 argocd_namespace: "argocd"

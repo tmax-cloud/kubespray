@@ -62,7 +62,23 @@
   ignore_errors: true
 
 - name: NGINX Ingress Controller | Wait host ip
-  shell: "while [ \"$({{ bin_dir }}/kubectl get svc -n {{ ingress_nginx_namespace }} {{ ingress_nginx_namespace }}-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}' | wc -w)\" == \"0\" ]; do echo 'ingress-nginx-system IP Address Allocation not yet'; sleep 3; done; echo 'IP Address Allocation complete'; sleep 3"
+  shell: |
+    while true; do
+      IP=$({{ bin_dir }}/kubectl get svc -n {{ ingress_nginx_namespace }} {{ ingress_nginx_namespace }}-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+      HOSTNAME=$({{ bin_dir }}/kubectl get svc -n {{ ingress_nginx_namespace }} {{ ingress_nginx_namespace }}-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+      
+      if [ -n "$IP" ]; then
+        echo "IP Address Allocation complete: $IP"
+        break
+      elif [ -n "$HOSTNAME" ]; then
+        echo "Hostname Allocation complete: $HOSTNAME"
+        break
+      else
+        echo "ingress-nginx-system IP/Hostname Allocation not yet"
+        sleep 3
+      fi
+    done
+    sleep 3  
   register: ingress_nginx_system_controller_IPAddress
   when: inventory_hostname == groups['kube_control_plane'][0]
 - debug:

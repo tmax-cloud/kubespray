@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx-system
     app.kubernetes.io/version: 1.5.1
   name: ingress-nginx-system-admission-create
-  namespace: ingress-nginx-system
+  namespace: {{ ingress_nginx_namespace }}
 spec:
   template:
     metadata:
@@ -24,7 +24,7 @@ spec:
       - args:
         - create
         - --host=ingress-nginx-system-controller-admission,ingress-nginx-system-controller-admission.ingress-nginx-system.svc
-        - --namespace=ingress-nginx-system
+        - --namespace={{ ingress_nginx_namespace }}
         - --secret-name=ingress-nginx-system-admission
         image: {{ ingress_nginx_certgen_image_repo }}:{{ ingress_nginx_certgen_image_tag }}
         imagePullPolicy: IfNotPresent
@@ -48,7 +48,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx-system
     app.kubernetes.io/version: 1.5.1
   name: ingress-nginx-system-admission-patch
-  namespace: ingress-nginx-system
+  namespace: {{ ingress_nginx_namespace }}
 spec:
   template:
     metadata:
@@ -64,7 +64,7 @@ spec:
       - args:
         - patch
         - --webhook-name=ingress-nginx-system-admission
-        - --namespace=ingress-nginx-system
+        - --namespace={{ ingress_nginx_namespace }}
         - --patch-mutating=false
         - --secret-name=ingress-nginx-system-admission
         - --patch-failure-policy=Fail

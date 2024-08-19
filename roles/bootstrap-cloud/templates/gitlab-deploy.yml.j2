@@ -98,7 +98,7 @@ metadata:
   name: {{ APP_NAME }}-ingress
   namespace: {{ NAMESPACE }}
   annotations:
-    kubernetes.io/ingress.class: {{ INGRESS_CLASS }}
+    kubernetes.io/ingress.class: {{ ingress_nginx_class_name }}
     nginx.ingress.kubernetes.io/proxy-body-size: "1024m"
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
 spec:

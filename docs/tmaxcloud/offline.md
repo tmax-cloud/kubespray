@@ -80,7 +80,7 @@ is_this_offline: false
 #calico_crds_download_url: "{{ files_repo }}/calico-3.17.4.tar.gz"
 
 ## hyperregistry
-#hyperregistry_download_url: "{{ files_repo }}/hyperregistry-v2.2.2.tgz"
+#hyperregistry_download_url: "{{ files_repo }}/hyperregistry-v2.7.4.tgz"
 
 # [Optional] helm: only if you set helm_enabled: true
 #helm_download_url: "{{ files_repo }}/helm-v3.5.4-linux-amd64.tar.gz"

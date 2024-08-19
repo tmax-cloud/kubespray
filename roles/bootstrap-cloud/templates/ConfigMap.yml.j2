@@ -10,13 +10,13 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx-system
     app.kubernetes.io/version: 1.5.1
   name: ingress-nginx-system-controller
-  namespace: ingress-nginx-system
+  namespace: {{ ingress_nginx_namespace }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: tcp-services
-  namespace: ingress-nginx-system
+  namespace: {{ ingress_nginx_namespace }}
   labels:
     app.kubernetes.io/name: ingress-nginx-system
     app.kubernetes.io/part-of: ingress-nginx-system

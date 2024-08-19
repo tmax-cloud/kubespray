@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ include "gitea.fullname" . }}
-  namespace: gitea-system
+  namespace: {{ .Values.namespace }}
   annotations:
     {{- if .Values.statefulset.annotations }}
     {{- toYaml .Values.statefulset.annotations | nindent 4 }}
