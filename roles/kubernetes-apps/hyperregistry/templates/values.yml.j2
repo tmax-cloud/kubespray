@@ -49,7 +49,7 @@ expose:
       ingress.kubernetes.io/proxy-body-size: "0"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      kubernetes.io/ingress.class: {{ hyperregistry_ingress_nginx_class }}
+      kubernetes.io/ingress.class: {{ ingress_nginx_class_name }}
   clusterIP:
     # The name of ClusterIP service
     name: harbor

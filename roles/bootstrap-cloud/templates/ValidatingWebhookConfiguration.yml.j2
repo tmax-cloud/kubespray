@@ -8,14 +8,14 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx-system
     app.kubernetes.io/version: 1.5.1
   name: ingress-nginx-system-admission
-  namespace: ingress-nginx-system
+  namespace: {{ ingress_nginx_namespace }}
 webhooks:
 - admissionReviewVersions:
   - v1
   clientConfig:
     service:
       name: ingress-nginx-system-controller-admission
-      namespace: ingress-nginx-system
+      namespace: {{ ingress_nginx_namespace }}
       path: /networking/v1/ingresses
   failurePolicy: Fail
   matchPolicy: Equivalent

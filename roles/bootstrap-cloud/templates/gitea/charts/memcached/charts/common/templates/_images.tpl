@@ -7,8 +7,17 @@ Return the proper image name
 {{- $registryName := .imageRoot.registry -}}
 {{- $repositoryName := .imageRoot.repository -}}
 {{- $tag := .imageRoot.tag | toString -}}
+{{- if .global }}
+    {{- if .global.registry.is_offline }}
+     {{- $registryName = .global.registry.private_registry -}}
+    {{- end -}}
+{{- end -}}
 {{- if $registryName }}
-  {{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
+  {{- if .global.registry.is_offline }}
+    {{- printf "%s/docker.io/%s:%s" $registryName $repositoryName $tag -}}
+  {{- else -}}
+    {{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
+  {{- end -}}
 {{- else -}}
 {{- printf "%s:%s" $repositoryName $tag -}}
 {{- end -}}

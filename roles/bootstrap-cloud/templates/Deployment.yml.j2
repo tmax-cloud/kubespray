@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/part-of: ingress-nginx-system
     app.kubernetes.io/version: 1.5.1
   name: ingress-nginx-system-controller
-  namespace: ingress-nginx-system
+  namespace: {{ ingress_nginx_namespace }}
 spec:
   minReadySeconds: 0
   revisionHistoryLimit: 10
