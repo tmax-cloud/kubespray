@@ -28,6 +28,16 @@ modules:
     logSeverityFile: info
     logSeverityScreen: info
     logSeveritySys: info
+  
+  ###ingress-nginx
+  ingressNginx:
+    enabled: false 
+    controllerVersion: v1.5.1 
+    certgenVersion: v20220916-gd32f8c343
+    ingressNginxHttpPort: 30080
+    ingressNginxHttpsPort: 30443
+    serviceType: LoadBalancer
+    logLevel: info 
 
   ### gitlab
   gitlab:
@@ -105,9 +115,9 @@ modules:
 
     console:
       enabled: true
-      version: 5.2.67.0
+      version: 0.0.25
       subdomain: console
-      mcMode: true
+      mcMode: false
       chatbotEmbed: false
       customProductName: hypercloud
       k8sPublicEndpoint: https://kubernetes.default.svc
@@ -117,7 +127,7 @@ modules:
         logLevel: "info"
         # json | pretty
         logType: "pretty"
-
+      notUseAuditlog: true
     gateway:
       enabled: true
       version: v2.8.7
@@ -280,17 +290,17 @@ modules:
     # 사용 가능한 값 : 0~10
     prometheusLogLevel: info
     # 사용 가능한 값 : error, warn, info, debug
-
+    prometheusStorageClass: azurefile-csi
     versions:
-      prometheus: v2.41.0
+      prometheus: v2.46.0
       cmReload: v0.0.1
-      cmReloader: v0.62.0
-      operator: v0.62.0
-      alertManager: v0.25.0
-      kubeRbacProxy: v0.14.0
-      kubeStateMetrics: v2.7.0
-      nodeExporter: v1.5.0
-      adapter: v0.10.0
+      cmReloader: v0.67.1
+      operator: v0.67.1
+      alertManager: v0.26.0
+      kubeRbacProxy: v0.14.2
+      kubeStateMetrics: v2.9.2
+      nodeExporter: v1.6.1
+      adapter: v0.11.1
     pvcSize: 10Gi
 
   ### grafana-operator
@@ -311,11 +321,13 @@ modules:
 
   ### grafana
   grafana:
-    enabled: false
+    adminEmail: hc-admin@tmax.co.kr
+    enabled: true
     subdomain: grafana
     pvcSize: 10Gi
-    version: "9.3.2"
+    version: "10.3.1"
     imageRepo: docker.io/grafana/grafana
+    grafanaStorageClass: azurefile-csi
     
   ### service-mesh
   serviceMesh:
@@ -379,7 +391,7 @@ modules:
     # clusterTsb:
     #   version: 0.1.6
     templateOperator:
-      version: 0.2.8
+      version: 0.3.0
     # debug, info, warn, error, dpanic, panic, fatal 7단계, default 로 error 사용
     logLevel: info
 
@@ -477,15 +489,15 @@ modules:
       logLevel: info
     # redis의 경우 debug, verbose, notice, warning 기입 가능 (대소문자 유의, warning은 error 급) 
     redis:
-      logLevel: warning
+      logLevel: verbose
     # database(postgres)의 경우 DEBUG5, DEBUG4, DEBUG3, DEBUG2, DEBUG1, INFO, NOTICE, WARNING, ERROR, LOG, FATAL, PANIC 기입 가능(대소문자 유의)
     database:
-      logLevel: ERROR
+      logLevel: INFO
     # portal의 경우 debug, info, notice, warn, error, crit, alert, emerg 기입 가능 (대소문자 유의)
     portal:
-      logLevel: error
-    storageClass: nfs
-    storageClassDatabase: nfs
+      logLevel: info
+    storageClass: default
+    storageClassDatabase: default
 
   ### tekton pipeline
   tektonPipeline:

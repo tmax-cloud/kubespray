@@ -15,7 +15,7 @@ OIDC:
     clientId: hyperregistry
     clientSecret: tmax_client_secret
     hyperauthUrl: hyperauth_domain
-    adminGroupName: hypercloud5
+    adminGroupName: /hypercloud5
 
 expose:
   # Set how to expose the service. Set the type as "ingress", "clusterIP", "nodePort" or "loadBalancer"
@@ -64,7 +64,7 @@ expose:
     controller: default
     ## Allow .Capabilities.KubeVersion.Version to be overridden while creating ingress
     kubeVersionOverride: ""
-    className: "tmax-cloud"
+    className: "nginx-system"
     labels:
       ingress.tmaxcloud.org/name: hyperregistry
     annotations:
@@ -75,7 +75,6 @@ expose:
       nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
       nginx.ingress.kubernetes.io/ssl-redirect: "true"
       nginx.ingress.kubernetes.io/proxy-body-size: "0"
-      traefik.ingress.kubernetes.io/router.entrypoints: websecure
     notary:
       # notary ingress-specific annotations
       annotations: {}
@@ -454,7 +453,7 @@ enableMigrateHelmHook: false
 nginx:
   image:
     repository: docker.io/tmaxcloudck/nginx-photon
-    tag: 2.7.0
+    tag: 2.7.4
   # set the service account to be used, default if left empty
   serviceAccountName: ""
   # mount the service account token
@@ -479,7 +478,7 @@ nginx:
 portal:
   image:
     repository: docker.io/tmaxcloudck/harbor-portal
-    tag: 2.7.0
+    tag: 2.7.4.fix
   # set the service account to be used, default if left empty
   serviceAccountName: ""
   # mount the service account token
@@ -504,7 +503,7 @@ portal:
 core:
   image:
     repository: docker.io/tmaxcloudck/harbor-core
-    tag: 2.7.0
+    tag: 2.7.4
   # set the service account to be used, default if left empty
   serviceAccountName: ""
   # mount the service account token
@@ -554,7 +553,7 @@ core:
 jobservice:
   image:
     repository: docker.io/tmaxcloudck/harbor-jobservice
-    tag: 2.7.0
+    tag: 2.7.4
   replicas: 1
   revisionHistoryLimit: 10
   # set the service account to be used, default if left empty
@@ -596,7 +595,7 @@ registry:
   registry:
     image:
       repository: docker.io/tmaxcloudck/registry-photon
-      tag: 2.7.0
+      tag: 2.7.4
     resources:
       requests:
         memory: 1Gi
@@ -607,7 +606,7 @@ registry:
   controller:
     image:
       repository: docker.io/tmaxcloudck/harbor-registryctl
-      tag: 2.7.0
+      tag: 2.7.4
     resources:
       requests:
         memory: 1Gi
@@ -670,7 +669,7 @@ chartmuseum:
   absoluteUrl: false
   image:
     repository: docker.io/tmaxcloudck/chartmuseum-photon
-    tag: 2.7.0
+    tag: 2.7.4
   replicas: 1
   resources:
     requests:
@@ -697,7 +696,7 @@ trivy:
     # repository the repository for Trivy adapter image
     repository: docker.io/tmaxcloudck/trivy-adapter-photon
     # tag the tag for Trivy adapter image
-    tag: 2.7.0
+    tag: 2.7.4
   # set the service account to be used, default if left empty
   serviceAccountName: ""
   # mount the service account token
@@ -772,7 +771,7 @@ notary:
     automountServiceAccountToken: false
     image:
       repository: docker.io/tmaxcloudck/notary-server-photon
-      tag: 2.7.0
+      tag: 2.7.4
     replicas: 1
     resources:
       requests:
@@ -797,7 +796,7 @@ notary:
     automountServiceAccountToken: false
     image:
       repository: docker.io/tmaxcloudck/notary-signer-photon
-      tag: 2.7.0
+      tag: 2.7.4
     replicas: 1
     resources:
       requests:
@@ -832,7 +831,7 @@ database:
     automountServiceAccountToken: false
     image:
       repository: docker.io/tmaxcloudck/harbor-db
-      tag: 2.7.0
+      tag: 2.7.4
     # The initial superuser password for internal database
     password: "changeit"
     # The size limit for Shared memory, pgSQL use it for shared_buffer
@@ -906,7 +905,7 @@ redis:
     automountServiceAccountToken: false
     image:
       repository: docker.io/tmaxcloudck/redis-photon
-      tag: 2.7.0
+      tag: 2.7.4
     resources:
       requests:
         cpu: 500m
@@ -919,6 +918,16 @@ redis:
     affinity: {}
     ## The priority class to run the pod as
     priorityClassName:
+    # # jobserviceDatabaseIndex defaults to "1"
+    # # registryDatabaseIndex defaults to "2"
+    # # trivyAdapterIndex defaults to "5"
+    # # harborDatabaseIndex defaults to "0", but it can be configured to "6", this config is optional
+    # # cacheLayerDatabaseIndex defaults to "0", but it can be configured to "7", this config is optional
+    jobserviceDatabaseIndex: "1"
+    registryDatabaseIndex: "2"
+    trivyAdapterIndex: "5"
+    # harborDatabaseIndex: "6"
+    # cacheLayerDatabaseIndex: "7"
   external:
     # support redis, redis+sentinel
     # addr for redis: <host_redis>:<port_redis>
@@ -928,11 +937,15 @@ redis:
     sentinelMasterSet: ""
     # The "coreDatabaseIndex" must be "0" as the library Harbor
     # used doesn't support configuring it
+    # harborDatabaseIndex defaults to "0", but it can be configured to "6", this config is optional
+    # cacheLayerDatabaseIndex defaults to "0", but it can be configured to "7", this config is optional
     coreDatabaseIndex: "0"
     jobserviceDatabaseIndex: "1"
     registryDatabaseIndex: "2"
     chartmuseumDatabaseIndex: "3"
     trivyAdapterIndex: "5"
+    # harborDatabaseIndex: "6"
+    # cacheLayerDatabaseIndex: "7"
     password: ""
     # If using existingSecret, the key must be REDIS_PASSWORD
     existingSecret: ""
@@ -955,7 +968,7 @@ exporter:
   automountServiceAccountToken: false
   image:
     repository: docker.io/tmaxcloudck/harbor-exporter
-    tag: 2.7.0
+    tag: 2.7.4
   nodeSelector: {}
   tolerations: []
   affinity: {}

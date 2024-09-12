@@ -351,6 +351,7 @@ spec:
         requests:
           storage: 10Gi
       volumeMode: Filesystem
+      storageClassName: {{ .Values.timescaleDB.storageClass }}
   - apiVersion: v1
     kind: PersistentVolumeClaim
     metadata:
@@ -367,3 +368,4 @@ spec:
         requests:
           storage: 30Gi
       volumeMode: Filesystem
+      storageClassName: {{ .Values.timescaleDB.storageClass }}

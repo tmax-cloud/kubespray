@@ -46,7 +46,7 @@ local cicd_domain = std.join("", [cicd_subdomain, ".", custom_domain]);
               "args": [
                 std.join("", ["--zap-log-level=", log_level])
               ],
-              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/cicd-operator:v0.6.2"]),
+              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/cicd-operator:v0.6.4"]),
               "imagePullPolicy": "Always",
               "name": "manager",
               "env": [
@@ -166,7 +166,7 @@ local cicd_domain = std.join("", [cicd_subdomain, ".", custom_domain]);
               "args": [
                 std.join("", ["--zap-log-level=", log_level])
               ],
-              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/cicd-blocker:v0.6.2"]),
+              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/cicd-blocker:v0.6.4"]),
               "imagePullPolicy": "Always",
               "name": "manager",
               "resources": {
@@ -256,7 +256,7 @@ local cicd_domain = std.join("", [cicd_subdomain, ".", custom_domain]);
               "args": [
                 std.join("", ["--zap-log-level=", log_level])
               ],
-              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/cicd-webhook:v0.6.2"]),
+              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/cicd-webhook:v0.6.4"]),
               "imagePullPolicy": "Always",
               "name": "manager",
               "resources": {
@@ -346,7 +346,7 @@ local cicd_domain = std.join("", [cicd_subdomain, ".", custom_domain]);
               "args": [
                 std.join("", ["--zap-log-level=", log_level])
               ],
-              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/cicd-api-server:v0.6.2"]),
+              "image": std.join("", [target_registry, "docker.io/tmaxcloudck/cicd-api-server:v0.6.4"]),
               "imagePullPolicy": "Always",
               "name": "manager",
               "resources": {
@@ -422,7 +422,7 @@ local cicd_domain = std.join("", [cicd_subdomain, ".", custom_domain]);
       "collectPeriod": "120",
       "integrationJobTTL": "120",
       "exposeMode": "Ingress",
-      "ingressClass": "",
+      "ingressClass": "nginx-system",
       "ingressHost": cicd_domain,
       "gitImage": "docker.io/alpine/git:1.0.30",
       "gitCheckoutStepCPURequest": "30m",
