@@ -6,11 +6,10 @@ metadata:
   namespace: argo-rollouts
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    cert-manager.io/cluster-issuer: tmaxcloud-issuer
   labels:
     ingress.tmaxcloud.org/name: rollout
 spec:
-  ingressClassName: tmax-cloud
+  ingressClassName: nginx-system
   {{- if .Values.argorolloutIngress.tls.enabled }}
   tls:
   - hosts:

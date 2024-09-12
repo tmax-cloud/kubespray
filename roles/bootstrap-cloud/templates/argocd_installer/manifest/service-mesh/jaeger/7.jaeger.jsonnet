@@ -292,7 +292,8 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
               "secret":
                 {
                   "defaultMode": 420,
-                  "secretName": "jaeger-secret"
+                  "secretName": "jaeger-secret",
+                  "optional": true
                 }
             },
             {
@@ -442,13 +443,10 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
                 std.join("", ["--client-secret=", tmax_client_secret]),
                 "--listen=:3000",
                 "--upstream-url=http://127.0.0.1:16686",
-                std.join("", ["--discovery-url=https://", HYPERAUTH_DOMAIN, "/auth/realms/tmax"]),
+                std.join("", ["--discovery-url=https://", HYPERAUTH_DOMAIN, "/realms/tmax"]),
                 "--secure-cookie=false",
                 "--skip-openid-provider-tls-verify=true",
                 "--enable-self-signed-tls=false",
-                "--tls-cert=/etc/secrets/tls.crt",
-                "--tls-private-key=/etc/secrets/tls.key",
-                "--tls-ca-certificate=/etc/secrets/ca.crt",
                 "--skip-upstream-tls-verify=true",
                 "--upstream-keepalives=false",
                 "--enable-default-deny=true",
@@ -600,7 +598,8 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
               "name": "secret",
               "secret": {
                 "defaultMode": 420,
-                "secretName": "jaeger-secret"
+                "secretName": "jaeger-secret",
+                "optional": true
               }
             },
             {
@@ -644,9 +643,6 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
     "apiVersion": "v1",
     "kind": "Service",
     "metadata": {
-      "annotations": {
-        "traefik.ingress.kubernetes.io/service.serverstransport": "tmaxcloud@file"
-      },
       "labels": {
         "app": "jaeger",
         "app.kubernetes.io/component": "query",
@@ -675,32 +671,6 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
         "app.kubernetes.io/name": "jaeger"
       },
       "type": "ClusterIP"
-    }
-  },
-  {
-    "apiVersion": "cert-manager.io/v1",
-    "kind": "Certificate",
-    "metadata": {
-      "name": "jaeger-cert",
-      "namespace": "istio-system"
-    },
-    "spec": {
-      "secretName": "jaeger-secret",
-      "usages": [
-        "digital signature",
-        "key encipherment",
-        "server auth",
-        "client auth"
-      ],
-      "dnsNames": [
-          "tmax-cloud",
-          "jaeger-query.istio-system.svc"
-      ],
-      "issuerRef": {
-        "kind": "ClusterIssuer",
-        "group": "cert-manager.io",
-        "name": CUSTOM_CLUSTER_ISSUER
-      }
     }
   },
   {
@@ -801,7 +771,8 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
               "secret":
                 {
                   "defaultMode": 420,
-                  "secretName": "jaeger-secret"
+                  "secretName": "jaeger-secret",
+                  "optional": true
                 }
             }
           ] + (
@@ -841,18 +812,18 @@ local REDIRECT_URL = jaeger_subdomain + "." + CUSTOM_DOMAIN_NAME;
     "metadata": {
       "name": "jaeger-ingress",
       "namespace": "istio-system",
+      "annotations": {
+        "nginx.ingress.kubernetes.io/proxy-buffer-size": "128k"
+      },
       "labels": {
         "app": "jaeger",
         "app.kubernetes.io/name": "jaeger",
         "app.kubernetes.io/component": "query",
         "ingress.tmaxcloud.org/name": "jaeger"
-      },
-      "annotations": {
-        "traefik.ingress.kubernetes.io/router.entrypoints": "websecure"
       }
     },
     "spec": {
-      "ingressClassName": "tmax-cloud",
+      "ingressClassName": "nginx-system",
       "rules": [
         {
           "host": std.join("", [jaeger_subdomain, ".", CUSTOM_DOMAIN_NAME]),

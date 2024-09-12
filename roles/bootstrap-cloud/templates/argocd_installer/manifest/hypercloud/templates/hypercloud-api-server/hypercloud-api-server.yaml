@@ -75,7 +75,7 @@ spec:
           - name: SIDECAR_IMAGE
             value: "fluent/fluent-bit:1.5-debug"
           - name: KAFKA_ENABLED
-            value: "{{ .Values.apiServer.kafka.enabled }}"
+            value: "false"
           - name: KAFKA_GROUP_ID
             value: "hypercloud-api-server"
           - name: HC_DOMAIN
@@ -97,15 +97,6 @@ spec:
             cpu: "300m"
             memory: "100Mi"
         volumeMounts:
-        - name: version-config
-          mountPath: /go/src/version/version.config
-          subPath: version.config
-        - name: kafka
-          mountPath: /go/src/etc/ssl
-          readOnly: true
-        - name: hypercloud5-api-server-certs
-          mountPath: /run/secrets/tls
-          readOnly: true
         - name: token-secret
           mountPath: /run/secrets/token
           readOnly: true
@@ -123,12 +114,6 @@ spec:
       - name : html
         configMap:
           name : html-config
-      - name : version-config
-        configMap:
-          name : version-config
-      - name: hypercloud5-api-server-certs
-        secret:
-          secretName: hypercloud5-api-server-certs
       - name: smtp-secret
         secret:
           secretName: smtp-secret
@@ -137,9 +122,6 @@ spec:
             path: username
           - key: SMTP_PASSWORD
             path: password
-      - name: kafka
-        secret:
-          secretName: hypercloud-kafka-secret
       - name: token-secret
         secret:
           secretName: token-secret
@@ -151,3 +133,27 @@ spec:
           defaultMode: 420
           secretName: hypercloud5-api-server-service-account-token
       {{- include "hypercloud.volumes.timeZone" . | nindent 6 }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  name: hc-api-server-ingress
+  namespace: hypercloud5-system
+spec:
+  ingressClassName: nginx-system
+  rules:
+  - host: {{ .Values.global.console.subDomain }}.{{ .Values.global.domain }}
+    http:
+      paths:
+      - backend:
+          service:
+            name: hypercloud5-api-server-service
+            port:
+              number: 443
+        path: /api/webhook(/|$)(.*)
+        pathType: ImplementationSpecific

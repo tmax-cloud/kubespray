@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auditlog
+  namespace: api-gateway-system
+data:
+  runtime-config.js: |
+    window.__RUNTIME_CONFIG__ = {
+        isNotExistAuditLog: {{ .Values.config.notUseAuditlog }}
+    }

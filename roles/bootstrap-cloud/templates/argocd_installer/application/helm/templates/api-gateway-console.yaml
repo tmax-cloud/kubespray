@@ -15,21 +15,6 @@ metadata:
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  syncPolicy:
-    syncOptions:
-      - ApplyOutOfSyncOnly=true
-      - RespectIgnoreDifferences=true
-    retry:
-      limit: 1
-      backoff:
-        duration: "10s"
-        factor: 2
-        maxDuration: "1m0s"
-    {{- if .Values.modules.gatewayBootstrap.autoSync }}
-    automated:
-      selfHeal: true
-      prune: true
-    {{- end }}
   destination:
     name: {{ .Values.global.clusterName }}
     namespace: api-gateway-system
@@ -68,13 +53,16 @@ spec:
           value: {{ .customProductName | default "HyperCloud" }}
         - name: config.k8sPublicEndpoint
           value: {{ .k8sPublicEndpoint | default "https://kubernetes.default.svc" }}
+        - name: config.notUseAuditlog
+          value: {{ .notUseAuditlog | quote | default "true" }}  
         {{- end }}
-        {{- if .Values.global.network.disabled }}
+        {{- if eq .Values.global.network.disabled "true" }}
         - name: image.repository
-          value: {{ .Values.global.privateRegistry }}/docker.io/tmaxcloudck/hypercloud-console
+          value: {{ .Values.global.privateRegistry }}/docker.io/tmaxcloudck/aks-console
         - name: busybox.image.repository
           value: {{ .Values.global.privateRegistry }}/docker.io/library/busybox
         {{- end }}
         - name: image.tag
           value: {{ .Values.modules.gatewayBootstrap.console.version | default "latest" }}
+
 {{- end }}
